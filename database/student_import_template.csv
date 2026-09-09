@@ -1,0 +1,3 @@
+studentNumber,firstName,middleName,lastName,gender,phone,parentName,parentPhone,address
+S001,Ahmad,Ali,Hassan,MALE,0590000000,Ali Hassan,0591111111,Address
+S002,Sara,,Khalil,FEMALE,0590000001,Mohammad Khalil,0591111112,Address

@@ -1,0 +1,218 @@
+import React, { useEffect, useState } from 'react';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+import StatCard from '../../components/common/StatCard';
+import { PageLoader } from '../../components/common/Loader';
+import ErrorAlert from '../../components/common/ErrorAlert';
+import {
+  ClassesIcon,
+  SubjectsIcon,
+  StudentsIcon,
+  AttendanceIcon,
+  GradesIcon
+} from '../../components/common/Icons';
+
+export default function TeacherDashboard({ onNavigate }) {
+  const { user } = useAuth();
+  const { t, isRtl } = useLanguage();
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadTeacherData() {
+      try {
+        setLoading(true);
+        setError('');
+        const [clsRes, subRes] = await Promise.all([
+          api.get('/classes'),
+          api.get('/subjects')
+        ]);
+        setClasses(clsRes || []);
+        setSubjects(subRes || []);
+      } catch (err) {
+        setError(err.message || 'Failed to load teacher data');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTeacherData();
+  }, []);
+
+  if (loading) return <PageLoader text={t('loading')} />;
+  if (error) return <ErrorAlert message={error} />;
+
+  const totalAssignedStudents = classes.reduce((acc, c) => acc + (c._count?.enrollments || 0), 0);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Teacher Welcome Role Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0ea5e9, #4f46e5)',
+        color: '#fff',
+        padding: '24px 28px',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 10px 25px -5px rgba(14, 165, 233, 0.3)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 16
+      }}>
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+            <span>👨‍🏫</span>
+            <span>{isRtl ? 'بوابة المعلم المعتمدة' : 'Official Teacher Portal'}</span>
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
+            {isRtl ? `أهلاً بك، أستاذ ${user?.fullName || ''}` : `Welcome back, Instructor ${user?.fullName || ''}`}
+          </h2>
+          <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
+            {isRtl
+              ? 'مساحة العمل المخصصة لمتابعة صفوفك، رصد الحضور اليومي، وإدخال درجات وتقييمات الطلاب'
+              : 'Your dedicated workspace for managing assigned classes, recording daily attendance, and submitting exam grades'}
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => onNavigate('attendance')}
+            className="btn"
+            style={{ background: '#fff', color: 'var(--primary)', fontWeight: 700 }}
+          >
+            <AttendanceIcon /> {isRtl ? 'رصد الحضور اليوم' : 'Mark Today Attendance'}
+          </button>
+          <button
+            onClick={() => onNavigate('grades')}
+            className="btn"
+            style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
+          >
+            <GradesIcon /> {isRtl ? 'رصد الدرجات' : 'Enter Grades'}
+          </button>
+        </div>
+      </div>
+
+      {/* Teacher Top Metrics Cards */}
+      <div className="grid-cards-4">
+        <StatCard
+          title={isRtl ? 'الصفوف والشعب المسندة' : 'Assigned Class Sections'}
+          value={classes.length}
+          subtext={isRtl ? 'الشعب الدراسية النشطة' : 'Active class sections'}
+          icon={<ClassesIcon />}
+          color="secondary"
+        />
+        <StatCard
+          title={isRtl ? 'المواد والمناهج' : 'Curriculum Subjects'}
+          value={subjects.length}
+          subtext={isRtl ? 'المقررات التعليمية' : 'Course modules'}
+          icon={<SubjectsIcon />}
+          color="warning"
+        />
+        <StatCard
+          title={isRtl ? 'إجمالي طلاب شعبك' : 'Total Students in Classes'}
+          value={totalAssignedStudents}
+          subtext={isRtl ? 'طالب مسجل في صفوفك' : 'Enrolled students'}
+          icon={<StudentsIcon />}
+          color="primary"
+        />
+        <StatCard
+          title={isRtl ? 'المهام الأكاديمية' : 'Teacher Workflows'}
+          value={isRtl ? 'جاهز' : 'Ready'}
+          subtext={isRtl ? 'الحضور والدرجات مفعلة' : 'Attendance & grading active'}
+          icon={<AttendanceIcon />}
+          color="success"
+        />
+      </div>
+
+      {/* Teacher Teaching Sections Grid */}
+      <div className="panel">
+        <div className="panel-header">
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              {isRtl ? 'صفوفك ومقرراتك الدراسية (My Teaching Sections)' : 'My Teaching Sections & Classes'}
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              {isRtl ? 'اختر الصف لاتخاذ إجراء مباشر برصد الحضور أو إدخال درجات المادة' : 'Select a section to immediately record attendance or enter grades'}
+            </p>
+          </div>
+        </div>
+
+        <div style={{ padding: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {classes.map((cls) => (
+              <div
+                key={cls.id}
+                style={{
+                  background: 'var(--bg-main)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-color)',
+                  padding: 18,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                  transition: 'var(--transition)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
+                      {cls.name}
+                    </h4>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      {cls.grade} {cls.section ? `- ${cls.section}` : ''}
+                    </span>
+                  </div>
+                  <span className="badge badge-primary" style={{ fontWeight: 700 }}>
+                    {cls._count?.enrollments || 0} {isRtl ? 'طالب' : 'Students'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 'auto' }}>
+                  <button
+                    onClick={() => onNavigate('attendance', { attendanceClassId: cls.id })}
+                    className="btn btn-primary btn-sm"
+                    style={{ fontSize: 12, justifyContent: 'center' }}
+                  >
+                    <AttendanceIcon /> {isRtl ? 'دفتر الحضور' : 'Attendance'}
+                  </button>
+                  <button
+                    onClick={() => onNavigate('grades')}
+                    className="btn btn-secondary btn-sm"
+                    style={{ fontSize: 12, justifyContent: 'center' }}
+                  >
+                    <GradesIcon /> {isRtl ? 'الدرجات' : 'Grades'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Role Boundaries Notice for Teacher */}
+      <div style={{
+        background: 'rgba(14, 165, 233, 0.08)',
+        border: '1px solid rgba(14, 165, 233, 0.25)',
+        padding: '16px 20px',
+        borderRadius: 'var(--radius-md)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14
+      }}>
+        <span style={{ fontSize: 24 }}>🔒</span>
+        <div>
+          <strong style={{ color: 'var(--text-main)', fontSize: 14 }}>
+            {isRtl ? 'نطاق صلاحيات حساب المعلم (Role Permissions Scope):' : 'Teacher Role Permissions Scope:'}
+          </strong>
+          <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 2 }}>
+            {isRtl
+              ? 'صلاحياتك مخصصة لرصد الحضور، تسجيل الدرجات، واستعراض كشوف الطلاب للشعب المسندة إليك. تعديل هيكل المدرسة وإدارة المستخدمين محجوبة وتتطلب صلاحية الإدارة.'
+              : 'Your permissions are focused on attendance taking, grade submission, and student roster viewing for your classes. Administrative settings and user management are restricted to Admin and Staff.'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

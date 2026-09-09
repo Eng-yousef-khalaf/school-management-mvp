@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  TEACHER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  WITHDRAWN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  role         UserRole   @default(STAFF)
+  active       Boolean    @default(true)
+  teacherId    Int?       @unique
+  teacher      Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  auditLogs    AuditLog[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([email])
+  @@index([role])
+}
+
+model AcademicYear {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  startDate   DateTime
+  endDate     DateTime
+  active      Boolean       @default(false)
+  classes     SchoolClass[]
+  enrollments Enrollment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([active])
+}
+
+model SchoolClass {
+  id             Int                   @id @default(autoincrement())
+  name           String
+  grade          String
+  section        String?
+  academicYearId Int
+  academicYear   AcademicYear          @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  enrollments    Enrollment[]
+  teacherLinks   TeacherClassSubject[]
+  attendance     Attendance[]
+  grades         Grade[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@unique([name, academicYearId])
+  @@index([academicYearId])
+  @@index([grade])
+}
+
+model Student {
+  id            Int           @id @default(autoincrement())
+  studentNumber String        @unique
+  firstName     String
+  middleName    String?
+  lastName      String
+  gender        Gender?
+  dateOfBirth   DateTime?
+  phone         String?
+  parentName    String?
+  parentPhone   String?
+  address       String?
+  status        StudentStatus @default(ACTIVE)
+  enrollments   Enrollment[]
+  attendance    Attendance[]
+  grades        Grade[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([studentNumber])
+  @@index([lastName, firstName])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([status])
+  @@index([parentPhone])
+}
+
+model Teacher {
+  id           Int                   @id @default(autoincrement())
+  employeeNo   String                @unique
+  firstName    String
+  lastName     String
+  phone        String?
+  email        String?
+  specialty    String?
+  active       Boolean               @default(true)
+  user         User?
+  teacherLinks TeacherClassSubject[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([employeeNo])
+  @@index([lastName, firstName])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([active])
+}
+
+model Subject {
+  id           Int                   @id @default(autoincrement())
+  code         String                @unique
+  name         String
+  active       Boolean               @default(true)
+  teacherLinks TeacherClassSubject[]
+  grades       Grade[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([code])
+  @@index([name])
+}
+
+model TeacherClassSubject {
+  id        Int         @id @default(autoincrement())
+  teacherId Int
+  classId   Int
+  subjectId Int
+  teacher   Teacher     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject   Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([teacherId, classId, subjectId])
+  @@index([teacherId])
+  @@index([classId])
+  @@index([subjectId])
+}
+
+model Enrollment {
+  id             Int           @id @default(autoincrement())
+  studentId      Int
+  classId        Int
+  academicYearId Int?
+  enrolledAt     DateTime      @default(now())
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class          SchoolClass   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+
+  @@unique([studentId, classId])
+  @@index([studentId])
+  @@index([classId])
+  @@index([academicYearId])
+}
+
+model Attendance {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  classId   Int?
+  date      DateTime
+  status    AttendanceStatus
+  note      String?
+  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class     SchoolClass?     @relation(fields: [classId], references: [id], onDelete: SetNull)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([studentId, date])
+  @@index([date])
+  @@index([studentId])
+  @@index([classId])
+  @@index([status])
+}
+
+model Grade {
+  id        Int          @id @default(autoincrement())
+  studentId Int
+  subjectId Int
+  classId   Int?
+  examName  String
+  score     Float
+  maxScore  Float        @default(100)
+  date      DateTime     @default(now())
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject   Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  class     SchoolClass? @relation(fields: [classId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([classId])
+  @@index([examName])
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  String?
+  ipAddress String?
+  timestamp DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([timestamp])
+}
