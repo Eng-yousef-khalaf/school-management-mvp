@@ -23,6 +23,7 @@ export default function Badge({ status, label, type }) {
     className = 'badge badge-admin';
   } else if (normalized === 'staff') {
     className = 'badge badge-staff';
+    if (!label) display = 'شؤون المعلمين والطلاب (Staff)';
   } else if (normalized === 'teacher') {
     className = 'badge badge-teacher';
   }

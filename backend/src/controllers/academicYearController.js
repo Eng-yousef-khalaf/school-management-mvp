@@ -45,10 +45,30 @@ async function setActiveYear(req, res, next) {
   }
 }
 
+async function getTeachersPool(req, res, next) {
+  try {
+    const data = await academicYearService.getPreviousTeachersPool();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function rolloverReactivate(req, res, next) {
+  try {
+    const result = await academicYearService.rolloverReactivate(req.body, req.user, req);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getAcademicYears,
   getActiveYear,
   createAcademicYear,
   updateAcademicYear,
-  setActiveYear
+  setActiveYear,
+  getTeachersPool,
+  rolloverReactivate
 };

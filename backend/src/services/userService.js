@@ -77,12 +77,23 @@ async function getUserById(id) {
 }
 
 async function createUser(data, adminUser, req) {
-  const password = data.password || 'ChangeMe123!';
+  const email = data.email.trim().toLowerCase();
+  
+  const existing = await prisma.user.findUnique({
+    where: { email }
+  });
+  if (existing) {
+    const err = new Error(`البريد الإلكتروني (${email}) مسجل مسبقاً في النظام لمستخدم آخر. يرجى اختيار بريد مختلف.`);
+    err.status = 409;
+    throw err;
+  }
+
+  const password = data.password && data.password.trim() ? data.password.trim() : 'ChangeMe123!';
   const passwordHash = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
     data: {
-      email: data.email.trim().toLowerCase(),
+      email,
       fullName: data.fullName.trim(),
       passwordHash,
       role: data.role || 'STAFF',

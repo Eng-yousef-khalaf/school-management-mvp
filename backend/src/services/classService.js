@@ -3,9 +3,23 @@ const { logAudit } = require('../utils/auditLogger');
 
 async function getClasses({ academicYearId, grade } = {}, user) {
   const where = {};
-  if (academicYearId) {
-    where.academicYearId = parseInt(academicYearId, 10);
+  const activeYear = await prisma.academicYear.findFirst({ where: { active: true } });
+
+  if (user?.role === 'ADMIN') {
+    if (academicYearId && academicYearId !== 'ACTIVE') {
+      if (academicYearId !== 'ALL') {
+        where.academicYearId = parseInt(academicYearId, 10);
+      }
+    } else if (activeYear) {
+      where.academicYearId = activeYear.id;
+    }
+  } else {
+    // Non-Admin (STAFF / TEACHER) are ALWAYS restricted to active year
+    if (activeYear) {
+      where.academicYearId = activeYear.id;
+    }
   }
+
   if (grade) {
     where.grade = String(grade);
   }

@@ -15,6 +15,7 @@ import {
   PlusIcon,
   ReportsIcon
 } from '../../components/common/Icons';
+import AddEditTeacherModal from '../Teachers/AddEditTeacherModal';
 
 export default function StaffDashboard({ onNavigate }) {
   const { user } = useAuth();
@@ -22,6 +23,10 @@ export default function StaffDashboard({ onNavigate }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Teacher Assignment Modal state
+  const [assigningTeacher, setAssigningTeacher] = useState(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   // Parent & Student Rapid Inquiry Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,32 +104,32 @@ export default function StaffDashboard({ onNavigate }) {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
             <span>📋</span>
-            <span>{isRtl ? 'بوابة شؤون الطلاب والتسجيل والموظفين' : 'Registrar & Admissions Portal'}</span>
+            <span>{isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Portal'}</span>
           </div>
           <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
-            {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون الطلاب والمتابعة)` : `Welcome, ${user?.fullName || ''} (Registrar Staff)`}
+            {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون المعلمين والطلاب)` : `Welcome, ${user?.fullName || ''} (Faculty & Student Affairs)`}
           </h2>
           <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
             {isRtl
-              ? 'تسجيل وتسكين الطلاب، متابعة حضور وحالة المعلمين، واستعراض نتائج وتقارير الدرجات الجاهزة'
-              : 'Manage student admissions, section enrollments, track teacher daily attendance, and review final grade transcripts'}
+              ? 'إدارة شؤون المعلمين وتوزيع الشعب والمناهج، تسجيل وتسكين الطلاب، ومتابعة سجلات الدوام الأكاديمي والنتائج'
+              : 'Faculty management, subject allocations, student admissions, attendance, and transcripts'}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button
-            onClick={() => onNavigate('teacher-tracker')}
+            onClick={() => onNavigate('teachers')}
             className="btn"
             style={{ background: '#fff', color: '#059669', fontWeight: 800 }}
           >
-            🕒 {isRtl ? 'متابعة المعلمين والدوام' : 'Track Teachers'}
+            👨‍🏫 {isRtl ? 'دليل المعلمين وتعيين الشعب' : 'Teachers & Allocation'}
           </button>
           <button
-            onClick={() => onNavigate('grade-reports')}
+            onClick={() => onNavigate('teacher-tracker')}
             className="btn"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
-            📊 {isRtl ? 'النتائج والشهادات الجاهزة' : 'Ready Grade Reports'}
+            🕒 {isRtl ? 'متابعة المعلمين والدوام' : 'Track Teachers'}
           </button>
           <button
             onClick={() => onNavigate('students')}
@@ -135,6 +140,82 @@ export default function StaffDashboard({ onNavigate }) {
           </button>
         </div>
       </div>
+
+      {/* Pending Teacher Setup Alert Banner (عند تسجيل معلم جديد من قبل المدير) */}
+      {data.pendingTeachersList && data.pendingTeachersList.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+          border: '2px solid #f59e0b',
+          borderRadius: 'var(--radius-lg)',
+          padding: '20px 24px',
+          boxShadow: '0 4px 14px rgba(245, 158, 11, 0.18)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 26 }}>🔔</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#92400e' }}>
+                  {isRtl ? 'تنبيه: يوجد معلمون جدد تم تسجيلهم بحاجة لاستكمال الشعب والمواد' : 'Action Required: Newly Registered Teachers Awaiting Class & Subject Allocation'}
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#b45309' }}>
+                  {isRtl
+                    ? `قامت الإدارة بإضافة ${data.pendingTeachersList.length} معلم جديد. يرجى استكمال تعيين الشعب والمقررات الدراسية المناسبة لكل منهم:`
+                    : `Administrator created ${data.pendingTeachersList.length} new teacher record(s). Please assign their classes and subjects below:`}
+                </p>
+              </div>
+            </div>
+            <span className="badge" style={{ background: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 14px' }}>
+              {data.pendingTeachersList.length} {isRtl ? 'معلم بانتظار التعيين' : 'Pending Allocation'}
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+            {data.pendingTeachersList.map(t => (
+              <div
+                key={t.id}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #fde68a',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 12,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: '#1e293b' }}>
+                    {t.firstName} {t.lastName}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                    <span>{t.employeeNo}</span> • <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{t.specialty}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setAssigningTeacher(t);
+                    setIsAssignModalOpen(true);
+                  }}
+                  className="btn btn-sm"
+                  style={{
+                    background: '#f59e0b',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                    fontSize: 12,
+                    padding: '8px 14px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 5px rgba(245, 158, 11, 0.3)'
+                  }}
+                >
+                  ✏️ {isRtl ? 'استكمال التعيين الآن' : 'Assign Classes'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Teacher Daily Presence Tracker Card */}
       {teacherAttSummary && (
@@ -525,6 +606,21 @@ export default function StaffDashboard({ onNavigate }) {
           </div>
         </div>
       </div>
+
+      {/* Teacher Assignment Modal */}
+      {isAssignModalOpen && (
+        <AddEditTeacherModal
+          isOpen={isAssignModalOpen}
+          onClose={() => {
+            setIsAssignModalOpen(false);
+            setAssigningTeacher(null);
+          }}
+          teacher={assigningTeacher}
+          onSaved={() => {
+            loadDashboard();
+          }}
+        />
+      )}
     </div>
   );
 }

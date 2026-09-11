@@ -42,8 +42,8 @@ export default function Login() {
   ];
 
   const staffAccounts = [
-    { name: 'محمد', roleDesc: 'مسؤول شؤون الطلاب والتسجيل', email: 'staff@school.local' },
-    { name: 'خالد السعيد', roleDesc: 'موظف القبول والتسجيل', email: 'khalid.staff@school.local' }
+    { name: 'محمد', roleDesc: 'شؤون المعلمين والطلاب', email: 'staff@school.local' },
+    { name: 'خالد السعيد', roleDesc: 'موظف شؤون المعلمين والطلاب', email: 'khalid.staff@school.local' }
   ];
 
   const selectRole = (role) => {
@@ -167,7 +167,7 @@ export default function Login() {
               }}
             >
               <span style={{ fontSize: '20px' }}>📋</span>
-              <span>{isRtl ? 'شؤون الطلاب (محمد)' : 'Staff (Mohamed)'}</span>
+              <span>{isRtl ? 'شؤون المعلمين والطلاب' : 'Staff Affairs'}</span>
             </button>
 
             <button

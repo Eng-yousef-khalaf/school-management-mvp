@@ -41,7 +41,7 @@ const translations = {
     
     // Roles
     roleAdmin: 'يوسف (المدير العام)',
-    roleStaff: 'محمد (شؤون الطلاب والتسجيل)',
+    roleStaff: 'شؤون المعلمين والطلاب',
     roleTeacher: 'المعلم (Teacher)',
     role: 'الدور',
     
@@ -54,7 +54,7 @@ const translations = {
     signingIn: 'جاري التحقق والدخول...',
     demoAccountsTitle: 'روابط وحسابات الدخول السريع (Demo Portals)',
     adminPortal: 'بوابة المدير (يوسف)',
-    staffPortal: 'شؤون الطلاب (محمد)',
+    staffPortal: 'شؤون المعلمين والطلاب',
     teacherPortal: 'بوابة المعلم',
     instantAccess: 'دخول فوري بنقرة واحدة',
     loginFailed: 'فشل تسجيل الدخول. يرجى التأكد من صحة البيانات.',
@@ -282,7 +282,7 @@ const translations = {
 
     // Roles
     roleAdmin: 'Youssef (General Director)',
-    roleStaff: 'Mohammed (Student Affairs & Registrar)',
+    roleStaff: 'Faculty & Student Affairs',
     roleTeacher: 'Faculty Teacher (Teacher)',
     role: 'Role',
 
@@ -295,7 +295,7 @@ const translations = {
     signingIn: 'Authenticating...',
     demoAccountsTitle: 'Quick Role Portals (Demo Access)',
     adminPortal: 'Director Portal (Youssef)',
-    staffPortal: 'Registrar Portal (Mohammed)',
+    staffPortal: 'Faculty & Student Affairs',
     teacherPortal: 'Teacher Portal',
     instantAccess: 'One-Click Instant Access',
     loginFailed: 'Login failed. Please verify your credentials.',

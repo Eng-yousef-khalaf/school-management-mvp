@@ -3,7 +3,7 @@ const excelService = require('../services/excelService');
 
 async function getTeachers(req, res, next) {
   try {
-    const result = await teacherService.getTeachers(req.query);
+    const result = await teacherService.getTeachers(req.query, req.user);
     res.json(result);
   } catch (err) {
     next(err);

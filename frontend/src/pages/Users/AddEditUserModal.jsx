@@ -130,9 +130,9 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             >
-              <option value="ADMIN">ADMIN (Full System Access)</option>
-              <option value="STAFF">STAFF (Academic & Students Ops)</option>
-              <option value="TEACHER">TEACHER (Class & Grade Ops)</option>
+              <option value="ADMIN">ADMIN (المدير العام - Full System Access)</option>
+              <option value="STAFF">STAFF (شؤون المعلمين والطلاب - Faculty & Student Affairs)</option>
+              <option value="TEACHER">TEACHER (معلم - Class & Grade Ops)</option>
             </select>
           </div>
 

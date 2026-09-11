@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import { AttendanceIcon, EyeIcon } from '../../components/common/Icons';
 
 export default function ClassDetails({ classId, onBack, onViewStudent, onTakeAttendance }) {
+  const { isAdmin, isStaff, isTeacher } = useAuth();
+  const { t, isRtl } = useLanguage();
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,22 +33,24 @@ export default function ClassDetails({ classId, onBack, onViewStudent, onTakeAtt
     }
   }, [classId]);
 
-  if (loading) return <PageLoader text="Loading class roster..." />;
+  if (loading) return <PageLoader text={isRtl ? 'جاري تحميل بيانات الشعبة...' : 'Loading class details...'} />;
   if (error) return <ErrorAlert message={error} onRetry={loadClass} />;
   if (!classData) return null;
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
         <button className="btn btn-secondary btn-sm" onClick={onBack}>
-          ← Back to Classes
+          {isRtl ? '← العودة لقائمة الصفوف والشعب' : '← Back to Classes'}
         </button>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => onTakeAttendance(classData.id)}
-        >
-          <AttendanceIcon /> Take Class Attendance
-        </button>
+        {!isAdmin && (
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => onTakeAttendance(classData.id)}
+          >
+            <AttendanceIcon /> {isRtl ? 'تسجيل حضور الشعبة' : 'Take Class Attendance'}
+          </button>
+        )}
       </div>
 
       {/* Class Banner Panel */}
@@ -154,56 +160,60 @@ export default function ClassDetails({ classId, onBack, onViewStudent, onTakeAtt
         </div>
       </div>
 
-      {/* Enrolled Students Roster */}
-      <div className="panel">
-        <div className="panel-header">
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>Enrolled Student Roster ({classData.students?.length || 0})</h3>
-        </div>
-        <div className="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Student Number</th>
-                <th>Full Name</th>
-                <th>Gender</th>
-                <th>Parent Phone</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {classData.students && classData.students.length > 0 ? (
-                classData.students.map((s) => (
-                  <tr key={s.id}>
-                    <td><strong>{s.studentNumber}</strong></td>
-                    <td>{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</td>
-                    <td>{s.gender || '—'}</td>
-                    <td>{s.parentPhone || '—'}</td>
-                    <td>
-                      <Badge status={s.status} />
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button
-                        className="btn btn-secondary btn-icon"
-                        title="View Student"
-                        onClick={() => onViewStudent(s.id)}
-                      >
-                        <EyeIcon />
-                      </button>
+      {/* Enrolled Students Roster - Strictly for Staff & Teachers */}
+      {!isAdmin && (
+        <div className="panel">
+          <div className="panel-header">
+            <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              {isRtl ? `قائمة الطلاب المسجلين في الشعبة (${classData.students?.length || 0})` : `Enrolled Student Roster (${classData.students?.length || 0})`}
+            </h3>
+          </div>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{isRtl ? 'رقم الطالب' : 'Student Number'}</th>
+                  <th>{isRtl ? 'اسم الطالب' : 'Full Name'}</th>
+                  <th>{isRtl ? 'الجنس' : 'Gender'}</th>
+                  <th>{isRtl ? 'هاتف ولي الأمر' : 'Parent Phone'}</th>
+                  <th>{isRtl ? 'الحالة' : 'Status'}</th>
+                  <th style={{ textAlign: 'right' }}>{isRtl ? 'الإجراءات' : 'Actions'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {classData.students && classData.students.length > 0 ? (
+                  classData.students.map((s) => (
+                    <tr key={s.id}>
+                      <td><strong>{s.studentNumber}</strong></td>
+                      <td>{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</td>
+                      <td>{s.gender || '—'}</td>
+                      <td>{s.parentPhone || '—'}</td>
+                      <td>
+                        <Badge status={s.status} />
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button
+                          className="btn btn-secondary btn-icon"
+                          title={isRtl ? 'عرض ملف الطالب' : 'View Student'}
+                          onClick={() => onViewStudent(s.id)}
+                        >
+                          <EyeIcon />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 30 }}>
+                      {isRtl ? 'لا يوجد طلاب مسكنين في هذه الشعبة حالياً' : 'No students currently enrolled in this class'}
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 30 }}>
-                    No students currently enrolled in this class
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

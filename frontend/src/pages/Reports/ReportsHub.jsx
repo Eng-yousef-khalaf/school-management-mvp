@@ -10,7 +10,7 @@ import { DownloadIcon, StudentsIcon, TeachersIcon, AttendanceIcon, GradesIcon } 
 
 export default function ReportsHub({ onNavigate }) {
   const toast = useToast();
-  const { isStaff, canManageStudents } = useAuth();
+  const { isAdmin, isStaff, canManageStudents } = useAuth();
   const { isRtl } = useLanguage();
 
   const [demographics, setDemographics] = useState(null);
@@ -67,118 +67,177 @@ export default function ReportsHub({ onNavigate }) {
     <div>
       {/* Report Categories Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
-        {/* Bulk Certificates Card - Accessible to Staff */}
-        <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-            <div className="stat-icon success" style={{ fontSize: 24 }}>
-              📜
+        {/* Staff-Only: Bulk Certificates */}
+        {!isAdmin && (
+          <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div className="stat-icon success" style={{ fontSize: 24 }}>
+                📜
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#047857' }}>
+                  {isRtl ? 'إصدار وطباعة الشهادات المجمعة' : 'Official Bulk Certificates'}
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بضغطة واحدة' : 'Generate official student transcripts and certificates'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#047857' }}>
-                {isRtl ? 'إصدار وطباعة الشهادات المجمعة' : 'Official Bulk Certificates'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بضغطة واحدة' : 'Generate official student transcripts and certificates'}
-              </p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => setIsBulkCertificatesOpen(true)}
+                style={{ background: '#10b981', borderColor: '#10b981' }}
+              >
+                📜 {isRtl ? 'فتح نافذة طباعة الشهادات' : 'Open Bulk Certificates'}
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => setIsBulkCertificatesOpen(true)}
-              style={{ background: '#10b981', borderColor: '#10b981' }}
-            >
-              📜 {isRtl ? 'فتح نافذة طباعة الشهادات' : 'Open Bulk Certificates'}
-            </button>
-          </div>
-        </div>
+        )}
 
-        <div className="panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-            <div className="stat-icon primary">
-              <StudentsIcon />
+        {/* Staff-Only: Student Directory */}
+        {!isAdmin && (
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div className="stat-icon primary">
+                <StudentsIcon />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isRtl ? 'كشف ودليل الطلاب الشامل' : 'Student Directory Report'}
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'قائمة الطلاب مع تفاصيل أولياء الأمور والحالة' : 'Complete roster with parent details & status'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                {isRtl ? 'كشف ودليل الطلاب الشامل' : 'Student Directory Report'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'قائمة الطلاب مع تفاصيل أولياء الأمور والحالة' : 'Complete roster with parent details & status'}
-              </p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('students')}>
+                {isRtl ? 'عرض في السجل' : 'View in Roster'}
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={exportStudentsDirectory}>
+                <DownloadIcon /> {isRtl ? 'تصدير Excel' : 'Export Excel'}
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('students')}>
-              {isRtl ? 'عرض في السجل' : 'View in Roster'}
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={exportStudentsDirectory}>
-              <DownloadIcon /> {isRtl ? 'تصدير Excel' : 'Export Excel'}
-            </button>
-          </div>
-        </div>
+        )}
 
-        <div className="panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-            <div className="stat-icon success">
-              <AttendanceIcon />
+        {/* Staff-Only: Student Attendance Report */}
+        {!isAdmin && (
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div className="stat-icon success">
+                <AttendanceIcon />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isRtl ? 'تقرير مراقبة حضور الطلاب' : 'Student Attendance Report'}
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'نسب حضور وغياب وتأخير الطلاب' : 'Student attendance trends and logs'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                {isRtl ? 'تقرير مراقبة الحضور والغياب' : 'Attendance Audit Report'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'نسب الحضور، الغياب، والتأخير' : 'Presence, absences, tardiness trends'}
-              </p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="btn btn-primary btn-sm" onClick={() => onNavigate('attendance-reports')}>
+                {isRtl ? 'فتح تقارير الحضور' : 'Open Attendance Reports'}
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn btn-primary btn-sm" onClick={() => onNavigate('attendance-reports')}>
-              {isRtl ? 'فتح تقارير الحضور' : 'Open Attendance Reports'}
-            </button>
-          </div>
-        </div>
+        )}
 
-        <div className="panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-            <div className="stat-icon warning">
-              <GradesIcon />
+        {/* Staff-Only: Grade Reports */}
+        {!isAdmin && (
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div className="stat-icon warning">
+                <GradesIcon />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isRtl ? 'مصفوفة الدرجات والمعدلات الأكاديمية' : 'Academic Grade Matrix'}
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'نتائج الامتحانات الشاملة لجميع المواد' : 'Cross-subject exam scores and rankings'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                {isRtl ? 'مصفوفة الدرجات والمعدلات الأكاديمية' : 'Academic Grade Matrix'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'نتائج الامتحانات الشاملة لجميع المواد' : 'Cross-subject exam scores and rankings'}
-              </p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="btn btn-primary btn-sm" onClick={() => onNavigate('grade-reports')}>
+                {isRtl ? 'فتح كشوف الدرجات' : 'Open Grade Reports'}
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn btn-primary btn-sm" onClick={() => onNavigate('grade-reports')}>
-              {isRtl ? 'فتح كشوف الدرجات' : 'Open Grade Reports'}
-            </button>
-          </div>
-        </div>
+        )}
 
-        <div className="panel" style={{ padding: 20 }}>
+        {/* Faculty Workload Report - Visible for Admin & Staff */}
+        <div className="panel" style={{ padding: 20, border: isAdmin ? '2px solid rgba(79, 70, 229, 0.3)' : undefined }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
             <div className="stat-icon secondary">
               <TeachersIcon />
             </div>
             <div>
               <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                {isRtl ? 'تقرير أنصبة الهيئة التدريسية' : 'Faculty Workload Report'}
+                {isRtl ? 'تقرير أنصبة وتعيينات الهيئة التعليمية' : 'Faculty Workload & Allocation Report'}
               </h3>
               <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'الصفوف والمواد المسندة لكل معلم' : 'Assigned classes and teaching subjects'}
+                {isRtl ? 'كشف شامل بالصفوف والمواد المسندة وتوزيع الكادر' : 'Assigned classes and teaching subjects summary'}
               </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn btn-primary btn-sm" onClick={exportTeachersReport}>
-              <DownloadIcon /> {isRtl ? 'تصدير Excel' : 'Export Excel'}
+              <DownloadIcon /> {isRtl ? 'تصدير كشف المعلمين (Excel)' : 'Export Workload (Excel)'}
             </button>
           </div>
         </div>
+
+        {/* Admin-Focused Executive Cards */}
+        {isAdmin && (
+          <>
+            <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                <div className="stat-icon success">
+                  <AttendanceIcon />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                    {isRtl ? 'تقرير دوام والتزام المعلمين' : 'Teacher Attendance & Punctuality'}
+                  </h3>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    {isRtl ? 'معدلات الحضور اليومية ونسب التأخير للكادر التعليمي' : 'Daily presence, check-in logs and punctuality analysis'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('teacher-tracker')}>
+                  🕒 {isRtl ? 'فتح دفتر دوام المعلمين' : 'Open Teacher Tracker'}
+                </button>
+              </div>
+            </div>
+
+            <div className="panel" style={{ padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                <div className="stat-icon warning">
+                  <GradesIcon />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                    {isRtl ? 'سجل الرقابة والعمليات الأمنية' : 'Security Audit & Activity Trail'}
+                  </h3>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    {isRtl ? 'متابعة كافة التغييرات والعمليات الإدارية الحساسة' : 'System-wide audit trail with IP & user logging'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('audit-logs')}>
+                  🛡️ {isRtl ? 'فتح سجل التدقيق الأمني' : 'Open Security Logs'}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bulk Certificates Modal */}

@@ -38,13 +38,13 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     ];
   } else if (user?.role === 'STAFF') {
     navItems = [
-      { id: 'dashboard', label: isRtl ? 'لوحة شؤون الطلاب' : 'Registrar Dashboard', icon: <DashboardIcon />, visible: true },
+      { id: 'dashboard', label: isRtl ? 'لوحة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Dashboard', icon: <DashboardIcon />, visible: true },
+      { id: 'teachers', label: isRtl ? 'الهيئة التعليمية وتعيين الشعب' : 'Teachers & Class Allocation', icon: <TeachersIcon />, visible: true },
       { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Student Admissions & Import', icon: <StudentsIcon />, visible: true },
       { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, visible: true },
       { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, visible: true },
       { id: 'teacher-tracker', label: isRtl ? 'مكتب تسجيل دوام المعلمين' : 'Teacher Check-In Desk', icon: <AttendanceIcon />, visible: true },
       { id: 'grade-reports', label: isRtl ? 'كشوف ونتائج الطلاب' : 'Grade Reports & Results', icon: <ReportsIcon />, visible: true },
-      { id: 'teachers', label: isRtl ? 'دليل المعلمين' : 'Teachers Directory', icon: <TeachersIcon />, visible: true },
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
       { id: 'academic-years', label: isRtl ? 'السنوات الدراسية' : 'Academic Years', icon: <AcademicYearIcon />, visible: true },
       { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور والغياب' : 'Attendance Reports', icon: <ReportsIcon />, visible: true },
@@ -52,17 +52,14 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, visible: true }
     ];
   } else {
-    // ADMIN (Executive & Governance Scope)
+    // ADMIN (Executive & Governance Scope - No student micro-data)
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
       { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
       { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty & Staff Directory', icon: <TeachersIcon />, visible: true },
       { id: 'teacher-tracker', label: isRtl ? 'تقارير ونسب دوام المعلمين' : 'Teacher Attendance Overview', icon: <AttendanceIcon />, visible: true },
-      { id: 'classes', label: isRtl ? 'الصفوف والشعب والنسب' : 'Classes & Section Averages', icon: <ClassesIcon />, visible: true },
-      { id: 'students', label: isRtl ? 'سجل الطلاب (عرض وإشراف)' : 'Students Roster (Read-Only)', icon: <StudentsIcon />, visible: true },
-      { id: 'grade-reports', label: isRtl ? 'مصفوفة الدرجات والنتائج' : 'Grade Performance Matrix', icon: <ReportsIcon />, visible: true },
-      { id: 'attendance-reports', label: isRtl ? 'تحليلات ونسب الحضور' : 'Institutional Attendance', icon: <ReportsIcon />, visible: true },
+      { id: 'classes', label: isRtl ? 'الصفوف والشعب والمعدلات' : 'Classes & Section Averages', icon: <ClassesIcon />, visible: true },
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
       { id: 'academic-years', label: isRtl ? 'السنوات والتقويم الدراسي' : 'Academic Years & Terms', icon: <AcademicYearIcon />, visible: true },
       { id: 'reports', label: isRtl ? 'مركز التقارير والتصدير' : 'Executive Reports Hub', icon: <ReportsIcon />, visible: true },
@@ -79,14 +76,14 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
         <div className="sidebar-brand">
           <h2 style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.2 }}>{t('appTitle')}</h2>
           <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
-            {user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون الطلاب' : 'Staff Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
+            {user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
           </span>
         </div>
       </div>
 
       <div className="sidebar-nav">
         <div className="nav-section-title">
-          {isRtl ? `مهام ${user?.role === 'ADMIN' ? 'الإدارة والرقابة' : user?.role === 'STAFF' ? 'التسجيل والشؤون' : 'المعلم'}` : `${user?.role} Navigation`}
+          {isRtl ? `مهام ${user?.role === 'ADMIN' ? 'الإدارة والرقابة' : user?.role === 'STAFF' ? 'شؤون المعلمين والطلاب' : 'المعلم'}` : `${user?.role} Navigation`}
         </div>
         {navItems
           .filter((item) => item.visible)

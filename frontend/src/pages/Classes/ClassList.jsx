@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useAcademicYear } from '../../context/AcademicYearContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
@@ -8,13 +10,13 @@ import AddEditClassModal from './AddEditClassModal';
 import { PlusIcon, EyeIcon, EditIcon } from '../../components/common/Icons';
 
 export default function ClassList({ onViewClass }) {
-  const { isStaff } = useAuth();
+  const { isStaff, isAdmin } = useAuth();
+  const { isRtl } = useLanguage();
+  const { selectedYearId, isArchiveView, selectedYear, activeYear } = useAcademicYear();
   const [classes, setClasses] = useState([]);
-  const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [selectedYearId, setSelectedYearId] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
 
@@ -22,12 +24,9 @@ export default function ClassList({ onViewClass }) {
     try {
       setLoading(true);
       setError('');
-      const [cls, years] = await Promise.all([
-        api.get(selectedYearId ? `/classes?academicYearId=${selectedYearId}` : '/classes'),
-        api.get('/academic-years')
-      ]);
-      setClasses(cls);
-      setAcademicYears(years);
+      const query = selectedYearId ? `?academicYearId=${selectedYearId}` : '';
+      const cls = await api.get(`/classes${query}`);
+      setClasses(cls || []);
     } catch (err) {
       setError(err.message || 'Failed to fetch school classes');
     } finally {
@@ -42,24 +41,24 @@ export default function ClassList({ onViewClass }) {
   return (
     <div>
       <div className="panel" style={{ padding: '16px 20px', marginBottom: 20 }}>
-        <div className="toolbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>Academic Year:</span>
-            <select
-              className="filter-select"
-              value={selectedYearId}
-              onChange={(e) => setSelectedYearId(e.target.value)}
-            >
-              <option value="">All Academic Years</option>
-              {academicYears.map((y) => (
-                <option key={y.id} value={y.id}>
-                  {y.name} {y.active ? '(Active)' : ''}
-                </option>
-              ))}
-            </select>
+        <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)' }}>
+              {isRtl ? 'الصفوف والشعب المسجلة لـ:' : 'Class Sections for:'}
+            </span>
+            <span className="badge" style={{
+              background: isArchiveView ? '#fef3c7' : '#ecfdf5',
+              color: isArchiveView ? '#92400e' : '#047857',
+              border: `1px solid ${isArchiveView ? '#fde68a' : '#a7f3d0'}`,
+              fontWeight: 800,
+              fontSize: 13,
+              padding: '6px 14px'
+            }}>
+              {isArchiveView ? `📁 ${selectedYear?.name} (أرشيف)` : `🟢 ${activeYear?.name || selectedYear?.name} (العام النشط)`}
+            </span>
           </div>
 
-          {isStaff && (
+          {isStaff && !isArchiveView && (
             <button
               className="btn btn-primary btn-sm"
               style={{ marginLeft: 'auto' }}
@@ -68,7 +67,7 @@ export default function ClassList({ onViewClass }) {
                 setIsAddModalOpen(true);
               }}
             >
-              <PlusIcon /> Add Class Section
+              <PlusIcon /> {isRtl ? 'إضافة شعبة دراسية جديدة' : 'Add Class Section'}
             </button>
           )}
         </div>

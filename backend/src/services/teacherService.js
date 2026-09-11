@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const bcrypt = require('bcryptjs');
 const { logAudit } = require('../utils/auditLogger');
 
 async function getTeachers({
@@ -8,8 +9,9 @@ async function getTeachers({
   active,
   specialty,
   sortBy = 'lastName',
-  sortOrder = 'asc'
-}) {
+  sortOrder = 'asc',
+  academicYearId
+} = {}, user = null) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const take = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
   const skip = (pageNum - 1) * take;
@@ -44,6 +46,19 @@ async function getTeachers({
     orderBy.push({ lastName: sortOrder });
   }
 
+  const activeYear = await prisma.academicYear.findFirst({
+    where: { active: true }
+  });
+
+  let activeYearFilter = activeYear ? { class: { academicYearId: activeYear.id } } : {};
+  if (user?.role === 'ADMIN' && academicYearId && academicYearId !== 'ACTIVE') {
+    if (academicYearId !== 'ALL') {
+      activeYearFilter = { class: { academicYearId: parseInt(academicYearId, 10) } };
+    } else {
+      activeYearFilter = {};
+    }
+  }
+
   const [total, teachers] = await Promise.all([
     prisma.teacher.count({ where }),
     prisma.teacher.findMany({
@@ -52,7 +67,11 @@ async function getTeachers({
       take,
       orderBy,
       include: {
+        user: {
+          select: { id: true, email: true, role: true, active: true }
+        },
         teacherLinks: {
+          where: activeYearFilter,
           include: {
             class: true,
             subject: true
@@ -65,7 +84,9 @@ async function getTeachers({
   const items = teachers.map(t => ({
     ...t,
     classes: [...new Set(t.teacherLinks.map(l => l.class.name))],
-    subjects: [...new Set(t.teacherLinks.map(l => l.subject.name))]
+    subjects: [...new Set(t.teacherLinks.map(l => l.subject.name))],
+    assignmentsCount: t.teacherLinks.length,
+    pendingSetup: t.teacherLinks.length === 0
   }));
 
   return {
@@ -150,16 +171,63 @@ async function createTeacher(data, user, req) {
     data: formatted
   });
 
+  // Process teaching assignments if provided
+  if (data.assignments && Array.isArray(data.assignments) && data.assignments.length > 0) {
+    for (const item of data.assignments) {
+      if (item.classId && item.subjectId) {
+        await prisma.teacherClassSubject.upsert({
+          where: {
+            teacherId_classId_subjectId: {
+              teacherId: teacher.id,
+              classId: parseInt(item.classId, 10),
+              subjectId: parseInt(item.subjectId, 10)
+            }
+          },
+          update: {},
+          create: {
+            teacherId: teacher.id,
+            classId: parseInt(item.classId, 10),
+            subjectId: parseInt(item.subjectId, 10)
+          }
+        });
+      }
+    }
+  }
+
+  // Create User Account if requested
+  if (data.createUserAccount && data.email) {
+    const existingUser = await prisma.user.findUnique({ where: { email: data.email.trim().toLowerCase() } });
+    if (!existingUser) {
+      const password = data.userPassword || 'ChangeMe123!';
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt);
+      await prisma.user.create({
+        data: {
+          email: data.email.trim().toLowerCase(),
+          passwordHash,
+          fullName: `${teacher.firstName} ${teacher.lastName}`,
+          role: 'TEACHER',
+          active: true,
+          teacherId: teacher.id
+        }
+      });
+    }
+  }
+
   await logAudit({
     userId: user?.id,
     action: 'CREATE_TEACHER',
     entity: 'Teacher',
     entityId: teacher.id,
-    metadata: { employeeNo: teacher.employeeNo, fullName: `${teacher.firstName} ${teacher.lastName}` },
+    metadata: { 
+      employeeNo: teacher.employeeNo, 
+      fullName: `${teacher.firstName} ${teacher.lastName}`,
+      assignedCount: data.assignments ? data.assignments.length : 0
+    },
     req
   });
 
-  return teacher;
+  return getTeacherById(teacher.id);
 }
 
 async function updateTeacher(id, data, user, req) {
@@ -172,29 +240,104 @@ async function updateTeacher(id, data, user, req) {
   if (data.phone !== undefined) formatted.phone = data.phone ? data.phone.trim() : null;
   if (data.email !== undefined) formatted.email = data.email ? data.email.trim().toLowerCase() : null;
   if (data.specialty !== undefined) formatted.specialty = data.specialty ? data.specialty.trim() : null;
-  if (data.active !== undefined) formatted.active = Boolean(data.active);
+  if (data.active !== undefined) {
+    formatted.active = Boolean(data.active);
+    // Also sync the linked User account active state
+    await prisma.user.updateMany({
+      where: { teacherId },
+      data: { active: Boolean(data.active) }
+    });
+  }
 
   const updated = await prisma.teacher.update({
     where: { id: teacherId },
     data: formatted
   });
 
+  // Sync teaching assignments if provided
+  if (data.assignments !== undefined && Array.isArray(data.assignments)) {
+    // Clear old assignments and insert new list
+    await prisma.teacherClassSubject.deleteMany({
+      where: { teacherId }
+    });
+
+    for (const item of data.assignments) {
+      if (item.classId && item.subjectId) {
+        await prisma.teacherClassSubject.upsert({
+          where: {
+            teacherId_classId_subjectId: {
+              teacherId,
+              classId: parseInt(item.classId, 10),
+              subjectId: parseInt(item.subjectId, 10)
+            }
+          },
+          update: {},
+          create: {
+            teacherId,
+            classId: parseInt(item.classId, 10),
+            subjectId: parseInt(item.subjectId, 10)
+          }
+        });
+      }
+    }
+  }
+
+  // If user wants to create an account for an existing teacher if not linked
+  if (data.createUserAccount && (data.email || updated.email)) {
+    const emailToUse = (data.email || updated.email).trim().toLowerCase();
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: emailToUse },
+          { teacherId: updated.id }
+        ]
+      }
+    });
+    if (!existingUser) {
+      const password = data.userPassword || 'ChangeMe123!';
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt);
+      await prisma.user.create({
+        data: {
+          email: emailToUse,
+          passwordHash,
+          fullName: `${updated.firstName} ${updated.lastName}`,
+          role: 'TEACHER',
+          active: true,
+          teacherId: updated.id
+        }
+      });
+    } else {
+      // If user exists, activate them
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { active: true }
+      });
+    }
+  }
+
   await logAudit({
     userId: user?.id,
     action: 'UPDATE_TEACHER',
     entity: 'Teacher',
     entityId: updated.id,
-    metadata: { changed: Object.keys(formatted) },
+    metadata: { changed: Object.keys(formatted), hasAssignmentsUpdate: data.assignments !== undefined },
     req
   });
 
-  return updated;
+  return getTeacherById(teacherId);
 }
 
 async function deactivateTeacher(id, user, req) {
   const teacherId = parseInt(id, 10);
   const updated = await prisma.teacher.update({
     where: { id: teacherId },
+    data: { active: false }
+  });
+
+  // Also deactivate linked user
+  await prisma.user.updateMany({
+    where: { teacherId },
     data: { active: false }
   });
 

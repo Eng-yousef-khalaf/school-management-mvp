@@ -209,6 +209,31 @@ export default function UserList() {
                         >
                           <EditIcon />
                         </button>
+                        {!u.active && (
+                          <button
+                            className="btn btn-sm"
+                            title="Activate User"
+                            onClick={async () => {
+                              try {
+                                await api.put(`/users/${u.id}`, { active: true });
+                                toast.success(`User ${u.email} activated successfully!`);
+                                loadUsers();
+                              } catch (err) {
+                                toast.error(err.message || 'Failed to activate user');
+                              }
+                            }}
+                            style={{
+                              background: '#10b981',
+                              color: '#fff',
+                              fontWeight: 700,
+                              fontSize: 12,
+                              padding: '4px 10px',
+                              borderRadius: 'var(--radius-sm)'
+                            }}
+                          >
+                            ⚡ Activate
+                          </button>
+                        )}
                         {u.active && (
                           <button
                             className="btn btn-secondary btn-icon"

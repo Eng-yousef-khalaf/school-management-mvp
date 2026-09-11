@@ -98,7 +98,7 @@ export default function App() {
     switch (currentPage) {
       case 'dashboard':
         if (isTeacher) return { title: isRtl ? 'لوحة المعلم والمقررات' : 'Teacher Portal Dashboard', subtitle: isRtl ? 'إدارة الشعب والحضور والدرجات المسندة للمعلم' : 'Manage your assigned classes, attendance, and student evaluations' };
-        if (user?.role === 'STAFF') return { title: isRtl ? 'لوحة شؤون الطلاب والتسجيل' : 'Registrar & Admissions Dashboard', subtitle: isRtl ? 'إدارة الطلاب، الفصول، واستيراد البيانات والتقارير' : 'Student directory, admissions, enrollment rosters, and Excel reports' };
+        if (user?.role === 'STAFF') return { title: isRtl ? 'لوحة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Dashboard', subtitle: isRtl ? 'إدارة الهيئة التعليمية وتعيين الشعب، شؤون الطلاب، واستيراد البيانات والتقارير' : 'Faculty directory, subject allocations, student admissions, and Excel reports' };
         return { title: isRtl ? 'لوحة الإشراف العام' : 'Executive Admin Dashboard', subtitle: isRtl ? 'الرقابة الشاملة على المؤسسة والمستخدمين وسجل الأمان' : 'Enterprise supervision across all school operations & security audit trail' };
       case 'students':
         return { title: t('studentsTitle'), subtitle: t('studentsSubtitle') };
@@ -164,19 +164,27 @@ export default function App() {
         )
       )}
 
-      {/* Student Directory - Accessible by all (Staff has Add/Edit/Import, Admin has View/Export) */}
+      {/* Student Directory - Strictly for Staff (and Teachers for their rosters) */}
       {currentPage === 'students' && (
-        <StudentList
-          onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
-        />
+        (isStaff || isTeacher) ? (
+          <StudentList
+            onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
+          />
+        ) : (
+          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {currentPage === 'student-details' && (
-        <StudentDetails
-          studentId={selectedStudentId}
-          onBack={() => navigateTo('students')}
-          onEdit={(s) => setEditingStudentFromDetails(s)}
-        />
+        (isStaff || isTeacher) ? (
+          <StudentDetails
+            studentId={selectedStudentId}
+            onBack={() => navigateTo('students')}
+            onEdit={(s) => setEditingStudentFromDetails(s)}
+          />
+        ) : (
+          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {/* Teachers Directory - Accessible by Admin and Staff */}
@@ -247,33 +255,49 @@ export default function App() {
         )
       )}
 
-      {/* Enrollment Management - Accessible by Admin and Staff */}
+      {/* Enrollment Management - Accessible by Staff */}
       {currentPage === 'enrollment' && (
-        (isAdmin || isStaff) ? (
+        isStaff ? (
           <EnrollmentManagement />
         ) : (
-          <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
+          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
         )
       )}
 
-      {/* Attendance Sheet - Accessible by all */}
+      {/* Student Attendance Sheet - Strictly for Teachers & Staff */}
       {currentPage === 'attendance' && (
-        <AttendanceSheet initialClassId={attendanceClassId} />
+        (isTeacher || isStaff) ? (
+          <AttendanceSheet initialClassId={attendanceClassId} />
+        ) : (
+          <AccessDenied requiredRole="TEACHER / STAFF" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
-      {/* Attendance Reports - Accessible by all */}
+      {/* Student Attendance Reports - For Teachers & Staff */}
       {currentPage === 'attendance-reports' && (
-        <AttendanceReports />
+        (isTeacher || isStaff) ? (
+          <AttendanceReports />
+        ) : (
+          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
-      {/* Grade Entry - Accessible by all */}
+      {/* Grade Entry - For Teachers & Staff */}
       {currentPage === 'grades' && (
-        <GradeEntry />
+        (isTeacher || isStaff) ? (
+          <GradeEntry />
+        ) : (
+          <AccessDenied requiredRole="TEACHER" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
-      {/* Grade Reports - Accessible by all */}
+      {/* Grade Reports */}
       {currentPage === 'grade-reports' && (
-        <GradeReports />
+        (isTeacher || isStaff) ? (
+          <GradeReports />
+        ) : (
+          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {/* Reports Hub - Accessible by Admin and Staff */}

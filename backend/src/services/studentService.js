@@ -99,6 +99,16 @@ async function getStudents({
     orderBy.push({ firstName: sortOrder });
   }
 
+  const activeYear = await prisma.academicYear.findFirst({ where: { active: true } });
+  let targetYearId = activeYear ? activeYear.id : null;
+  if (user?.role === 'ADMIN' && academicYearId && academicYearId !== 'ACTIVE') {
+    if (academicYearId !== 'ALL') {
+      targetYearId = parseInt(academicYearId, 10);
+    } else {
+      targetYearId = null;
+    }
+  }
+
   const [total, students] = await Promise.all([
     prisma.student.count({ where }),
     prisma.student.findMany({
@@ -108,6 +118,7 @@ async function getStudents({
       orderBy,
       include: {
         enrollments: {
+          where: targetYearId ? { class: { academicYearId: targetYearId } } : undefined,
           include: {
             class: {
               include: {

@@ -1,8 +1,8 @@
 const { z } = require('zod');
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  email: z.string().email('صيغة البريد الإلكتروني غير صحيحة'),
+  password: z.string().min(1, 'كلمة المرور مطلوبة')
 });
 
 const studentSchema = z.object({
@@ -26,7 +26,13 @@ const teacherSchema = z.object({
   phone: z.string().optional().nullable(),
   email: z.string().email('Invalid email address').optional().nullable().or(z.literal('')),
   specialty: z.string().optional().nullable(),
-  active: z.boolean().default(true)
+  active: z.boolean().default(true),
+  assignments: z.array(z.object({
+    classId: z.coerce.number().int().positive(),
+    subjectId: z.coerce.number().int().positive()
+  })).optional(),
+  createUserAccount: z.boolean().optional(),
+  userPassword: z.string().min(1).optional()
 });
 
 const classSchema = z.object({
@@ -93,9 +99,9 @@ const gradeSchema = z.object({
 });
 
 const userSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  fullName: z.string().min(1, 'Full name is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters').optional(),
+  email: z.string().email('صيغة البريد الإلكتروني غير صحيحة (Invalid email address)'),
+  fullName: z.string().min(1, 'الاسم الكامل مطلوب (Full name is required)'),
+  password: z.string().min(3, 'كلمة المرور يجب ألا تقل عن 3 خانات').optional().or(z.literal('')),
   role: z.enum(['ADMIN', 'STAFF', 'TEACHER']).default('STAFF'),
   active: z.boolean().default(true),
   teacherId: z.preprocess(

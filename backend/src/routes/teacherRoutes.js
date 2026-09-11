@@ -9,7 +9,7 @@ const { teacherSchema } = require('../utils/validators');
 router.use(authMiddleware);
 
 router.get('/attendance/today', teacherController.getTeacherAttendanceToday);
-router.post('/attendance', staffOnly, teacherController.saveTeacherAttendance);
+router.post('/attendance', staffOrAdmin, teacherController.saveTeacherAttendance);
 router.get('/activity/summary', staffOrAdmin, teacherController.getTeacherActivity);
 
 router.get('/', teacherController.getTeachers);

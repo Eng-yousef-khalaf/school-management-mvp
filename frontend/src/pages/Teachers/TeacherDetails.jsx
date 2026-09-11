@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
@@ -10,7 +11,8 @@ import { PlusIcon, TrashIcon, EditIcon } from '../../components/common/Icons';
 
 export default function TeacherDetails({ teacherId, onBack, onEdit }) {
   const toast = useToast();
-  const { isStaff } = useAuth();
+  const { isStaff, isAdmin } = useAuth();
+  const { t, isRtl } = useLanguage();
 
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,10 +45,10 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
         api.get('/classes'),
         api.get('/subjects')
       ]);
-      setClasses(cls);
-      setSubjects(subs);
-      if (cls[0]) setSelectedClassId(cls[0].id);
-      if (subs[0]) setSelectedSubjectId(subs[0].id);
+      setClasses(cls || []);
+      setSubjects(subs || []);
+      if (cls && cls[0]) setSelectedClassId(String(cls[0].id));
+      if (subs && subs[0]) setSelectedSubjectId(String(subs[0].id));
     } catch {}
   };
 
@@ -60,7 +62,7 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
   const handleAssign = async (e) => {
     e.preventDefault();
     if (!selectedClassId || !selectedSubjectId) {
-      toast.error('Please select both a class and a subject');
+      toast.error(isRtl ? 'يرجى اختيار الصف والمادة أولاً' : 'Please select both a class and a subject');
       return;
     }
 
@@ -71,7 +73,7 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
         classId: Number(selectedClassId),
         subjectId: Number(selectedSubjectId)
       });
-      toast.success('Teaching assignment added successfully!');
+      toast.success(isRtl ? 'تمت إضافة التعيين بنجاح!' : 'Teaching assignment added successfully!');
       setIsAssignModalOpen(false);
       loadTeacher();
     } catch (err) {
@@ -84,26 +86,28 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
   const handleRemoveAssignment = async (linkId) => {
     try {
       await api.delete(`/teachers/assign/${linkId}`);
-      toast.success('Assignment removed');
+      toast.success(isRtl ? 'تم حذف التعيين بنجاح' : 'Assignment removed');
       loadTeacher();
     } catch (err) {
       toast.error(err.message || 'Failed to remove assignment');
     }
   };
 
-  if (loading) return <PageLoader text="Loading faculty profile..." />;
+  if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadTeacher} />;
   if (!teacher) return null;
+
+  const canEdit = isStaff || isAdmin;
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <button className="btn btn-secondary btn-sm" onClick={onBack}>
-          ← Back to Teachers
+          {isRtl ? '← العودة لقائمة المعلمين' : '← Back to Teachers'}
         </button>
-        {isStaff && (
+        {canEdit && (
           <button className="btn btn-primary btn-sm" onClick={() => onEdit(teacher)}>
-            <EditIcon /> Edit Faculty Profile
+            <EditIcon /> {isRtl ? 'تعديل بيانات وتعيينات المعلم' : 'Edit Faculty Profile'}
           </button>
         )}
       </div>
@@ -128,17 +132,22 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
             {teacher.firstName.charAt(0)}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-main)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
                 {teacher.firstName} {teacher.lastName}
               </h2>
               <Badge status={teacher.active ? 'ACTIVE' : 'INACTIVE'} />
               <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-                No: <strong>{teacher.employeeNo}</strong>
+                {isRtl ? 'الرقم الوظيفي:' : 'Employee No:'} <strong>{teacher.employeeNo}</strong>
               </span>
+              {teacher.user && (
+                <span className="badge badge-active" style={{ fontSize: 12 }}>
+                  ✓ {isRtl ? 'حساب نظام مفعل' : 'System User Linked'}
+                </span>
+              )}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-              Specialty: <strong>{teacher.specialty || 'General Faculty'}</strong> • Email: <strong>{teacher.email || '—'}</strong> • Phone: <strong>{teacher.phone || '—'}</strong>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+              {isRtl ? 'التخصص:' : 'Specialty:'} <strong>{teacher.specialty || 'General'}</strong> • {isRtl ? 'البريد:' : 'Email:'} <strong>{teacher.email || '—'}</strong> • {isRtl ? 'الهاتف:' : 'Phone:'} <strong>{teacher.phone || '—'}</strong>
             </div>
           </div>
         </div>
@@ -148,12 +157,16 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
       <div className="panel">
         <div className="panel-header">
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700 }}>Class & Subject Assignments</h3>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Classes and subjects taught by this teacher</p>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>
+              📚 {isRtl ? 'الشعب والمواد المسندة للمعلم' : 'Class & Subject Assignments'}
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              {isRtl ? 'قائمة الفصول والشعب والمناهج التي يدرّسها المعلم حالياً' : 'Classes and curriculum subjects assigned to this teacher'}
+            </p>
           </div>
-          {isStaff && (
+          {canEdit && (
             <button className="btn btn-primary btn-sm" onClick={() => setIsAssignModalOpen(true)}>
-              <PlusIcon /> Assign Class & Subject
+              <PlusIcon /> {isRtl ? 'إسناد شعبة ومادة جديدة' : 'Assign Class & Subject'}
             </button>
           )}
         </div>
@@ -162,12 +175,12 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
           <table>
             <thead>
               <tr>
-                <th>Class Section</th>
-                <th>Grade</th>
-                <th>Academic Year</th>
-                <th>Curriculum Subject</th>
-                <th>Subject Code</th>
-                {isStaff && <th style={{ textAlign: 'right' }}>Actions</th>}
+                <th>{isRtl ? 'الصف والشعبة' : 'Class Section'}</th>
+                <th>{isRtl ? 'المرحلة / الصف' : 'Grade'}</th>
+                <th>{isRtl ? 'العام الدراسي' : 'Academic Year'}</th>
+                <th>{isRtl ? 'المادة الدراسية' : 'Curriculum Subject'}</th>
+                <th>{isRtl ? 'رمز المادة' : 'Subject Code'}</th>
+                {canEdit && <th style={{ textAlign: 'right' }}>{isRtl ? 'الإجراءات' : 'Actions'}</th>}
               </tr>
             </thead>
             <tbody>
@@ -175,15 +188,15 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
                 teacher.assignments.map((asg) => (
                   <tr key={asg.id}>
                     <td><strong>{asg.className}</strong></td>
-                    <td>Grade {asg.grade}</td>
+                    <td>{asg.grade}</td>
                     <td>{asg.academicYear || '—'}</td>
                     <td><strong style={{ color: 'var(--primary)' }}>{asg.subjectName}</strong></td>
                     <td><code>{asg.subjectCode}</code></td>
-                    {isStaff && (
+                    {canEdit && (
                       <td style={{ textAlign: 'right' }}>
                         <button
                           className="btn btn-secondary btn-icon"
-                          title="Remove assignment"
+                          title={isRtl ? 'حذف التعيين' : 'Remove assignment'}
                           onClick={() => handleRemoveAssignment(asg.id)}
                           style={{ color: 'var(--danger)' }}
                         >
@@ -195,8 +208,8 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={isStaff ? 6 : 5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 30 }}>
-                    No class and subject assignments found for this teacher
+                  <td colSpan={canEdit ? 6 : 5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 30 }}>
+                    {isRtl ? 'لا توجد شعب أو مواد مسندة لهذا المعلم بعد' : 'No teaching assignments yet'}
                   </td>
                 </tr>
               )}
@@ -205,26 +218,26 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
         </div>
       </div>
 
-      {/* Assign Class Modal */}
+      {/* Quick Assign Modal */}
       {isAssignModalOpen && (
         <Modal
           isOpen={isAssignModalOpen}
           onClose={() => setIsAssignModalOpen(false)}
-          title={`Assign Class & Subject to ${teacher.firstName} ${teacher.lastName}`}
+          title={isRtl ? `إسناد شعبة ومادة للمعلم: ${teacher.firstName} ${teacher.lastName}` : 'Assign Class & Subject'}
           footer={
             <>
               <button className="btn btn-secondary" onClick={() => setIsAssignModalOpen(false)} disabled={assigning}>
-                Cancel
+                {isRtl ? 'إلغاء' : 'Cancel'}
               </button>
               <button className="btn btn-primary" onClick={handleAssign} disabled={assigning}>
-                {assigning ? 'Assigning...' : 'Assign'}
+                {assigning ? (isRtl ? 'جاري الإسناد...' : 'Assigning...') : (isRtl ? 'تأكيد الإسناد' : 'Confirm Assignment')}
               </button>
             </>
           }
         >
           <form onSubmit={handleAssign}>
             <div className="form-group">
-              <label className="form-label">Target Class <span className="req">*</span></label>
+              <label className="form-label">{isRtl ? 'الصف والشعبة' : 'Class Section'} <span className="req">*</span></label>
               <select
                 className="form-select"
                 value={selectedClassId}
@@ -233,14 +246,14 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
               >
                 {classes.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} ({c.academicYear?.name})
+                    {c.name} {c.section ? `- شعبة (${c.section})` : ''} [{c.grade}]
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Curriculum Subject <span className="req">*</span></label>
+              <label className="form-label">{isRtl ? 'المادة الدراسية' : 'Curriculum Subject'} <span className="req">*</span></label>
               <select
                 className="form-select"
                 value={selectedSubjectId}

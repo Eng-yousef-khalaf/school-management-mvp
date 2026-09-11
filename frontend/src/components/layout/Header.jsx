@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
+import { useAcademicYear } from '../../context/AcademicYearContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { AcademicYearIcon } from '../common/Icons';
 
-export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, activeYearName, onNavigate }) {
+export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNavigate }) {
   const { user, switchPortalRole } = useAuth();
   const { t, isRtl } = useLanguage();
   const toast = useToast();
+  const { activeYear, allYears, selectedYearId, isArchiveView, setViewingYearId } = useAcademicYear();
   const [switching, setSwitching] = useState(false);
 
   const roleColor = user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
@@ -21,7 +23,7 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, activ
     try {
       await switchPortalRole(targetRole);
       if (onNavigate) onNavigate('dashboard');
-      toast.success(isRtl ? `تم التبديل بنجاح إلى ${targetRole === 'ADMIN' ? 'بوابة المدير' : targetRole === 'STAFF' ? 'بوابة شؤون الطلاب' : 'بوابة المعلم'}` : `Switched to ${targetRole} Portal`);
+      toast.success(isRtl ? `تم التبديل بنجاح إلى ${targetRole === 'ADMIN' ? 'بوابة المدير' : targetRole === 'STAFF' ? 'بوابة شؤون المعلمين والطلاب' : 'بوابة المعلم'}` : `Switched to ${targetRole} Portal`);
     } catch (err) {
       toast.error(err.message || 'Failed to switch role');
     } finally {
@@ -109,10 +111,10 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, activ
               gap: '4px',
               transition: 'var(--transition)'
             }}
-            title={isRtl ? 'الانتقال المباشر إلى بوابة شؤون الطلاب' : 'Switch to Staff Portal'}
+            title={isRtl ? 'الانتقال المباشر إلى بوابة شؤون المعلمين والطلاب' : 'Switch to Faculty & Student Affairs Portal'}
           >
             <span>📋</span>
-            <span>{isRtl ? 'شؤون الطلاب' : 'Staff'}</span>
+            <span>{isRtl ? 'شؤون المعلمين والطلاب' : 'Staff Affairs'}</span>
           </button>
 
           <button
@@ -159,11 +161,53 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, activ
         {/* Language Switcher */}
         <LanguageSwitcher />
 
-        {activeYearName && (
-          <div className="academic-year-badge">
-            <AcademicYearIcon style={{ width: 14, height: 14 }} />
-            <span>{t('activeYear')}: {activeYearName}</span>
+        {/* Academic Year Control */}
+        {user?.role === 'ADMIN' ? (
+          /* Admin Archive & Year Selector */
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: isArchiveView ? '#fffbeb' : '#ecfdf5',
+              border: `1.5px solid ${isArchiveView ? '#f59e0b' : '#10b981'}`,
+              borderRadius: 'var(--radius-md)',
+              padding: '4px 10px',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+            }}>
+              <span style={{ fontSize: 14 }}>{isArchiveView ? '📁' : '🟢'}</span>
+              <select
+                value={selectedYearId || ''}
+                onChange={(e) => setViewingYearId(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: isArchiveView ? '#92400e' : '#065f46',
+                  cursor: 'pointer'
+                }}
+                title={isRtl ? 'تبديل العام الدراسي / استعراض الأرشيف للمدير' : 'Academic Year Selector (Admin Archive Inspection)'}
+              >
+                {allYears.map(y => (
+                  <option key={y.id} value={y.id}>
+                    {y.active
+                      ? (isRtl ? `العام الحالي النشط: ${y.name}` : `Active Year: ${y.name}`)
+                      : (isRtl ? `📁 أرشيف: ${y.name} (للمراجعة)` : `📁 Archive: ${y.name} (Read-Only)`)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+        ) : (
+          /* Staff & Teachers: Strictly Locked to Current Active Year */
+          activeYear && (
+            <div className="academic-year-badge" style={{ background: '#ecfdf5', border: '1px solid #10b981', color: '#065f46' }}>
+              <AcademicYearIcon style={{ width: 14, height: 14, color: '#10b981' }} />
+              <span>{isRtl ? `العام الدراسي النشط: ${activeYear.name}` : `Active: ${activeYear.name}`}</span>
+            </div>
+          )
         )}
       </div>
     </header>
