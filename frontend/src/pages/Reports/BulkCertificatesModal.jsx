@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
 import SchoolLogo from '../../components/common/SchoolLogo';
+import { PalestineFlagIcon } from '../../components/common/Icons';
 
 export default function BulkCertificatesModal({ isOpen, onClose, initialClassId = '' }) {
   const toast = useToast();
   const { isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
 
   const [classes, setClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState(initialClassId);
@@ -120,8 +123,8 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
             </h2>
             <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
               {isRtl
-                ? `مدرسة يوسف للتربية والتعليم - جاهز للطباعة وتصدير PDF لعدد (${students.length}) طالب`
-                : `Youssef Educational School - Ready to print ${students.length} student certificates`}
+                ? `${config?.schoolNameAr || 'إدارة المدرسة'} - جاهز للطباعة وتصدير PDF لعدد (${students.length}) طالب`
+                : `${config?.schoolNameEn || 'School Administration'} - Ready to print ${students.length} student certificates`}
             </p>
           </div>
         </div>
@@ -247,11 +250,12 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                 {/* Certificate Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 16, marginBottom: 20 }}>
                   <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>
-                      {isRtl ? '🇵🇸 دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education & Higher Learning'}
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <PalestineFlagIcon />
+                      <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education & Higher Learning'}</span>
                     </div>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 3 }}>
-                      مدرسة يوسف للتربية والتعليم
+                      {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
                     </div>
                     <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                       {isRtl ? 'قسم شؤون الطلاب والامتحانات المعتمدة' : 'Department of Student Affairs & Official Examinations'}
@@ -259,8 +263,8 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                   </div>
 
                   {/* Official Emblem Logo Badge */}
-                  <div style={{ textAlign: 'center' }}>
-                    <SchoolLogo size={62} />
+                  <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <SchoolLogo size={66} />
                   </div>
 
                   <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
@@ -453,7 +457,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 36 }}>
                       {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
-                        محمد
+                        {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
                       </div>
                     </div>
                     <div style={{ borderBottom: '1.5px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
@@ -463,7 +467,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 36 }}>
                       {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
-                        يوسف
+                        {isRtl ? 'إدارة المدرسة' : 'School Principal'}
                       </div>
                     </div>
                     <div style={{ borderBottom: '1.5px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
@@ -471,7 +475,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
 
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
-                      {isRtl ? 'الختم الرسمي لمدرسة يوسف' : 'Official School Seal'}
+                      {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Seal'}
                     </div>
                     <div style={{
                       width: 68,
@@ -487,8 +491,8 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                       fontSize: 9,
                       fontWeight: 800
                     }}>
-                      <span>مدرسة يوسف</span>
-                      <span style={{ fontSize: 8 }}>الختم المعتمد</span>
+                      <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
+                      <span style={{ fontSize: 8 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
                     </div>
                   </div>
                 </div>
@@ -503,8 +507,8 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                   paddingTop: 8
                 }}>
                   {isRtl
-                    ? `وثيقة رسمية صادرة إلكترونياً من مدرسة يوسف للتربية والتعليم - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
-                    : `Official document issued electronically by Youssef Educational School - Student ${studentIdx + 1} of ${students.length}`}
+                    ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
+                    : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
                 </div>
               </div>
             );

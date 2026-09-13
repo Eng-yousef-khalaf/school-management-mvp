@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import BulkCertificatesModal from './BulkCertificatesModal';
+import UnicefAnalyticalReportModal from './UnicefAnalyticalReportModal';
 import { DownloadIcon, StudentsIcon, TeachersIcon, AttendanceIcon, GradesIcon } from '../../components/common/Icons';
 
 export default function ReportsHub({ onNavigate }) {
@@ -18,6 +19,8 @@ export default function ReportsHub({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isBulkCertificatesOpen, setIsBulkCertificatesOpen] = useState(false);
+  const [isUnicefReportOpen, setIsUnicefReportOpen] = useState(false);
+  const [isExportingUnified, setIsExportingUnified] = useState(false);
 
   const loadHubData = async () => {
     try {
@@ -42,9 +45,9 @@ export default function ReportsHub({ onNavigate }) {
 
   const exportStudentsDirectory = async () => {
     try {
-      toast.info('Downloading student directory report...');
+      toast.info(isRtl ? 'جاري تحميل دليل الطلاب...' : 'Downloading student directory report...');
       await api.download('/reports/students/export', 'student_directory_report.xlsx');
-      toast.success('Downloaded student directory report!');
+      toast.success(isRtl ? 'تم تحميل دليل الطلاب بنجاح!' : 'Downloaded student directory report!');
     } catch (err) {
       toast.error(err.message || 'Export failed');
     }
@@ -52,23 +55,139 @@ export default function ReportsHub({ onNavigate }) {
 
   const exportTeachersReport = async () => {
     try {
-      toast.info('Downloading teacher workload report...');
+      toast.info(isRtl ? 'جاري تحميل كشف أنصبة المعلمين...' : 'Downloading teacher workload report...');
       await api.download('/reports/teachers/export', 'teacher_workload_report.xlsx');
-      toast.success('Downloaded teacher workload report!');
+      toast.success(isRtl ? 'تم تحميل كشف المعلمين بنجاح!' : 'Downloaded teacher workload report!');
     } catch (err) {
       toast.error(err.message || 'Export failed');
     }
   };
 
-  if (loading) return <PageLoader text="Loading analytical reports hub..." />;
+  const exportUnifiedMinistryExcel = async () => {
+    try {
+      setIsExportingUnified(true);
+      toast.info(isRtl ? 'جاري تجهيز السجل الموحد الموجه للوزارة واليونيسيف...' : 'Preparing unified Ministry/UNICEF register...');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      await api.download('/reports/unified-export', `Ministry_UNICEF_Register_${dateStr}.xlsx`);
+      toast.success(isRtl ? 'تم تنزيل السجل الموحد المعتمد لوزارة التربية والتعليم واليونيسيف بنجاح!' : 'Downloaded official Ministry & UNICEF register!');
+    } catch (err) {
+      toast.error(err.message || 'Failed to export unified register');
+    } finally {
+      setIsExportingUnified(false);
+    }
+  };
+
+  if (loading) return <PageLoader text={isRtl ? 'جاري تحميل مركز التقارير التحليلي...' : 'Loading analytical reports hub...'} />;
   if (error) return <ErrorAlert message={error} onRetry={loadHubData} />;
 
   return (
     <div>
-      {/* Report Categories Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
-        {/* Staff-Only: Bulk Certificates */}
-        {!isAdmin && (
+      {/* Background Reports Hub Interface (Hidden completely on Print) */}
+      <div className="no-print">
+        {/* Prime Hero Banner: 1-Click Ministry of Education & UNICEF Official Center (Principal / Admin Only) */}
+        {isAdmin && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e3a8a 100%)',
+              borderRadius: 16,
+              padding: '24px 28px',
+              color: '#ffffff',
+              marginBottom: 28,
+              boxShadow: '0 10px 25px rgba(30, 27, 75, 0.25)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 20
+            }}
+          >
+            <div style={{ maxWidth: 640 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <span style={{ fontSize: 22 }}>🏛️</span>
+                <span
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    padding: '4px 12px',
+                    borderRadius: 20,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: 0.5,
+                    border: '1px solid rgba(255, 255, 255, 0.25)'
+                  }}
+                >
+                  {isRtl ? 'مصمم لتلبية المتطلبات المؤسسية والإنسانية • خاص بالإدارة' : 'INSTITUTIONAL & HUMANITARIAN REPORTING • PRINCIPAL ONLY'}
+                </span>
+              </div>
+
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', margin: '4px 0 8px 0' }}>
+                {isRtl ? 'السجل والتقرير التحليلي المؤسسي الموجه لوزارة التربية والتعليم واليونيسيف (UNICEF)' : 'Institutional & Humanitarian Analytical Telemetry for UNICEF & MoE'}
+              </h2>
+
+              <p style={{ fontSize: 13, color: '#e0e7ff', lineHeight: 1.6, margin: 0 }}>
+                {isRtl
+                  ? 'تنزيل بنقرة واحدة لكافة بيانات وسجلات المعلمين والطلاب مجمعة في ملف Excel، أو استعراض وطباعة التقرير التحليلي المؤسسي (PDF) المصمم وفق معايير الرصد الإنساني والتربوي لتسليمه لوزارة التربية والتعليم واليونيسيف.'
+                  : 'One-click export of complete student & faculty telemetry formatted for Ministry of Education & UNICEF, or view the institutional printable analytical report (PDF) designed for humanitarian reporting requirements.'}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {/* 1-Click Excel Export Button */}
+              <button
+                onClick={exportUnifiedMinistryExcel}
+                disabled={isExportingUnified}
+                style={{
+                  background: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ fontSize: 18 }}>📥</span>
+                <span>
+                  {isExportingUnified
+                    ? (isRtl ? 'جاري تجهيز الملف...' : 'Exporting...')
+                    : (isRtl ? 'تصدير السجل الموحد (Excel)' : 'Export Unified Excel')}
+                </span>
+              </button>
+
+              {/* Executive PDF Report Button */}
+              <button
+                onClick={() => setIsUnicefReportOpen(true)}
+                style={{
+                  background: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ fontSize: 18 }}>📊</span>
+                <span>{isRtl ? 'التقرير التحليلي المؤسسي (PDF)' : 'Institutional Analytical Report (PDF)'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Report Categories Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
+          {/* Staff & Admin: Bulk Certificates */}
           <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <div className="stat-icon success" style={{ fontSize: 24 }}>
@@ -79,7 +198,7 @@ export default function ReportsHub({ onNavigate }) {
                   {isRtl ? 'إصدار وطباعة الشهادات المجمعة' : 'Official Bulk Certificates'}
                 </h3>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                  {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بضغطة واحدة' : 'Generate official student transcripts and certificates'}
+                  {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بشعار المدرسة المعتمد' : 'Generate official student transcripts with school emblem'}
                 </p>
               </div>
             </div>
@@ -93,10 +212,8 @@ export default function ReportsHub({ onNavigate }) {
               </button>
             </div>
           </div>
-        )}
 
-        {/* Staff-Only: Student Directory */}
-        {!isAdmin && (
+          {/* Staff & Admin: Student Directory */}
           <div className="panel" style={{ padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <div className="stat-icon primary">
@@ -120,10 +237,8 @@ export default function ReportsHub({ onNavigate }) {
               </button>
             </div>
           </div>
-        )}
 
-        {/* Staff-Only: Student Attendance Report */}
-        {!isAdmin && (
+          {/* Staff & Admin: Student Attendance Report */}
           <div className="panel" style={{ padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <div className="stat-icon success">
@@ -144,10 +259,8 @@ export default function ReportsHub({ onNavigate }) {
               </button>
             </div>
           </div>
-        )}
 
-        {/* Staff-Only: Grade Reports */}
-        {!isAdmin && (
+          {/* Staff & Admin: Grade Reports */}
           <div className="panel" style={{ padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <div className="stat-icon warning">
@@ -168,76 +281,120 @@ export default function ReportsHub({ onNavigate }) {
               </button>
             </div>
           </div>
-        )}
 
-        {/* Faculty Workload Report - Visible for Admin & Staff */}
-        <div className="panel" style={{ padding: 20, border: isAdmin ? '2px solid rgba(79, 70, 229, 0.3)' : undefined }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-            <div className="stat-icon secondary">
-              <TeachersIcon />
+          {/* Faculty Workload Report */}
+          <div className="panel" style={{ padding: 20, border: '2px solid rgba(79, 70, 229, 0.3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div className="stat-icon secondary">
+                <TeachersIcon />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isRtl ? 'تقرير أنصبة وتعيينات الهيئة التعليمية' : 'Faculty Workload & Allocation Report'}
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'كشف شامل بالصفوف والمواد المسندة وتوزيع الكادر' : 'Assigned classes and teaching subjects summary'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                {isRtl ? 'تقرير أنصبة وتعيينات الهيئة التعليمية' : 'Faculty Workload & Allocation Report'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {isRtl ? 'كشف شامل بالصفوف والمواد المسندة وتوزيع الكادر' : 'Assigned classes and teaching subjects summary'}
-              </p>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="btn btn-primary btn-sm" onClick={exportTeachersReport}>
+                <DownloadIcon /> {isRtl ? 'تصدير كشف المعلمين (Excel)' : 'Export Workload (Excel)'}
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn btn-primary btn-sm" onClick={exportTeachersReport}>
-              <DownloadIcon /> {isRtl ? 'تصدير كشف المعلمين (Excel)' : 'Export Workload (Excel)'}
-            </button>
-          </div>
+
+          {/* Admin-Focused Executive Cards */}
+          {isAdmin && (
+            <>
+              <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                  <div className="stat-icon success">
+                    <AttendanceIcon />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                      {isRtl ? 'تقرير دوام والتزام المعلمين' : 'Teacher Attendance & Punctuality'}
+                    </h3>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      {isRtl ? 'معدلات الحضور اليومية ونسب التأخير للكادر التعليمي' : 'Daily presence, check-in logs and punctuality analysis'}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('teacher-tracker')}>
+                    🕒 {isRtl ? 'فتح دفتر دوام المعلمين' : 'Open Teacher Tracker'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="panel" style={{ padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                  <div className="stat-icon warning">
+                    <GradesIcon />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                      {isRtl ? 'سجل الرقابة والعمليات الأمنية' : 'Security Audit & Activity Trail'}
+                    </h3>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      {isRtl ? 'متابعة كافة التغييرات والعمليات الإدارية الحساسة' : 'System-wide audit trail with IP & user logging'}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('audit-logs')}>
+                    🛡️ {isRtl ? 'فتح سجل التدقيق الأمني' : 'Open Security Logs'}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Admin-Focused Executive Cards */}
-        {isAdmin && (
-          <>
-            <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.3)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-                <div className="stat-icon success">
-                  <AttendanceIcon />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                    {isRtl ? 'تقرير دوام والتزام المعلمين' : 'Teacher Attendance & Punctuality'}
-                  </h3>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                    {isRtl ? 'معدلات الحضور اليومية ونسب التأخير للكادر التعليمي' : 'Daily presence, check-in logs and punctuality analysis'}
-                  </p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('teacher-tracker')}>
-                  🕒 {isRtl ? 'فتح دفتر دوام المعلمين' : 'Open Teacher Tracker'}
-                </button>
-              </div>
-            </div>
-
-            <div className="panel" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-                <div className="stat-icon warning">
-                  <GradesIcon />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                    {isRtl ? 'سجل الرقابة والعمليات الأمنية' : 'Security Audit & Activity Trail'}
-                  </h3>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                    {isRtl ? 'متابعة كافة التغييرات والعمليات الإدارية الحساسة' : 'System-wide audit trail with IP & user logging'}
-                  </p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('audit-logs')}>
-                  🛡️ {isRtl ? 'فتح سجل التدقيق الأمني' : 'Open Security Logs'}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+        {/* Faculty Workload Table */}
+        <div className="panel">
+          <div className="panel-header">
+            <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              {isRtl ? 'ملخص أنصبة وتوزيع الهيئة التعليمية على الصفوف' : 'Faculty Workload & Class Assignment Summary'}
+            </h3>
+            <button className="btn btn-secondary btn-sm" onClick={exportTeachersReport}>
+              <DownloadIcon /> {isRtl ? 'تصدير كشف المعلمين' : 'Export Workload'}
+            </button>
+          </div>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{isRtl ? 'الرقم الوظيفي' : 'Employee No'}</th>
+                  <th>{isRtl ? 'اسم المعلم' : 'Faculty Name'}</th>
+                  <th>{isRtl ? 'التخصص' : 'Specialty'}</th>
+                  <th>{isRtl ? 'إجمالي الحصص' : 'Total Assignments'}</th>
+                  <th>{isRtl ? 'الصفوف المسندة' : 'Assigned Classes'}</th>
+                  <th>{isRtl ? 'المواد المسندة' : 'Assigned Subjects'}</th>
+                  <th>{isRtl ? 'الحالة' : 'Status'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teachersWorkload.map((t, idx) => (
+                  <tr key={idx}>
+                    <td><strong>{t.employeeNo}</strong></td>
+                    <td><span style={{ fontWeight: 600 }}>{t.fullName}</span></td>
+                    <td>{t.specialty}</td>
+                    <td><strong>{t.totalAssignments}</strong></td>
+                    <td>{t.classes}</td>
+                    <td>{t.subjects}</td>
+                    <td>
+                      <span className={`badge ${t.active === 'Active' ? 'badge-active' : 'badge-inactive'}`}>
+                        {t.active === 'Active' ? (isRtl ? 'نشط' : 'Active') : (isRtl ? 'غير نشط' : 'Inactive')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Bulk Certificates Modal */}
@@ -246,47 +403,13 @@ export default function ReportsHub({ onNavigate }) {
         onClose={() => setIsBulkCertificatesOpen(false)}
       />
 
-      {/* Faculty Workload Table */}
-      <div className="panel">
-        <div className="panel-header">
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>Faculty Workload & Class Assignment Summary</h3>
-          <button className="btn btn-secondary btn-sm" onClick={exportTeachersReport}>
-            <DownloadIcon /> Export Workload
-          </button>
-        </div>
-        <div className="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Employee No</th>
-                <th>Faculty Name</th>
-                <th>Specialty</th>
-                <th>Total Assignments</th>
-                <th>Assigned Classes</th>
-                <th>Assigned Subjects</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachersWorkload.map((t, idx) => (
-                <tr key={idx}>
-                  <td><strong>{t.employeeNo}</strong></td>
-                  <td><span style={{ fontWeight: 600 }}>{t.fullName}</span></td>
-                  <td>{t.specialty}</td>
-                  <td><strong>{t.totalAssignments}</strong></td>
-                  <td>{t.classes}</td>
-                  <td>{t.subjects}</td>
-                  <td>
-                    <span className={`badge ${t.active === 'Active' ? 'badge-active' : 'badge-inactive'}`}>
-                      {t.active}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Executive UNICEF & Ministry Analytical Report Modal (Principal / Admin Only) */}
+      {isAdmin && (
+        <UnicefAnalyticalReportModal
+          isOpen={isUnicefReportOpen}
+          onClose={() => setIsUnicefReportOpen(false)}
+        />
+      )}
     </div>
   );
 }

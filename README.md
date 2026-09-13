@@ -9,11 +9,11 @@
 ![Express](https://img.shields.io/badge/Express.js_5-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma_ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Vercel Ready](https://img.shields.io/badge/Vercel-Ready-black?style=for-the-badge&logo=vercel&logoColor=white)
+![Cloud Ready](https://img.shields.io/badge/Cloud-Ready-blue?style=for-the-badge&logo=icloud&logoColor=white)
 
 **An Enterprise-Grade, Full-Stack Academic Management & Student Information System (SIS) with Bilingual UI (Arabic RTL & English LTR), Role-Based Access Control, Academic Year Rollovers, Attendance Tracking, Grades Matrix, and Excel Data Pipeline.**
 
-[Live Demo](#-deployment-guide) • [Key Features](#-key-features) • [Quick Start](#-quick-start-local) • [Vercel Deployment](#-deploying-on-vercel--production) • [API Reference](#-api-specification)
+[Live Demo](#-tech-stack--architecture) • [Key Features](#-key-features) • [Quick Start](#-quick-start-local-development) • [Production Deployment](#-cloud--production-deployment) • [API Reference](#-api-specification-overview)
 
 </div>
 
@@ -79,7 +79,6 @@ school-management-mvp/
 │   │   ├── styles/                # CSS design system tokens, themes & animations
 │   │   ├── App.jsx                # Client router with protected route guards
 │   │   └── main.jsx
-│   ├── vercel.json                # Vercel SPA routing rewrite rules
 │   ├── vite.config.js
 │   └── package.json
 ├── docs/                          # Comprehensive technical documentation & ERD
@@ -145,25 +144,13 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## ☁️ Deploying on Vercel & Production
-
-This project is built to deploy effortlessly with continuous integration: any push to your `main` branch automatically triggers live production updates.
-
-### Step 1: Deploy Frontend on Vercel
-1. Go to [vercel.com](https://vercel.com) and log in with your GitHub account.
-2. Click **"Add New Project"** and select your `school-management-system` repository.
-3. Configure the Project Settings:
-   - **Framework Preset**: `Vite`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-4. Add Environment Variable:
-   - `VITE_API_URL`: `https://your-backend-api-url.com/api` (URL of your deployed backend)
-5. Click **Deploy**. The `frontend/vercel.json` ensures all SPA routes reload seamlessly without 404 errors.
-
-### Step 2: Deploy Backend & Database (Render / Railway / Supabase)
-1. Deploy PostgreSQL on **Supabase** / **Neon** / **Railway** and copy the Connection String.
-2. Deploy the `backend` folder on **Render.com** or **Railway.app**:
+## ☁️ Cloud & Production Deployment
+ 
+This project is built to deploy flexibly across any cloud or static hosting provider of your choice.
+ 
+### Step 1: Deploy Database & Backend
+1. Deploy PostgreSQL on your preferred managed provider (**Supabase**, **Neon**, **AWS RDS**, **Railway**, etc.) and copy the connection string.
+2. Deploy the `backend` folder to your server / platform:
    - **Root Directory**: `backend`
    - **Build Command**: `npm install && npx prisma generate && npx prisma migrate deploy`
    - **Start Command**: `npm start`
@@ -171,7 +158,18 @@ This project is built to deploy effortlessly with continuous integration: any pu
      - `DATABASE_URL`: `postgresql://...`
      - `JWT_SECRET`: `your_super_secret_jwt_key`
      - `PORT`: `4000`
-     - `CORS_ORIGIN`: `https://your-frontend-domain.vercel.app`
+     - `CORS_ORIGIN`: `https://your-frontend-domain.com`
+
+### Step 2: Deploy Frontend Application
+1. Configure your frontend hosting environment:
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+2. Add Environment Variables:
+   - `VITE_API_URL`: `https://your-backend-api-url.com/api` (URL of your backend)
+   - `VITE_SCHOOL_CODE`: `SCH-001`
+   - `VITE_SCHOOL_NAME_AR`: `مدرسة النور النموذجية`
+   - `VITE_SCHOOL_NAME_EN`: `Al-Noor Model School`
 
 ---
 

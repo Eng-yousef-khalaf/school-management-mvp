@@ -1,107 +1,156 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 
-export default function SchoolLogo({ size = 64, className = '', showText = false }) {
+export default function SchoolLogo({ size = 64, className = '', showText = false, customLogo = null, alt = 'School Logo' }) {
+  let configLogoUrl = '';
+  try {
+    const { config } = useSchoolConfig();
+    configLogoUrl = config?.logoUrl || '';
+  } catch (e) {
+    // Graceful fallback if rendered outside SchoolConfigProvider
+  }
+
+  const effectiveLogoUrl = customLogo || configLogoUrl;
+  const [imgError, setImgError] = useState(false);
+
+  // If a custom logo exists and hasn't errored out, render the custom image
+  if (effectiveLogoUrl && !imgError) {
+    return (
+      <div
+        className={`school-emblem-wrapper ${className}`}
+        style={{
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <img
+          src={effectiveLogoUrl}
+          alt={alt}
+          onError={() => setImgError(true)}
+          style={{
+            width: size,
+            height: size,
+            objectFit: 'contain',
+            borderRadius: Math.max(6, Math.floor(size * 0.15)),
+            filter: 'contrast(1.2) saturate(1.2) brightness(0.98)',
+            imageRendering: '-webkit-optimize-contrast',
+            background: 'transparent'
+          }}
+        />
+        {showText && (
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>
+              دولة فلسطين / وزارة التربية والتعليم
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
+              المنظومة الأكاديمية الذكية
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Authentic Official School Emblem (Navy, 24K Gold, Pure White Book & Flame)
   return (
-    <div className={`school-emblem-wrapper ${className}`} style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div
+      className={`school-emblem-wrapper ${className}`}
+      style={{
+        display: 'inline-flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
       <svg
         width={size}
         height={size}
         viewBox="0 0 120 120"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ filter: 'drop-shadow(0 4px 10px rgba(79, 70, 229, 0.25))' }}
+        style={{
+          filter: 'drop-shadow(0 4px 10px rgba(15, 23, 42, 0.35))',
+          imageRendering: '-webkit-optimize-contrast'
+        }}
       >
-        <defs>
-          <linearGradient id="emblemBg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1e1b4b" />
-            <stop offset="50%" stopColor="#312e81" />
-            <stop offset="100%" stopColor="#4338ca" />
-          </linearGradient>
-          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fbbf24" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#d97706" />
-          </linearGradient>
-          <linearGradient id="flameGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" stopColor="#ef4444" />
-            <stop offset="50%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#fbbf24" />
-          </linearGradient>
-          <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#f8fafc" />
-            <stop offset="50%" stopColor="#e2e8f0" />
-            <stop offset="100%" stopColor="#ffffff" />
-          </linearGradient>
-        </defs>
+        {/* Outer Circular Shield Base - Deep Royal Navy */}
+        <circle cx="60" cy="60" r="56" fill="#1e1b4b" stroke="#f59e0b" strokeWidth="3.5" />
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
 
-        {/* Outer Circular Base */}
-        <circle cx="60" cy="60" r="56" fill="url(#emblemBg)" stroke="url(#goldGradient)" strokeWidth="3" />
-        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(251, 191, 36, 0.4)" strokeWidth="1" strokeDasharray="3 3" />
-
-        {/* Laurel Wreath / Olive Branches */}
-        <g stroke="url(#goldGradient)" strokeWidth="1.5" strokeLinecap="round" fill="none">
+        {/* Golden Laurel Wreath / Olive Branches */}
+        <g stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" fill="none">
           {/* Left Branch */}
           <path d="M 28 75 C 22 55 30 35 44 26" />
-          <path d="M 27 68 C 21 64 21 57 26 56" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 26 54 C 20 49 22 42 28 42" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 31 40 C 27 34 32 28 38 29" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 39 30 C 37 23 44 20 48 23" fill="url(#goldGradient)" opacity="0.8" />
+          <path d="M 27 68 C 21 64 21 57 26 56" fill="#f59e0b" />
+          <path d="M 26 54 C 20 49 22 42 28 42" fill="#f59e0b" />
+          <path d="M 31 40 C 27 34 32 28 38 29" fill="#f59e0b" />
+          <path d="M 39 30 C 37 23 44 20 48 23" fill="#f59e0b" />
 
           {/* Right Branch */}
           <path d="M 92 75 C 98 55 90 35 76 26" />
-          <path d="M 93 68 C 99 64 99 57 94 56" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 94 54 C 100 49 98 42 92 42" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 89 40 C 93 34 88 28 82 29" fill="url(#goldGradient)" opacity="0.8" />
-          <path d="M 81 30 C 83 23 76 20 72 23" fill="url(#goldGradient)" opacity="0.8" />
+          <path d="M 93 68 C 99 64 99 57 94 56" fill="#f59e0b" />
+          <path d="M 94 54 C 100 49 98 42 92 42" fill="#f59e0b" />
+          <path d="M 89 40 C 93 34 88 28 82 29" fill="#f59e0b" />
+          <path d="M 81 30 C 83 23 76 20 72 23" fill="#f59e0b" />
         </g>
 
         {/* Torch / Flame of Wisdom */}
         <g>
           {/* Torch Handle */}
-          <path d="M 58 56 L 62 56 L 61 72 L 59 72 Z" fill="url(#goldGradient)" />
-          <path d="M 56 55 L 64 55 L 62 58 L 58 58 Z" fill="#d97706" />
-          {/* Flame */}
+          <path d="M 58 54 L 62 54 L 61 70 L 59 70 Z" fill="#f59e0b" stroke="#d97706" strokeWidth="0.8" />
+          <path d="M 56 53 L 64 53 L 62 56 L 58 56 Z" fill="#d97706" />
+
+          {/* Torch Flame */}
           <path
-            d="M 60 32 C 64 39 68 43 65 48 C 63 51 57 51 55 48 C 53 43 57 37 60 32 Z"
-            fill="url(#flameGradient)"
+            d="M 60 30 C 65 37 68 42 65 47 C 63 50 57 50 55 47 C 52 42 56 35 60 30 Z"
+            fill="#ef4444"
+            stroke="#f97316"
+            strokeWidth="1"
           />
           <path
-            d="M 60 38 C 62 42 63 44 62 47 C 61 49 59 49 58 47 C 57 44 59 40 60 38 Z"
-            fill="#fef08a"
+            d="M 60 36 C 63 40 64 43 62 46 C 61 48 59 48 58 46 C 56 43 57 39 60 36 Z"
+            fill="#fbbf24"
           />
+          <circle cx="60" cy="43" r="2.5" fill="#ffffff" />
         </g>
 
         {/* Open Book of Knowledge */}
-        <g transform="translate(0, 10)">
-          {/* Book Pages Base */}
+        <g transform="translate(0, 8)">
+          {/* Book Pages Base Fill - Crisp Pure White */}
           <path
-            d="M 60 68 C 50 63 36 65 30 68 L 30 83 C 36 80 50 78 60 83 C 70 78 84 80 90 83 L 90 68 C 84 65 70 63 60 68 Z"
-            fill="url(#bookGradient)"
+            d="M 60 67 C 49 61 34 63 26 66 L 26 83 C 34 80 49 78 60 84 C 71 78 86 80 94 83 L 94 66 C 86 63 71 61 60 67 Z"
+            fill="#ffffff"
             stroke="#cbd5e1"
-            strokeWidth="0.8"
+            strokeWidth="1.2"
           />
           {/* Center Spine */}
-          <line x1="60" y1="68" x2="60" y2="83" stroke="#94a3b8" strokeWidth="1.5" />
-          {/* Left Page Lines */}
-          <line x1="36" y1="72" x2="54" y2="70" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
-          <line x1="36" y1="76" x2="52" y2="74" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
-          {/* Right Page Lines */}
-          <line x1="66" y1="70" x2="84" y2="72" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
-          <line x1="68" y1="74" x2="84" y2="76" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
+          <line x1="60" y1="67" x2="60" y2="84" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round" />
+
+          {/* Left Page Text Lines */}
+          <line x1="33" y1="71" x2="53" y2="69" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="33" y1="75" x2="51" y2="73" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="35" y1="79" x2="48" y2="77" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+
+          {/* Right Page Text Lines */}
+          <line x1="67" y1="69" x2="87" y2="71" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="69" y1="73" x2="87" y2="75" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="72" y1="77" x2="85" y2="79" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
         </g>
 
         {/* Small Academic Cap on Top */}
-        <g transform="translate(60, 20) scale(0.6) translate(-60, -20)">
-          <polygon points="60,8 88,20 60,32 32,20" fill="url(#goldGradient)" />
-          <polygon points="60,8 88,20 60,22 32,20" fill="#fef08a" opacity="0.6" />
-          <path d="M 44 26 L 44 36 C 44 42 76 42 76 36 L 76 26" fill="none" stroke="url(#goldGradient)" strokeWidth="2" />
+        <g transform="translate(60, 18) scale(0.65) translate(-60, -18)">
+          <polygon points="60,6 88,18 60,30 32,18" fill="#f59e0b" stroke="#d97706" strokeWidth="1" />
+          <polygon points="60,6 88,18 60,20 32,18" fill="#fbbf24" opacity="0.6" />
+          <path d="M 44 24 L 44 34 C 44 40 76 40 76 34 L 76 24" fill="none" stroke="#f59e0b" strokeWidth="2" />
         </g>
 
-        {/* Bottom Ribbon / Stars */}
-        <g fill="url(#goldGradient)">
-          <polygon points="60,98 62,103 67,103 63,106 65,111 60,108 55,111 57,106 53,103 58,103" />
-          <polygon points="46,96 47.5,100 51.5,100 48.5,102.5 50,106.5 46,104 42,106.5 43.5,102.5 40.5,100 44.5,100" transform="scale(0.8) translate(8, 20)" />
-          <polygon points="74,96 75.5,100 79.5,100 76.5,102.5 78,106.5 74,104 70,106.5 71.5,102.5 68.5,100 72.5,100" transform="scale(0.8) translate(22, 20)" />
+        {/* Bottom Ribbon / Golden Stars */}
+        <g fill="#fbbf24" stroke="#d97706" strokeWidth="0.8">
+          <polygon points="60,98 62.5,103 68,103 63.5,106.5 65.5,112 60,108.5 54.5,112 56.5,106.5 52,103 57.5,103" />
+          <polygon points="44,95 46,99 50.5,99 47,101.5 48.5,106 44,103.5 39.5,106 41,101.5 37.5,99 42,99" />
+          <polygon points="76,95 78,99 82.5,99 79,101.5 80.5,106 76,103.5 71.5,106 73,101.5 69.5,99 74,99" />
         </g>
       </svg>
 
@@ -111,7 +160,7 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
             دولة فلسطين / وزارة التربية والتعليم
           </div>
           <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-            مدرسة يوسف للتربية والتعليم
+            المنظومة الأكاديمية الذكية
           </div>
         </div>
       )}

@@ -84,11 +84,49 @@ async function getBulkCertificates(req, res, next) {
   }
 }
 
+/**
+ * 1-Click Multi-Sheet Unified Official Excel Export for Ministry of Education & UNICEF
+ */
+async function exportUnifiedMinistryReport(req, res, next) {
+  try {
+    const { studentRows, teacherRows, summaryRows } = await reportService.getUnifiedMinistryReportData();
+
+    const sheets = [
+      { name: 'سجل الطلاب المعتمد', data: studentRows },
+      { name: 'كشف الهيئة التعليمية', data: teacherRows },
+      { name: 'المؤشرات العامة والتحليل', data: summaryRows }
+    ];
+
+    const buffer = excelService.generateMultiSheetExcelBuffer(sheets);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `Ministry_UNICEF_School_Register_${dateStr}.xlsx`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').send(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Executive Analytical Report Telemetry (JSON data for PDF / printable report)
+ */
+async function getExecutiveAnalyticalReport(req, res, next) {
+  try {
+    const data = await reportService.getExecutiveAnalyticalReport();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getStudentReport,
   getDemographics,
   getTeacherWorkload,
   getBulkCertificates,
   exportStudentReport,
-  exportTeacherWorkload
+  exportTeacherWorkload,
+  exportUnifiedMinistryReport,
+  getExecutiveAnalyticalReport
 };

@@ -29,6 +29,7 @@ const gradeRoutes = require('./routes/gradeRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const userRoutes = require('./routes/userRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const developerRoutes = require('./routes/developerRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 const prisma = require('./utils/prisma');
@@ -100,7 +101,7 @@ app.get('/', async (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>خادم مدرسة يوسف للتربية والتعليم | Backend API</title>
+      <title>${process.env.SCHOOL_NAME_AR || 'المنظومة الأكاديمية الذكية'} | Backend API</title>
       <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -328,7 +329,7 @@ app.get('/', async (req, res) => {
           </svg>
         </div>
 
-        <h1>مدرسة يوسف للتربية والتعليم</h1>
+        <h1>${process.env.SCHOOL_NAME_AR || 'المنظومة الأكاديمية الذكية'}</h1>
         <p class="subtitle">محرك الخدمات البرمجية وقواعد البيانات (Backend API Services V2)</p>
 
         <div class="status-card">
@@ -400,7 +401,7 @@ app.get('/', async (req, res) => {
 app.get('/api/health', async (_, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ ok: true, status: 'healthy', school: 'مدرسة يوسف للتربية والتعليم', country: 'دولة فلسطين / وزارة التربية والتعليم', timestamp: new Date().toISOString() });
+    res.json({ ok: true, status: 'healthy', school: process.env.SCHOOL_NAME_AR || 'المنظومة الأكاديمية الذكية', country: 'دولة فلسطين / وزارة التربية والتعليم', timestamp: new Date().toISOString() });
   } catch (e) {
     res.status(503).json({ ok: false, status: 'database_unavailable', error: e.message });
   }
@@ -426,6 +427,7 @@ app.use('/api/grades', gradeRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
+app.use('/api/developer', developerRoutes);
 
 // Centralized error handler
 app.use(errorHandler);

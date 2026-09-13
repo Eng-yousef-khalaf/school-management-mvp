@@ -8,7 +8,9 @@
     "seed": "node prisma/seed.js",
     "db:reset": "node prisma/reset_clean_slate.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:supabase": "prisma db push --schema=prisma/schema.postgresql.prisma",
+    "setup:school": "node scripts/setup-new-school.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.0",

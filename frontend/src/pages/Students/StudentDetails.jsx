@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
-import { EditIcon, DownloadIcon } from '../../components/common/Icons';
+import { EditIcon, DownloadIcon, PalestineFlagIcon } from '../../components/common/Icons';
 import SchoolLogo from '../../components/common/SchoolLogo';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
   const { canManageStudents } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -440,18 +442,19 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         {/* Printable Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 16, marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>
-              {isRtl ? '🇵🇸 دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <PalestineFlagIcon />
+              <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
             </div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 2 }}>
-              مدرسة يوسف للتربية والتعليم
+              {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
             </div>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
               {isRtl ? 'قسم شؤون الطلاب والتسجيل والامتحانات' : 'Registrar & Student Affairs Department'}
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <SchoolLogo size={58} />
+            <SchoolLogo size={62} />
           </div>
           <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary)' }}>
@@ -549,7 +552,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 36 }}>
               {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
               <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
-                محمد
+                {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
               </div>
             </div>
             <div style={{ borderBottom: '1px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
@@ -558,7 +561,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 36 }}>
               {isRtl ? 'مدير المدرسة / الاعتماد' : 'School Principal'}
               <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
-                يوسف
+                {isRtl ? 'إدارة المدرسة' : 'School Principal'}
               </div>
             </div>
             <div style={{ borderBottom: '1px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
@@ -568,8 +571,8 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
               {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Stamp'}
             </div>
             <div style={{ width: 64, height: 64, border: '2px dashed #4f46e5', borderRadius: '50%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', fontSize: 9, fontWeight: 800 }}>
-              <span>مدرسة يوسف</span>
-              <span style={{ fontSize: 8 }}>الختم المعتمد</span>
+              <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
+              <span style={{ fontSize: 8 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
             </div>
           </div>
         </div>

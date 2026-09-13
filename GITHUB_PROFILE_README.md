@@ -127,7 +127,7 @@
       • Docker Containers<br/>
       • Git & GitHub Actions<br/>
       • Linux Environments<br/>
-      • Vercel & Cloud Deploy<br/>
+      • Cloud Deploy & Web Hosting<br/>
       • Postman API Testing<br/>
       • CI/CD Pipelines
     </td>

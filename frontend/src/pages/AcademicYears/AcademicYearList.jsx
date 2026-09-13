@@ -12,7 +12,7 @@ import { PlusIcon, EditIcon, CheckIcon } from '../../components/common/Icons';
 
 export default function AcademicYearList() {
   const toast = useToast();
-  const { isStaff, isAdmin } = useAuth();
+  const { isStaff, isAdmin, canManageAcademicYears } = useAuth();
   const { t, isRtl } = useLanguage();
   const { setViewingYearId } = useAcademicYear();
   const [years, setYears] = useState([]);
@@ -23,7 +23,7 @@ export default function AcademicYearList() {
   const [isRolloverOpen, setIsRolloverOpen] = useState(false);
   const [editingYear, setEditingYear] = useState(null);
 
-  const canManage = isStaff || isAdmin;
+  const canManage = canManageAcademicYears ?? isAdmin;
 
   const loadYears = async () => {
     try {

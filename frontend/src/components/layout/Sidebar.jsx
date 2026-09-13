@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import {
   DashboardIcon,
   StudentsIcon,
@@ -20,8 +21,9 @@ import {
 import SchoolLogo from '../common/SchoolLogo';
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
-  const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
+  const { user, logout, isAdmin, isStaff, isTeacher, isDeveloper } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
 
   // Role-specific navigation definitions
   let navItems = [];
@@ -52,7 +54,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, visible: true }
     ];
   } else {
-    // ADMIN (Executive & Governance Scope - No student micro-data)
+    // ADMIN (Executive & Governance Scope)
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
       { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
@@ -67,37 +69,45 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     ];
   }
 
-  const roleColor = user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const roleColor = user?.isDeveloper ? '#6366f1' : user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const schoolName = isRtl ? config.schoolNameAr : config.schoolNameEn;
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <SchoolLogo size={42} />
-        <div className="sidebar-brand">
-          <h2 style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.2 }}>{t('appTitle')}</h2>
+        {config.logoUrl ? (
+          <img src={config.logoUrl} alt="Logo" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'contain' }} />
+        ) : (
+          <SchoolLogo size={42} />
+        )}
+        <div className="sidebar-brand" style={{ maxWidth: 170 }}>
+          <h2 style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={schoolName}>
+            {schoolName}
+          </h2>
           <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
-            {user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
+            {user?.isDeveloper ? (isRtl ? '👑 المطور العام (Master)' : '👑 Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
           </span>
         </div>
       </div>
 
       <div className="sidebar-nav">
         <div className="nav-section-title">
-          {isRtl ? `مهام ${user?.role === 'ADMIN' ? 'الإدارة والرقابة' : user?.role === 'STAFF' ? 'شؤون المعلمين والطلاب' : 'المعلم'}` : `${user?.role} Navigation`}
+          {isRtl ? `مهام ${user?.isDeveloper ? 'المطور العام' : user?.role === 'ADMIN' ? 'الإدارة والرقابة' : user?.role === 'STAFF' ? 'شؤون المعلمين والطلاب' : 'المعلم'}` : `${user?.role} Navigation`}
         </div>
         {navItems
           .filter((item) => item.visible)
           .map((item) => (
             <button
               key={item.id}
-              className={`nav-item ${currentPage === item.id || (currentPage.startsWith(item.id) && item.id !== 'dashboard') ? 'active' : ''}`}
+              className={`nav-item ${currentPage === item.id || (currentPage.startsWith(item.id) && item.id !== 'dashboard' && item.id !== 'developer-fleet') ? 'active' : ''}`}
+              style={item.id === 'developer-fleet' ? { borderLeft: isRtl ? 'none' : '3px solid #6366f1', borderRight: isRtl ? '3px solid #6366f1' : 'none', background: 'rgba(99, 102, 241, 0.08)' } : {}}
               onClick={() => {
                 onNavigate(item.id);
                 if (onClose) onClose();
               }}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span style={item.id === 'developer-fleet' ? { color: '#a5b4fc', fontWeight: 700 } : {}}>{item.label}</span>
             </button>
           ))}
       </div>
@@ -110,7 +120,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
           <div className="user-details">
             <div className="user-name">{user?.fullName || 'User'}</div>
             <div className="user-role-tag" style={{ color: roleColor }}>
-              {user?.role === 'ADMIN' ? t('roleAdmin') : user?.role === 'STAFF' ? t('roleStaff') : t('roleTeacher')}
+              {user?.isDeveloper ? 'SUPER ADMIN' : user?.role === 'ADMIN' ? t('roleAdmin') : user?.role === 'STAFF' ? t('roleStaff') : t('roleTeacher')}
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const translations = {
   ar: {
     // General / Common
-    appTitle: 'مدرسة يوسف للتربية والتعليم',
+    appTitle: 'المنظومة الأكاديمية لإدارة المدارس',
     appSubtitle: 'نظام الإدارة الأكاديمية والتربوية الشامل V2',
     loading: 'جاري التحميل...',
     saving: 'جاري الحفظ...',
@@ -40,20 +40,20 @@ const translations = {
     switchLanguage: 'تغيير اللغة',
     
     // Roles
-    roleAdmin: 'يوسف (المدير العام)',
+    roleAdmin: 'المدير العام',
     roleStaff: 'شؤون المعلمين والطلاب',
     roleTeacher: 'المعلم (Teacher)',
     role: 'الدور',
     
     // Login Screen
-    loginTitle: 'مدرسة يوسف للتربية والتعليم',
+    loginTitle: 'المنظومة الأكاديمية لإدارة المدارس',
     loginSubtitle: 'بوابة الإدارة المدرسية والخدمات الأكاديمية الذكية',
     emailLabel: 'البريد الإلكتروني',
     passwordLabel: 'كلمة المرور',
     signInBtn: 'تسجيل الدخول',
     signingIn: 'جاري التحقق والدخول...',
     demoAccountsTitle: 'روابط وحسابات الدخول السريع (Demo Portals)',
-    adminPortal: 'بوابة المدير (يوسف)',
+    adminPortal: 'بوابة المدير العام',
     staffPortal: 'شؤون المعلمين والطلاب',
     teacherPortal: 'بوابة المعلم',
     instantAccess: 'دخول فوري بنقرة واحدة',
@@ -244,7 +244,7 @@ const translations = {
 
   en: {
     // General / Common
-    appTitle: 'Youssef Educational School',
+    appTitle: 'Smart School Management System',
     appSubtitle: 'Enterprise Academic & Operations Platform V2',
     loading: 'Loading...',
     saving: 'Saving...',
@@ -281,20 +281,20 @@ const translations = {
     switchLanguage: 'Switch Language',
 
     // Roles
-    roleAdmin: 'Youssef (General Director)',
+    roleAdmin: 'School Director (Admin)',
     roleStaff: 'Faculty & Student Affairs',
     roleTeacher: 'Faculty Teacher (Teacher)',
     role: 'Role',
 
     // Login Screen
-    loginTitle: 'Youssef Educational School',
+    loginTitle: 'Smart School Management System',
     loginSubtitle: 'Sign in to access school management & student services',
     emailLabel: 'Email Address',
     passwordLabel: 'Password',
     signInBtn: 'Sign In',
     signingIn: 'Authenticating...',
     demoAccountsTitle: 'Quick Role Portals (Demo Access)',
-    adminPortal: 'Director Portal (Youssef)',
+    adminPortal: 'Director Portal',
     staffPortal: 'Faculty & Student Affairs',
     teacherPortal: 'Teacher Portal',
     instantAccess: 'One-Click Instant Access',

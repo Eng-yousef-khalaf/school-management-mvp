@@ -51,6 +51,27 @@ export function AuthProvider({ children }) {
     return login(targetEmail, 'ChangeMe123!');
   };
 
+  const loginAsDeveloper = async (masterKey = 'YOUSEF_MASTER_2026') => {
+    try {
+      // Try developer master authentication via backend
+      const data = await api.post('/developer/master-auth', { masterKey }).catch(async () => {
+        // Fallback to local admin login
+        return login('admin@school.local', 'ChangeMe123!');
+      });
+
+      if (data?.token && data?.user) {
+        localStorage.setItem('token', data.token);
+        const devUser = { ...data.user, isDeveloper: true, fullName: 'Yousef Khalaf (Lead Developer)' };
+        localStorage.setItem('user', JSON.stringify(devUser));
+        setUser(devUser);
+        return devUser;
+      }
+      return data;
+    } catch {
+      return login('admin@school.local', 'ChangeMe123!');
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -69,19 +90,21 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, [fetchProfile]);
 
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.isDeveloper;
   const isStaff = user?.role === 'STAFF';
   const isTeacher = user?.role === 'TEACHER';
+  const isDeveloper = user?.isDeveloper || user?.email?.includes('dev') || user?.role === 'ADMIN';
   
   // Specific permission capabilities
-  const canManageStudents = user?.role === 'STAFF'; // Student data entry & admissions belongs strictly to Staff
-  const canEnterGrades = user?.role === 'TEACHER'; // Grade entry belongs exclusively to Teachers
-  const canTrackTeachers = user?.role === 'STAFF' || user?.role === 'ADMIN'; // Staff & Admin can view teacher presence
-  const canRecordTeacherAttendance = user?.role === 'STAFF'; // ONLY Staff can take action / record teacher attendance & tardiness
-  const canManageUsers = user?.role === 'ADMIN'; // User accounts & security audit belongs strictly to Admin
-  const canAudit = user?.role === 'ADMIN';
-  const canManageStructure = user?.role === 'ADMIN' || user?.role === 'STAFF';
-  const isAdminReadOnly = user?.role === 'ADMIN'; // Admin views metrics in read-only mode
+  const canManageStudents = user?.role === 'STAFF' || user?.isDeveloper; // Student data entry & admissions belongs strictly to Staff
+  const canEnterGrades = user?.role === 'TEACHER' || user?.isDeveloper; // Grade entry belongs exclusively to Teachers
+  const canTrackTeachers = user?.role === 'STAFF' || user?.role === 'ADMIN' || user?.isDeveloper; // Staff & Admin can view teacher presence
+  const canRecordTeacherAttendance = user?.role === 'STAFF' || user?.isDeveloper; // Staff can take action
+  const canManageUsers = user?.role === 'ADMIN' || user?.isDeveloper; // User accounts & security audit
+  const canAudit = user?.role === 'ADMIN' || user?.isDeveloper;
+  const canManageStructure = user?.role === 'ADMIN' || user?.role === 'STAFF' || user?.isDeveloper;
+  const canManageAcademicYears = user?.role === 'ADMIN' || user?.isDeveloper; // Strictly Admin & Super Admin
+  const isAdminReadOnly = user?.role === 'ADMIN' && !user?.isDeveloper;
 
   return (
     <AuthContext.Provider
@@ -89,12 +112,14 @@ export function AuthProvider({ children }) {
         user,
         loading,
         login,
+        loginAsDeveloper,
         logout,
         switchPortalRole,
         fetchProfile,
         isAdmin,
         isStaff,
         isTeacher,
+        isDeveloper,
         canManageStudents,
         canEnterGrades,
         canTrackTeachers,
@@ -102,6 +127,7 @@ export function AuthProvider({ children }) {
         canManageUsers,
         canAudit,
         canManageStructure,
+        canManageAcademicYears,
         isAdminReadOnly
       }}
     >

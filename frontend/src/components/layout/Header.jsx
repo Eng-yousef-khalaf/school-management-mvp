@@ -3,12 +3,14 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import { useAcademicYear } from '../../context/AcademicYearContext';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { AcademicYearIcon } from '../common/Icons';
 
 export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNavigate }) {
   const { user, switchPortalRole } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
   const toast = useToast();
   const { activeYear, allYears, selectedYearId, isArchiveView, setViewingYearId } = useAcademicYear();
   const [switching, setSwitching] = useState(false);
@@ -140,6 +142,23 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
             <span>👨‍🏫</span>
             <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
           </button>
+        </div>
+
+        {/* School Instance Badge */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: 'rgba(99, 102, 241, 0.08)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          padding: '5px 10px',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: 'var(--primary)'
+        }}>
+          <span>🏫</span>
+          <span>{config.schoolCode}</span>
         </div>
 
         {/* Current Role Identity Badge */}

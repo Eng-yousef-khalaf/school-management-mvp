@@ -984,18 +984,60 @@ tbody tr:hover {
   }
 }
 
-/* Print Stylesheet for Official Statements */
+/* Print Stylesheet for Official Statements & Executive Reports */
 @media screen {
   .only-print {
     display: none !important;
   }
+  .unicef-report-overlay {
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 24px 14px;
+  }
+  .unicef-report-modal {
+    max-width: 1080px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    margin: auto;
+  }
+  .report-page-preview {
+    background: #ffffff;
+    padding: 36px 44px;
+    border: 1px solid #e2e8f0;
+    margin: 0 auto 28px auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 10mm 12mm 12mm 12mm;
 }
 
 @media print {
-  body {
-    background: #fff !important;
-    color: #000 !important;
+  html, body, #root, .app-container, .main-wrapper, .content-body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+    position: static !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
   .sidebar,
   .header,
   .topbar,
@@ -1006,6 +1048,38 @@ tbody tr:hover {
   button {
     display: none !important;
   }
+
+  .modal-overlay,
+  .unicef-report-overlay {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    inset: auto !important;
+  }
+
+  .modal-content,
+  .unicef-report-modal {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    display: block !important;
+  }
+
   .layout-main,
   .layout-content,
   .content,
@@ -1015,15 +1089,140 @@ tbody tr:hover {
     margin: 0 !important;
     max-width: 100% !important;
   }
+
+  #printable-unicef-report,
+  .report-pages-wrapper,
+  .report-flow-container {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Standalone Official Cover Page */
+  .report-cover-page {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 265mm !important;
+    height: auto !important;
+    padding: 8mm 10mm !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    background: #ffffff !important;
+  }
+
+  /* Flowing Analytical Section Cards (Protected from awkward splitting) */
+  .report-section-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    margin-bottom: 14px !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 10px 12px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Tables: Repeat header upon page break */
+  table {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+  }
+
+  /* Official Signatures & Seal Block: Kept together on the last page */
+  .report-signatures-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    margin-top: 18px !important;
+    padding-top: 12px !important;
+    border-top: 2px solid #0f172a !important;
+    background: #ffffff !important;
+  }
+
+  /* Running Page Mini Header */
+  .report-running-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 2px solid #0f172a !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 14px !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .printable-certificate-sheet {
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
   .panel.official-parent-statement {
     display: block !important;
     box-shadow: none !important;
-    border: 2px solid #000 !important;
+    border: 2px solid #000000 !important;
     border-radius: 0 !important;
     padding: 20px !important;
     page-break-inside: avoid;
   }
+
   .only-print {
     display: block !important;
   }
+
+  /* High-Contrast Vivid Emblem & School Logo Print Rules */
+  .school-emblem-wrapper {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    display: inline-flex !important;
+  }
+
+  .school-emblem-wrapper img,
+  .school-emblem-wrapper svg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    filter: contrast(1.6) saturate(1.8) brightness(0.95) !important;
+    image-rendering: -webkit-optimize-contrast !important;
+    display: block !important;
+  }
 }
+

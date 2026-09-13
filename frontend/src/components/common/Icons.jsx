@@ -229,3 +229,31 @@ export function AlertCircleIcon(props) {
     </svg>
   );
 }
+
+export function PalestineFlagIcon({ width = 22, height = 15, style = {}, className = '' }) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 600 300"
+      className={className}
+      style={{ borderRadius: 2, display: 'inline-block', verticalAlign: 'middle', border: '1px solid rgba(0,0,0,0.15)', ...style }}
+    >
+      <rect width="600" height="100" fill="#000000" />
+      <rect y="100" width="600" height="100" fill="#ffffff" />
+      <rect y="200" width="600" height="100" fill="#007A3D" />
+      <polygon points="0,0 200,150 0,300" fill="#E4312b" />
+    </svg>
+  );
+}
+
+export function UnicefEmblemIcon({ size = 32, color = '#00aef0', style = {} }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}>
+      <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="1.8" />
+      <path d="M12 4 C10 8 10 16 12 20 M12 4 C14 8 14 16 12 20 M4 12 C8 10 16 10 20 12 M4 12 C8 14 16 14 20 12" stroke={color} strokeWidth="1.2" fill="none" />
+      <circle cx="12" cy="9" r="2" fill={color} />
+      <path d="M9 16 C9 13.5 15 13.5 15 16" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -73,7 +73,7 @@ Deploy PostgreSQL 16 on any managed provider:
   npx prisma generate && npx prisma migrate deploy && npm start
   ```
 
-### C. Frontend Deployment (Vercel, Cloudflare Pages, Netlify)
+### C. Frontend Deployment (Static & Cloud Web Hosting)
 - Set Environment Variable:
   - `VITE_API_URL`: `https://your-backend-api.com/api`
 - Build command: `npm run build`

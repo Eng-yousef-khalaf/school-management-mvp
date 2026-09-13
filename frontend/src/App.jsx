@@ -32,10 +32,27 @@ import ReportsHub from './pages/Reports/ReportsHub';
 import UserList from './pages/Users/UserList';
 import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
+import DeveloperPortalStandalone from './pages/Developer/DeveloperPortalStandalone';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole } = useAuth();
   const { t, isRtl } = useLanguage();
+
+  const [isDeveloperPortal, setIsDeveloperPortal] = useState(() => {
+    const search = window.location.search.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    return (
+      path.includes('developer-hub') ||
+      path.includes('dev-hub') ||
+      hash.includes('developer') ||
+      hash.includes('dev-hub') ||
+      hash.includes('dev') ||
+      search.includes('portal=dev') ||
+      search.includes('portal=developer') ||
+      search.includes('role=dev')
+    );
+  });
 
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedStudentId, setSelectedStudentId] = useState(null);
@@ -43,9 +60,24 @@ export default function App() {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [attendanceClassId, setAttendanceClassId] = useState('');
 
-  // Auto-switch role if ?role=... or #... is in URL
+  // Auto-switch role or detect developer portal
   useEffect(() => {
-    const handleUrlRole = () => {
+    const handleUrlRoute = () => {
+      const search = window.location.search.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const isDev =
+        path.includes('developer-hub') ||
+        path.includes('dev-hub') ||
+        hash.includes('developer') ||
+        hash.includes('dev-hub') ||
+        hash.includes('dev') ||
+        search.includes('portal=dev') ||
+        search.includes('portal=developer') ||
+        search.includes('role=dev');
+
+      setIsDeveloperPortal(isDev);
+
       const urlParams = new URLSearchParams(window.location.search);
       const roleParam = urlParams.get('role')?.toUpperCase();
       const hashParam = window.location.hash.replace('#/', '').replace('#', '').toUpperCase();
@@ -60,14 +92,28 @@ export default function App() {
       }
     };
 
-    handleUrlRole();
-    window.addEventListener('popstate', handleUrlRole);
-    window.addEventListener('hashchange', handleUrlRole);
+    handleUrlRoute();
+    window.addEventListener('popstate', handleUrlRoute);
+    window.addEventListener('hashchange', handleUrlRoute);
     return () => {
-      window.removeEventListener('popstate', handleUrlRole);
-      window.removeEventListener('hashchange', handleUrlRole);
+      window.removeEventListener('popstate', handleUrlRoute);
+      window.removeEventListener('hashchange', handleUrlRoute);
     };
   }, [user, switchPortalRole]);
+
+  // If in standalone developer route, render isolated developer portal
+  if (isDeveloperPortal) {
+    return (
+      <DeveloperPortalStandalone
+        onExitToSchool={() => {
+          window.location.hash = '';
+          window.location.search = '';
+          window.history.pushState({}, '', '/');
+          setIsDeveloperPortal(false);
+        }}
+      />
+    );
+  }
 
   // Editing Modals from details
   const [editingStudentFromDetails, setEditingStudentFromDetails] = useState(null);
@@ -137,6 +183,11 @@ export default function App() {
         return { title: t('usersTitle'), subtitle: t('usersSubtitle') };
       case 'audit-logs':
         return { title: t('auditLogsTitle'), subtitle: t('auditLogsSubtitle') };
+      case 'developer-fleet':
+        return { 
+          title: isRtl ? 'لوحة تحكم المطور والأسطول' : 'Developer Master Fleet Hub', 
+          subtitle: isRtl ? 'مراقبة سعة التخزين لقواعد البيانات ونسخ المدارس المستقلة' : 'Monitor database storage quotas, isolated school deployments, and master updates' 
+        };
       case 'settings':
         return { title: t('settingsTitle'), subtitle: t('settingsSubtitle') };
       default:

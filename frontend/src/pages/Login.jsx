@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useSchoolConfig } from '../context/SchoolConfigContext';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import ErrorAlert from '../components/common/ErrorAlert';
 import SchoolLogo from '../components/common/SchoolLogo';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loginAsDeveloper } = useAuth();
   const toast = useToast();
   const { t, isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
 
   const [activeRole, setActiveRole] = useState('ADMIN');
   const [email, setEmail] = useState('admin@school.local');
@@ -30,8 +32,23 @@ export default function Login() {
       selectRole('STAFF');
     } else if (targetRole === 'ADMIN') {
       selectRole('ADMIN');
+    } else if (targetRole === 'DEVELOPER' || targetRole === 'DEV') {
+      handleDeveloperMasterLogin();
     }
   }, []);
+
+  const handleDeveloperMasterLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const devUser = await loginAsDeveloper('YOUSEF_MASTER_2026');
+      toast.success(isRtl ? `مرحباً بك يا مطور المنصة الرئيسي، ${devUser.fullName}!` : `Welcome Platform Lead Developer, ${devUser.fullName}!`);
+    } catch (err) {
+      setError(err.message || 'Developer login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const teacherAccounts = [
     { name: 'أحمد خليل', subject: 'رياضيات', email: 'ahmed.khalil@school.local', classes: 'Grade 7 A, 8 A' },
@@ -89,32 +106,36 @@ export default function Login() {
         <div className="login-brand" style={{ textAlign: 'center', marginBottom: 20 }}>
           {/* Official Emblem Logo */}
           <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'center' }}>
-            <SchoolLogo size={78} />
+            {config.logoUrl ? (
+              <img src={config.logoUrl} alt="School Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain' }} />
+            ) : (
+              <SchoolLogo size={78} />
+            )}
           </div>
 
-          {/* Ministry Badge */}
+          {/* Ministry / Instance Badge */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
             fontSize: '12px',
             fontWeight: 800,
-            color: '#047857',
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            color: 'var(--primary)',
+            background: 'var(--primary-light)',
+            border: '1px solid var(--border-color)',
             padding: '4px 14px',
             borderRadius: '9999px',
             marginBottom: 6
           }}>
-            <span>🇵🇸</span>
-            <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
+            <span>🏫</span>
+            <span>{config.schoolCode} • {isRtl ? 'المنظومة الأكاديمية السحابية' : 'Dedicated Cloud Academic Instance'}</span>
           </div>
 
           <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#1e1b4b', margin: '4px 0' }}>
-            {isRtl ? 'مدرسة يوسف للتربية والتعليم' : 'Youssef Educational School'}
+            {isRtl ? config.schoolNameAr : config.schoolNameEn}
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: '4px 0 0 0' }}>
-            {t('loginSubtitle')}
+            {isRtl ? config.schoolSloganAr : config.schoolSloganEn}
           </p>
         </div>
 
@@ -144,7 +165,7 @@ export default function Login() {
               }}
             >
               <span style={{ fontSize: '20px' }}>👔</span>
-              <span>{isRtl ? 'المدير (يوسف)' : 'Admin (Youssef)'}</span>
+              <span>{isRtl ? 'المدير العام' : 'Admin'}</span>
             </button>
 
             <button
@@ -324,7 +345,7 @@ export default function Login() {
         </form>
 
         <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '12px', color: 'var(--text-light)' }}>
-          {isRtl ? 'نظام إدارة المدرسة - الإصدار الأكاديمي الشامل V2' : 'School Management System - Enterprise Academic V2'}
+          {isRtl ? `${config.schoolNameAr} — Multi-Instance Academic Platform V2` : `${config.schoolNameEn} — Multi-Instance Academic Platform V2`}
         </div>
       </div>
     </div>

@@ -155,9 +155,19 @@ function generateExcelBuffer(sheetData, sheetName = 'Sheet1') {
   return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 }
 
+function generateMultiSheetExcelBuffer(sheets = []) {
+  const wb = XLSX.utils.book_new();
+  sheets.forEach(({ name, data }) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31)); // Excel max sheet name is 31 chars
+  });
+  return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+}
+
 module.exports = {
   parseStudentFile,
   validateStudentRows,
   importValidatedStudents,
-  generateExcelBuffer
+  generateExcelBuffer,
+  generateMultiSheetExcelBuffer
 };
