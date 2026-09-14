@@ -22,7 +22,7 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
 
     try {
       const devUser = await loginAsDeveloper(masterKey.trim());
-      toast.success(isRtl ? `مرحباً بك يا مطور المنصة الرئيسي، ${devUser.fullName}!` : `Developer Master Session Unlocked: ${devUser.fullName}`);
+      toast.success(isRtl ? `مرحباً بك يا مهندس ومطور المنظومة، ${devUser.fullName}!` : `Developer Master Session Unlocked: ${devUser.fullName}`);
     } catch (err) {
       setError(isRtl ? 'مفتاح المطور غير صحيح. يرجى التحقق من المفتاح السري.' : 'Invalid Developer Master Key.');
     } finally {
@@ -83,7 +83,7 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
           </div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>
-              {isRtl ? 'بوابة المطور المستقلة ومراقبة الأسطول' : 'Standalone Developer Fleet Hub'}
+              {isRtl ? 'بوابة المطور ومهندس المنظومة المستقلة' : 'Standalone System Engineering Hub'}
             </div>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
               YOUSEF KHALAF • MASTER CONTROL & DATABASE TELEMETRY
@@ -191,8 +191,8 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
             </h2>
             <p style={{ color: '#64748b', fontSize: 13, marginBottom: 26, lineHeight: 1.6 }}>
               {isRtl
-                ? 'هذه البوابة سرية ومستقلة تماماً مخصصة لمالك المنصة (يوسف) لإدارة أسطول المدارس، نسب استهلاك قواعد البيانات، وتدشين الفروع.'
-                : 'This is an isolated standalone gateway for platform engineering, Supabase fleet metrics, and school deployments.'}
+                ? 'بوابة تحكم سرية ومستقلة مخصصة للمطور (يوسف) لفحص الخادم، تشخيص قاعدة البيانات، والصيانة المباشرة.'
+                : 'Isolated standalone gateway for platform engineering, database diagnostics, and direct maintenance.'}
             </p>
 
             {error && (

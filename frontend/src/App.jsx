@@ -183,10 +183,11 @@ export default function App() {
         return { title: t('usersTitle'), subtitle: t('usersSubtitle') };
       case 'audit-logs':
         return { title: t('auditLogsTitle'), subtitle: t('auditLogsSubtitle') };
+      case 'developer-hub':
       case 'developer-fleet':
         return { 
-          title: isRtl ? 'لوحة تحكم المطور والأسطول' : 'Developer Master Fleet Hub', 
-          subtitle: isRtl ? 'مراقبة سعة التخزين لقواعد البيانات ونسخ المدارس المستقلة' : 'Monitor database storage quotas, isolated school deployments, and master updates' 
+          title: isRtl ? 'لوحة تحكم مهندس ومطور المنظومة' : 'Developer Engineering & Diagnostics Hub', 
+          subtitle: isRtl ? 'فحص الخادم وقاعدة البيانات، مراقبة استهلاك الجداول، وأدوات الصيانة' : 'Server health diagnostics, live database table analysis, and maintenance utilities' 
         };
       case 'settings':
         return { title: t('settingsTitle'), subtitle: t('settingsSubtitle') };

@@ -345,7 +345,7 @@ export default function Login() {
         </form>
 
         <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '12px', color: 'var(--text-light)' }}>
-          {isRtl ? `${config.schoolNameAr} — Multi-Instance Academic Platform V2` : `${config.schoolNameEn} — Multi-Instance Academic Platform V2`}
+          {isRtl ? `${config.schoolNameAr} — منظومة إدارة المدرسة الذكية` : `${config.schoolNameEn} — Smart School Management System`}
         </div>
       </div>
     </div>
