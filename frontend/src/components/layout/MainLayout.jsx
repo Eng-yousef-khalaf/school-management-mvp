@@ -11,6 +11,12 @@ export default function MainLayout({ children, currentPage, onNavigate, pageTitl
 
   return (
     <div className="app-container">
+      {/* Mobile Drawer Backdrop Overlay */}
+      <div
+        className={`sidebar-backdrop ${sidebarOpen ? 'active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden={!sidebarOpen}
+      />
       <Sidebar
         currentPage={currentPage}
         onNavigate={onNavigate}

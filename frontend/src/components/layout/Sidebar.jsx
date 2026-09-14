@@ -74,20 +74,32 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        {config.logoUrl ? (
-          <img src={config.logoUrl} alt="Logo" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'contain' }} />
-        ) : (
-          <SchoolLogo size={42} />
-        )}
-        <div className="sidebar-brand" style={{ maxWidth: 170 }}>
-          <h2 style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={schoolName}>
-            {schoolName}
-          </h2>
-          <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
-            {user?.isDeveloper ? (isRtl ? '👑 المطور العام (Master)' : '👑 Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
-          </span>
+      <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
+          {config.logoUrl ? (
+            <img src={config.logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'contain' }} />
+          ) : (
+            <SchoolLogo size={40} />
+          )}
+          <div className="sidebar-brand" style={{ maxWidth: 155 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={schoolName}>
+              {schoolName}
+            </h2>
+            <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
+              {user?.isDeveloper ? (isRtl ? '👑 المطور العام (Master)' : '👑 Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
+            </span>
+          </div>
         </div>
+
+        {/* Mobile Close Button */}
+        <button
+          className="mobile-sidebar-close-btn"
+          onClick={onClose}
+          title={isRtl ? 'إغلاق القائمة' : 'Close Sidebar'}
+          aria-label="Close Sidebar"
+        >
+          ✕
+        </button>
       </div>
 
       <div className="sidebar-nav">
@@ -112,20 +124,28 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
           ))}
       </div>
 
+      {/* Prominent High-Visibility Footer & Logout Block */}
       <div className="sidebar-footer">
         <div className="user-profile-badge">
           <div className="user-avatar" style={{ background: roleColor }}>
             {user?.fullName?.charAt(0) || 'U'}
           </div>
           <div className="user-details">
-            <div className="user-name">{user?.fullName || 'User'}</div>
+            <div className="user-name" title={user?.fullName}>{user?.fullName || 'User'}</div>
             <div className="user-role-tag" style={{ color: roleColor }}>
               {user?.isDeveloper ? 'SUPER ADMIN' : user?.role === 'ADMIN' ? t('roleAdmin') : user?.role === 'STAFF' ? t('roleStaff') : t('roleTeacher')}
             </div>
           </div>
         </div>
-        <button className="btn-logout" onClick={logout} title={t('logout')}>
-          <LogoutIcon />
+
+        {/* Prominent Red Logout Button */}
+        <button
+          className="btn-prominent-logout"
+          onClick={logout}
+          title={isRtl ? 'تسجيل الخروج من الحساب والعودة لشاشة الدخول' : 'Sign out of your account'}
+        >
+          <LogoutIcon style={{ width: 18, height: 18 }} />
+          <span>{isRtl ? 'تسجيل الخروج' : 'Log Out'}</span>
         </button>
       </div>
     </aside>

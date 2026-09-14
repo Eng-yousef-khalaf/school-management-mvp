@@ -5,10 +5,10 @@ import { useToast } from '../../context/ToastContext';
 import { useAcademicYear } from '../../context/AcademicYearContext';
 import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
-import { AcademicYearIcon } from '../common/Icons';
+import { AcademicYearIcon, LogoutIcon } from '../common/Icons';
 
 export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNavigate }) {
-  const { user, switchPortalRole } = useAuth();
+  const { user, switchPortalRole, logout } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
   const toast = useToast();
@@ -224,10 +224,21 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           activeYear && (
             <div className="academic-year-badge" style={{ background: '#ecfdf5', border: '1px solid #10b981', color: '#065f46' }}>
               <AcademicYearIcon style={{ width: 14, height: 14, color: '#10b981' }} />
-              <span>{isRtl ? `العام الدراسي النشط: ${activeYear.name}` : `Active: ${activeYear.name}`}</span>
+              <span>{isRtl ? `العام الدراسي: ${activeYear.name}` : `Active: ${activeYear.name}`}</span>
             </div>
           )
         )}
+
+        {/* Prominent Quick Logout Button */}
+        <button
+          type="button"
+          className="btn-header-logout"
+          onClick={logout}
+          title={isRtl ? 'تسجيل الخروج من الحساب والعودة لشاشة الدخول' : 'Sign out of your account'}
+        >
+          <LogoutIcon style={{ width: 16, height: 16 }} />
+          <span className="logout-text">{isRtl ? 'تسجيل الخروج' : 'Logout'}</span>
+        </button>
       </div>
     </header>
   );
