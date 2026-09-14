@@ -86,6 +86,7 @@ app.get('/', async (req, res) => {
   let dbStatus = 'Connected 🟢';
   let totalStudents = 0;
   let totalTeachers = 0;
+  const frontendUrl = process.env.FRONTEND_URL || (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN !== '*' ? process.env.CORS_ORIGIN.split(',')[0] : 'https://school-management-mauve-phi.vercel.app');
   try {
     await prisma.$queryRaw`SELECT 1`;
     totalStudents = await prisma.student.count();
@@ -354,24 +355,24 @@ app.get('/', async (req, res) => {
         <div class="cta-box">
           <h3>🖥️ واجهة المستخدم التفاعلية (Frontend Web App)</h3>
           <p>للوصول إلى النظام وتصفح السجلات والدرجات والشهادات، يرجى الدخول عبر واجهة المستخدم التفاعلية:</p>
-          <a href="http://localhost:5173" class="btn-frontend" target="_blank">
+          <a href="${frontendUrl}" class="btn-frontend" target="_blank">
             <span>🚀 فتح شاشة تسجيل الدخول والنظام</span>
             <span style="font-size: 18px;">&larr;</span>
           </a>
           <div class="frontend-quick-links">
-            <a href="http://localhost:5173" class="quick-btn" target="_blank">👥 سجل الطلاب</a>
-            <a href="http://localhost:5173" class="quick-btn" target="_blank">👨‍🏫 دليل المعلمين</a>
-            <a href="http://localhost:5173" class="quick-btn" target="_blank">🏫 الصفوف والشعب</a>
-            <a href="http://localhost:5173" class="quick-btn" target="_blank">📜 الشهادات والإفادات</a>
+            <a href="${frontendUrl}/students" class="quick-btn" target="_blank">👥 سجل الطلاب</a>
+            <a href="${frontendUrl}/teachers" class="quick-btn" target="_blank">👨‍🏫 دليل المعلمين</a>
+            <a href="${frontendUrl}/classes" class="quick-btn" target="_blank">🏫 الصفوف والشعب</a>
+            <a href="${frontendUrl}/certificates" class="quick-btn" target="_blank">📜 الشهادات والإفادات</a>
           </div>
         </div>
 
         <div class="security-notice">
           <strong>🔒 تنبيه أمني بخصوص روابط الـ API المباشرة:</strong>
-          هذا الخادم (المنفذ 4000) مخصص لمعالجة البيانات البرمجية الخلفية. جميع روابط البيانات (مثل الطلاب والمعلمين والصفوف) 
+          هذا الخادم مخصص لمعالجة البيانات البرمجية الخلفية. جميع روابط البيانات (مثل الطلاب والمعلمين والصفوف) 
           <strong>محمية بنظام تشفير وتوثيق أمني (JWT Token)</strong> لضمان خصوصية بيانات المدرسة، وعند الضغط عليها مباشرة في نافذة المتصفح بدون تسجيل الدخول تظهر رسالة 
           <code>"Access denied. No token provided"</code> لحماية البيانات من الوصول غير المصرح به.
-          لفتح هذه البيانات بصرياً، يتم الدخول دائماً عبر <strong>الواجهة التفاعلية على المنفذ 5173</strong>.
+          لفتح هذه البيانات بصرياً، يتم الدخول دائماً عبر <strong>الواجهة التفاعلية</strong>.
         </div>
 
         <div class="api-endpoints-box">
