@@ -1,8 +1,18 @@
 import { handleMockRequest } from './mockData';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL || '';
+const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+// If deployed on HTTPS (like vercel.app) and no remote https API url is configured, use instant mock engine
+const isDemoMode = !configuredApiUrl || (isHttps && configuredApiUrl.startsWith('http://localhost'));
+
+const API_BASE_URL = configuredApiUrl || 'http://localhost:4000/api';
 
 export async function request(path, options = {}) {
+  // If in demo preview mode on Vercel without a live remote backend, execute instantly via Mock Engine
+  if (isDemoMode) {
+    return handleMockRequest(path, options);
+  }
+
   const token = localStorage.getItem('token');
   const headers = { ...(options.headers || {}) };
 
@@ -24,7 +34,6 @@ export async function request(path, options = {}) {
     });
 
     if (response.status === 401) {
-      // If not on login page, clear token
       if (!path.includes('/auth/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -35,7 +44,7 @@ export async function request(path, options = {}) {
     const contentType = response.headers.get('content-type') || '';
 
     if (!response.ok) {
-      // If server returns error, attempt fallback in demo mode for 404/502
+      // If server returns 404 or 5xx, fallback seamlessly to demo data
       if (response.status === 404 || response.status >= 500) {
         return handleMockRequest(path, options);
       }
@@ -62,7 +71,7 @@ export async function request(path, options = {}) {
 
     return response.blob();
   } catch (networkError) {
-    // Graceful fallback to rich Demo Mock Engine if backend is offline or on demo host
+    // Graceful fallback to rich Demo Mock Engine if backend is offline or mixed-content blocked
     return handleMockRequest(path, options);
   }
 }
@@ -75,17 +84,24 @@ export const api = {
 
   download: async (path, filename) => {
     try {
-      const blob = await request(path, { method: 'GET' });
-      if (blob instanceof Blob) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename || 'download.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      const res = await request(path, { method: 'GET' });
+      let blob;
+      if (res instanceof Blob) {
+        blob = res;
+      } else {
+        // Create realistic CSV/text blob if mock returned object or string
+        const content = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
+        blob = new Blob([content], { type: 'application/octet-stream' });
       }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename || 'download.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (e) {
       console.warn('Download fallback', e);
     }
