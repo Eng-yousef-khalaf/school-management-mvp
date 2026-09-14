@@ -1,14 +1,17 @@
 import { handleMockRequest } from './mockData';
 
+const LIVE_RENDER_API = 'https://school-management-uzlu.onrender.com/api';
 const configuredApiUrl = import.meta.env.VITE_API_URL || '';
 const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-// If deployed on HTTPS (like vercel.app) and no remote https API url is configured, use instant mock engine
-const isDemoMode = !configuredApiUrl || (isHttps && configuredApiUrl.startsWith('http://localhost'));
 
-const API_BASE_URL = configuredApiUrl || 'http://localhost:4000/api';
+// Default to live Render backend on production HTTPS, or configured URL, or localhost in dev
+const API_BASE_URL = configuredApiUrl || (isHttps ? LIVE_RENDER_API : 'http://localhost:4000/api');
+
+// Live mode is now active by default; mock engine acts as a resilient fallback
+const isDemoMode = false;
 
 export async function request(path, options = {}) {
-  // If in demo preview mode on Vercel without a live remote backend, execute instantly via Mock Engine
+  // If explicitly flagged in demo mode, execute via Mock Engine
   if (isDemoMode) {
     return handleMockRequest(path, options);
   }
