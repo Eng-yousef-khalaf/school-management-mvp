@@ -5,7 +5,7 @@ import React from 'react';
  * Displays the exact official UNICEF logo as provided, clean and uncluttered.
  */
 export default function UnicefLogo({
-  height = 36,
+  height = 48,
   style = {},
   className = '',
   variant = 'image' // 'image' | 'svg'

@@ -274,7 +274,7 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                         boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)'
                       }}
                     >
-                      <UnicefLogo height={30} color="#ffffff" />
+                      <UnicefLogo height={42} />
                       <div style={{ fontSize: 11, fontWeight: 800, color: '#e0f2fe', marginTop: 4 }}>
                         منظمة الأمم المتحدة للطفولة
                       </div>
@@ -457,7 +457,7 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                     </div>
                     <span style={{ color: '#cbd5e1' }}>|</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <UnicefLogo height={16} color="#00AEEF" />
+                      <UnicefLogo height={22} />
                     </div>
                   </div>
                 </div>
@@ -811,10 +811,10 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                     {/* Receiving Organization Box (MoE / UNICEF) */}
                     <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div style={{ fontWeight: 900, color: '#0f172a', fontSize: 12 }}>خانة استلام واعتماد الجهة المستقبلة</div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '4px 0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '4px 0' }}>
                         <span style={{ fontSize: 10, color: '#047857', fontWeight: 800 }}>وزارة التربية والتعليم</span>
                         <span style={{ color: '#cbd5e1' }}>•</span>
-                        <UnicefLogo height={16} color="#00AEEF" />
+                        <UnicefLogo height={22} />
                       </div>
                       <div style={{ height: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#0369a1', fontSize: 10.5, fontWeight: 700, margin: '2px 0' }}>
                         <div>تاريخ الاستلام: ...... / ...... / 2026م</div>

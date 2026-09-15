@@ -104,8 +104,8 @@ export default function ReportsHub({ onNavigate }) {
           >
             <div style={{ maxWidth: 640 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-                <div style={{ background: '#ffffff', padding: '4px 10px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
-                  <UnicefLogo height={20} color="#00AEEF" />
+                <div style={{ background: '#ffffff', padding: '6px 14px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                  <UnicefLogo height={28} />
                 </div>
                 <span
                   style={{
