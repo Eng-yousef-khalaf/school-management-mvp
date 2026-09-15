@@ -223,343 +223,301 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                 style={{
                   background: '#ffffff',
                   color: '#0f172a',
-                  borderRadius: '12px',
-                  padding: '36px 42px',
-                  marginBottom: '28px',
-                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
-                  border: '3px solid #1e293b',
+                  borderRadius: '10px',
+                  padding: '22px 28px',
+                  marginBottom: '20px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  border: '2px solid #1e293b',
                   position: 'relative',
                   pageBreakAfter: 'always',
                   breakAfter: 'page',
-                  minHeight: '260mm',
-                  boxSizing: 'border-box'
+                  pageBreakInside: 'avoid',
+                  breakInside: 'avoid-page',
+                  height: '265mm',
+                  maxHeight: '268mm',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
                 }}
               >
                 {/* Decorative Frame Line */}
                 <div style={{
                   position: 'absolute',
-                  top: 8,
-                  left: 8,
-                  right: 8,
-                  bottom: 8,
+                  top: 6,
+                  left: 6,
+                  right: 6,
+                  bottom: 6,
                   border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   pointerEvents: 'none'
                 }}></div>
 
-                {/* Certificate Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 16, marginBottom: 20 }}>
-                  <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <PalestineFlagIcon />
-                      <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education & Higher Learning'}</span>
+                <div>
+                  {/* Certificate Header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 12, marginBottom: 14 }}>
+                    <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <PalestineFlagIcon />
+                        <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#1e1b4b', marginTop: 2 }}>
+                        {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 1 }}>
+                        {isRtl ? 'قسم شؤون الطلاب والامتحانات' : 'Department of Student Affairs'}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 3 }}>
-                      {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
-                      {isRtl ? 'قسم شؤون الطلاب والامتحانات المعتمدة' : 'Department of Student Affairs & Official Examinations'}
-                    </div>
-                  </div>
 
-                  {/* Official Emblem Logo Badge */}
-                  <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <SchoolLogo size={66} />
-                  </div>
+                    {/* Official Emblem Logo Badge */}
+                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <SchoolLogo size={52} />
+                    </div>
 
-                  <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 6 }}>
-                    <div style={{
-                      background: '#f1f5f9',
-                      border: '1px solid #cbd5e1',
-                      padding: '6px 14px',
-                      borderRadius: '8px',
-                      display: 'inline-block'
-                    }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>
+                    <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 4 }}>
+                      <UnicefLogo height={28} />
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
                         {isRtl ? 'شهادة وإفادة أداء أكاديمي شامل' : 'Official Academic Transcript'}
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                        {isRtl ? 'العام الدراسي:' : 'Academic Year:'} <strong>{student.academicYear}</strong>
+                      <div style={{ fontSize: 10.5, color: '#64748b' }}>
+                        {isRtl ? 'العام الدراسي:' : 'Academic Year:'} <strong>{student.academicYear}</strong> | {new Date().toLocaleDateString('ar-EG')}
                       </div>
                     </div>
-                    {/* UNICEF Partner Accreditation Badge */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0, 174, 239, 0.08)', border: '1px solid rgba(0, 174, 239, 0.3)', padding: '3px 8px', borderRadius: 6 }}>
-                      <UnicefLogo height={16} color="#00AEEF" />
-                      <span style={{ fontSize: 10, fontWeight: 800, color: '#0284c7' }}>
-                        {isRtl ? 'معايير اليونيسيف (UNICEF)' : 'UNICEF Standard'}
+                  </div>
+
+                  {/* Student Personal Bio Card */}
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: 6,
+                    padding: '10px 16px',
+                    marginBottom: 14
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '12px' }}>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'اسم الطالب الرباعي:' : 'Student Name:'}</span>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '13px', marginTop: 1 }}>
+                          {student.fullName}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'الرقم الأكاديمي:' : 'Student ID:'}</span>
+                        <div style={{ fontWeight: 700, fontFamily: 'monospace', color: '#4f46e5', fontSize: '13px', marginTop: 1 }}>
+                          {student.studentNumber}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'الصف والشعبة:' : 'Class & Section:'}</span>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '13px', marginTop: 1 }}>
+                          {student.className}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'اسم ولي الأمر:' : 'Guardian:'}</span>
+                        <div style={{ fontWeight: 600, color: '#334155', marginTop: 1 }}>
+                          {student.parentName || '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'هاتف ولي الأمر:' : 'Guardian Phone:'}</span>
+                        <div style={{ fontWeight: 600, color: '#334155', marginTop: 1 }}>
+                          {student.parentPhone || '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748b' }}>{isRtl ? 'الحالة الأكاديمية:' : 'Status:'}</span>
+                        <div style={{ fontWeight: 700, color: '#059669', marginTop: 1 }}>
+                          {student.status === 'ACTIVE' ? (isRtl ? 'منتظم ومقيد بالدراسة' : 'Active / Regular') : student.status}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Academic Subject Grades Matrix Table */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      marginBottom: 6,
+                      color: '#0f172a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <span>{isRtl ? 'كشف درجات الامتحانات والتقييمات التفصيلية للمواد:' : 'Academic Subject Grades & Evaluations:'}</span>
+                      <span style={{ fontSize: 10.5, color: '#64748b', fontWeight: 500 }}>
+                        {isRtl ? 'المعدل من 100 لكل مادة' : 'Scale 100%'}
                       </span>
                     </div>
-                    <div style={{ fontSize: 10.5, color: '#64748b' }}>
-                      {isRtl ? 'تاريخ التحرير:' : 'Issue Date:'} {new Date().toLocaleDateString('ar-EG')}
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8' }}>
+                          <th style={{ padding: '6px 10px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
+                          <th style={{ padding: '6px 10px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'الامتحانات والتقييمات' : 'Assessments'}</th>
+                          <th style={{ padding: '6px 10px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النسبة المئوية' : 'Percentage'}</th>
+                          <th style={{ padding: '6px 10px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
+                          <th style={{ padding: '6px 10px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {subjectSummary && subjectSummary.length > 0 ? (
+                          subjectSummary.map((sub, sIdx) => {
+                            const subGrade = getLetterGrade(sub.averagePercentage);
+                            return (
+                              <tr key={sIdx} style={{ borderBottom: '1px solid #e2e8f0', background: sIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                <td style={{ padding: '5px 10px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                                  {sub.subjectName} <span style={{ color: '#64748b', fontSize: 10.5 }}>({sub.subjectCode})</span>
+                                </td>
+                                <td style={{ padding: '5px 10px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
+                                  {sub.scores.map(sc => `${sc.examName}: ${sc.score}/${sc.maxScore}`).join(' | ')}
+                                </td>
+                                <td style={{ padding: '5px 10px', textAlign: 'center', fontWeight: 800, border: '1px solid #cbd5e1' }}>
+                                  {sub.averagePercentage}%
+                                </td>
+                                <td style={{ padding: '5px 10px', textAlign: 'center', fontWeight: 800, color: subGrade.color, border: '1px solid #cbd5e1' }}>
+                                  {subGrade.grade} ({isRtl ? subGrade.textAr : subGrade.textEn})
+                                </td>
+                                <td style={{ padding: '5px 10px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                                  <span style={{
+                                    background: sub.averagePercentage >= 50 ? '#dcfce7' : '#fee2e2',
+                                    color: sub.averagePercentage >= 50 ? '#15803d' : '#b91c1c',
+                                    padding: '1px 6px',
+                                    borderRadius: '4px',
+                                    fontSize: 10.5
+                                  }}>
+                                    {sub.averagePercentage >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ padding: '12px', textAlign: 'center', color: '#64748b' }}>
+                              {isRtl ? 'لا توجد درجات مسجلة لهذا الطالب حتى الآن' : 'No grades recorded yet'}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Final GPA & Attendance Summary Boxes */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
+                    <div style={{
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '8px 14px',
+                      background: gpa.bg
+                    }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: '#475569' }}>
+                        {isRtl ? 'المعدل التراكمي الإجمالي والتقدير العام:' : 'Cumulative GPA & Overall Standing:'}
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: gpa.color, marginTop: 2 }}>
+                        {student.overallAverage !== null ? `${student.overallAverage}%` : '—'} - {isRtl ? gpa.textAr : gpa.textEn}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '8px 14px',
+                      background: attendanceSummary.percentage >= 85 ? '#f0fdf4' : '#fffbeb'
+                    }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: '#475569' }}>
+                        {isRtl ? 'سجل المواظبة والحضور المدرسي:' : 'Attendance Standing:'}
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: attendanceSummary.percentage >= 85 ? '#059669' : '#d97706', marginTop: 2 }}>
+                        {attendanceSummary.percentage}% ({attendanceSummary.present} {isRtl ? 'يوم حضور' : 'present days'})
+                      </div>
                     </div>
                   </div>
                 </div>
 
-
-                {/* Student Personal Bio Card */}
-                <div style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 8,
-                  padding: '14px 20px',
-                  marginBottom: 20
-                }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '13px' }}>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'اسم الطالب الرباعي:' : 'Student Name:'}</span>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '14px', marginTop: 2 }}>
-                        {student.fullName}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'الرقم الأكاديمي:' : 'Student ID:'}</span>
-                      <div style={{ fontWeight: 700, fontFamily: 'monospace', color: '#4f46e5', fontSize: '14px', marginTop: 2 }}>
-                        {student.studentNumber}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'الصف والشعبة:' : 'Class & Section:'}</span>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '14px', marginTop: 2 }}>
-                        {student.className}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'اسم ولي الأمر:' : 'Guardian:'}</span>
-                      <div style={{ fontWeight: 600, color: '#334155', marginTop: 2 }}>
-                        {student.parentName || '—'}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'هاتف ولي الأمر:' : 'Guardian Phone:'}</span>
-                      <div style={{ fontWeight: 600, color: '#334155', marginTop: 2 }}>
-                        {student.parentPhone || '—'}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>{isRtl ? 'الحالة الأكاديمية:' : 'Status:'}</span>
-                      <div style={{ fontWeight: 700, color: '#059669', marginTop: 2 }}>
-                        {student.status === 'ACTIVE' ? (isRtl ? 'منتظم ومقيد بالدراسة' : 'Active / Regular') : student.status}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Academic Subject Grades Matrix Table */}
-                <div style={{ marginBottom: 20 }}>
+                {/* Bottom Section: Official Signatures & Stamp */}
+                <div>
                   <div style={{
-                    fontSize: 14,
-                    fontWeight: 800,
-                    marginBottom: 10,
-                    color: '#0f172a',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 16,
+                    textAlign: 'center',
+                    borderTop: '1px dashed #cbd5e1',
+                    paddingTop: 12
                   }}>
-                    <span>{isRtl ? '📊 كشف درجات الامتحانات والتقييمات التفصيلية للمواد:' : 'Academic Subject Grades & Evaluations:'}</span>
-                    <span style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
-                      {isRtl ? 'المعدل من 100 لكل مادة' : 'Scale 100%'}
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 24 }}>
+                        {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                          {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
+                        </div>
+                      </div>
+                      <div style={{ borderBottom: '1px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 24 }}>
+                        {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                          {isRtl ? 'إدارة المدرسة' : 'School Principal'}
+                        </div>
+                      </div>
+                      <div style={{ borderBottom: '1px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                        {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Seal'}
+                      </div>
+                      <div style={{
+                        width: 54,
+                        height: 54,
+                        border: '2px dashed #4f46e5',
+                        borderRadius: '50%',
+                        margin: '0 auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#4f46e5',
+                        fontSize: 8,
+                        fontWeight: 800,
+                        background: '#faf5ff'
+                      }}>
+                        <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
+                        <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Page Note */}
+                  <div style={{
+                    marginTop: 10,
+                    textAlign: 'center',
+                    fontSize: 9.5,
+                    color: '#64748b',
+                    borderTop: '1px solid #e2e8f0',
+                    paddingTop: 6,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>
+                      {isRtl
+                        ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
+                        : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
+                    </span>
+                    <span>
+                      {isRtl ? 'صفحة 1 من 1' : 'Page 1 of 1'}
                     </span>
                   </div>
-
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', border: '1px solid #cbd5e1' }}>
-                    <thead>
-                      <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8' }}>
-                        <th style={{ padding: '8px 12px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'الامتحانات والتقييمات' : 'Assessments'}</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النسبة المئوية' : 'Percentage'}</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'التقدير الأكاديمي' : 'Grade'}</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'حالة المادة' : 'Status'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {subjectSummary && subjectSummary.length > 0 ? (
-                        subjectSummary.map((sub, sIdx) => {
-                          const subGrade = getLetterGrade(sub.averagePercentage);
-                          return (
-                            <tr key={sIdx} style={{ borderBottom: '1px solid #e2e8f0', background: sIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                              <td style={{ padding: '8px 12px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                                {sub.subjectName} <span style={{ color: '#64748b', fontSize: 11 }}>({sub.subjectCode})</span>
-                              </td>
-                              <td style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
-                                {sub.scores.map(sc => `${sc.examName}: ${sc.score}/${sc.maxScore}`).join(' | ')}
-                              </td>
-                              <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 800, border: '1px solid #cbd5e1' }}>
-                                {sub.averagePercentage}%
-                              </td>
-                              <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 800, color: subGrade.color, border: '1px solid #cbd5e1' }}>
-                                {subGrade.grade} ({isRtl ? subGrade.textAr : subGrade.textEn})
-                              </td>
-                              <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                                <span style={{
-                                  background: sub.averagePercentage >= 50 ? '#dcfce7' : '#fee2e2',
-                                  color: sub.averagePercentage >= 50 ? '#15803d' : '#b91c1c',
-                                  padding: '2px 8px',
-                                  borderRadius: '4px',
-                                  fontSize: 11
-                                }}>
-                                  {sub.averagePercentage >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan="5" style={{ padding: '16px', textAlign: 'center', color: '#64748b' }}>
-                            {isRtl ? 'لا توجد درجات مسجلة لهذا الطالب حتى الآن' : 'No grades recorded yet'}
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Final GPA & Attendance Summary Boxes */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 26 }}>
-                  <div style={{
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: 8,
-                    padding: '12px 18px',
-                    background: gpa.bg
-                  }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#475569' }}>
-                      {isRtl ? 'المعدل التراكمي الإجمالي والتقدير العام:' : 'Cumulative GPA & Overall Standing:'}
-                    </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: gpa.color, marginTop: 4 }}>
-                      {student.overallAverage !== null ? `${student.overallAverage}%` : '—'} - {isRtl ? gpa.textAr : gpa.textEn}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                      {isRtl ? 'تم حساب المعدل وفقاً لمجموع الدرجات المعتمدة' : 'Calculated from weighted subject evaluations'}
-                    </div>
-                  </div>
-
-                  <div style={{
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: 8,
-                    padding: '12px 18px',
-                    background: attendanceSummary.percentage >= 85 ? '#f0fdf4' : '#fffbeb'
-                  }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#475569' }}>
-                      {isRtl ? 'سجل المواظبة والحضور المدرسي:' : 'Attendance Standing & Discipline:'}
-                    </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: attendanceSummary.percentage >= 85 ? '#059669' : '#d97706', marginTop: 4 }}>
-                      {attendanceSummary.percentage}%
-                    </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                      {attendanceSummary.present} {isRtl ? 'يوم حضور' : 'present days'} | {attendanceSummary.absent} {isRtl ? 'غياب' : 'absences'} | {attendanceSummary.late} {isRtl ? 'تأخير' : 'tardies'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Official Signatures & School Endorsement */}
-                {/* Official Signatures & School Endorsement */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: 16,
-                  marginTop: 26,
-                  textAlign: 'center',
-                  borderTop: '2px dashed #94a3b8',
-                  paddingTop: 16
-                }}>
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 32 }}>
-                      {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
-                      <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
-                        {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
-                      </div>
-                    </div>
-                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 32 }}>
-                      {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
-                      <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
-                        {isRtl ? 'إدارة المدرسة' : 'School Principal'}
-                      </div>
-                    </div>
-                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
-                      {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Seal'}
-                    </div>
-                    <div style={{
-                      width: 64,
-                      height: 64,
-                      border: '2px dashed #4f46e5',
-                      borderRadius: '50%',
-                      margin: '0 auto',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#4f46e5',
-                      fontSize: 8.5,
-                      fontWeight: 800,
-                      background: '#faf5ff'
-                    }}>
-                      <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
-                      <span style={{ fontSize: 7.5 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0284c7', marginBottom: 4 }}>
-                      {isRtl ? 'اعتماد الشريك الإنساني والتربوي' : 'UNICEF Accreditation'}
-                    </div>
-                    <div style={{
-                      height: 64,
-                      border: '1.5px solid rgba(0, 174, 239, 0.4)',
-                      borderRadius: 8,
-                      margin: '0 auto',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: 'rgba(0, 174, 239, 0.05)',
-                      padding: '4px 6px'
-                    }}>
-                      <UnicefLogo height={18} color="#00AEEF" />
-                      <span style={{ fontSize: 8, fontWeight: 800, color: '#0369a1', marginTop: 3 }}>
-                        {isRtl ? 'وثيقة موثقة ومعتمدة' : 'UNICEF Telemetry Accredited'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer Page Note */}
-                <div style={{
-                  marginTop: 18,
-                  textAlign: 'center',
-                  fontSize: 10,
-                  color: '#64748b',
-                  borderTop: '1px solid #e2e8f0',
-                  paddingTop: 8,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: 8
-                }}>
-                  <span>
-                    {isRtl
-                      ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
-                      : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
-                  </span>
-                  <span style={{ fontWeight: 700, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <UnicefLogo height={13} color="#00AEEF" />
-                    <span>• {isRtl ? 'مطابقة لمعايير وزارة التربية والتعليم واليونيسيف' : 'MoE & UNICEF Standards Compliant'}</span>
-                  </span>
                 </div>
               </div>
             );
           })
-
         )}
       </div>
     </div>
   );
 }
+
