@@ -804,6 +804,38 @@ export function handleMockRequest(path, options = {}) {
   if (cleanPath === '/grades/bulk' && method === 'POST') {
     return { ok: true, message: 'Grades saved' };
   }
+  if (cleanPath === '/grades/report') {
+    const classId = searchParams.get('classId');
+    let students = initialData.students;
+    if (classId) {
+      students = students.filter(s => s.classId == classId || s.className == classId || (classId == 1 && s.className?.includes('7 A')) || (classId == 2 && s.className?.includes('7 B')));
+      if (students.length === 0) students = initialData.students.slice(0, 3);
+    }
+    const subjects = [
+      { id: 1, name: 'الرياضيات (Mathematics)', code: 'MATH' },
+      { id: 2, name: 'اللغة الإنجليزية (English)', code: 'ENG' },
+      { id: 3, name: 'اللغة العربية (Arabic)', code: 'AR' },
+      { id: 4, name: 'العلوم العامة (Science)', code: 'SCI' },
+      { id: 5, name: 'التكنولوجيا والحاسوب (ICT)', code: 'ICT' },
+    ];
+    return {
+      subjects,
+      report: students.map((s, idx) => ({
+        studentId: s.id,
+        studentNumber: s.studentNumber,
+        studentName: s.fullName,
+        className: s.className || 'Grade 7 A',
+        subjectGrades: {
+          MATH: { score: 92 - (idx * 2), maxScore: 100, percentage: 92 - (idx * 2) },
+          ENG: { score: 88 + (idx % 4), maxScore: 100, percentage: 88 + (idx % 4) },
+          AR: { score: 95 - (idx % 3), maxScore: 100, percentage: 95 - (idx % 3) },
+          SCI: { score: 90 + (idx % 5), maxScore: 100, percentage: 90 + (idx % 5) },
+          ICT: { score: 94 - (idx % 2), maxScore: 100, percentage: 94 - (idx % 2) },
+        },
+        average: 91 + (idx % 5),
+      })),
+    };
+  }
   if (cleanPath.includes('/grades')) {
     return {
       grades: initialData.students.map((s, idx) => ({
@@ -872,6 +904,106 @@ export function handleMockRequest(path, options = {}) {
       classes: t.classes.join(', '),
       subjects: t.subjects.join(', '),
       active: 'Active',
+    }));
+  }
+  if (cleanPath === '/reports/bulk-certificates') {
+    const classId = searchParams.get('classId');
+    let students = initialData.students;
+    if (classId) {
+      students = students.filter(s => s.classId == classId || s.className == classId || (classId == 1 && s.className?.includes('7 A')) || (classId == 2 && s.className?.includes('7 B')));
+      if (students.length === 0) students = initialData.students;
+    }
+    return students.map((s, idx) => ({
+      id: s.id,
+      studentNumber: s.studentNumber,
+      firstName: s.firstName,
+      middleName: s.middleName || '',
+      lastName: s.lastName,
+      fullName: s.fullName,
+      gender: s.gender || 'MALE',
+      dateOfBirth: s.dateOfBirth || '2012-05-14',
+      status: s.status || 'ACTIVE',
+      className: s.className || s.currentClass || 'Grade 7 A',
+      academicYear: s.academicYear || '2026/2027',
+      parentName: s.parentName || 'ولي الأمر',
+      parentPhone: s.parentPhone || '+970 59 900 1101',
+      address: s.address || 'غزة - دولة فلسطين',
+      overallAverage: 91 + (idx % 6),
+      attendanceSummary: {
+        percentage: 95 + (idx % 4),
+        present: 24,
+        absent: 1,
+        late: 1,
+        excused: 0,
+        totalDays: 26,
+      },
+      subjectSummary: [
+        {
+          subjectCode: 'MATH',
+          subjectName: 'الرياضيات العامة (Mathematics)',
+          activityScore: 19,
+          midtermScore: 28,
+          finalScore: 45,
+          averagePercentage: 92,
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 19, maxScore: 20, percentage: 95 },
+            { examName: 'الاختبار النصفي', score: 28, maxScore: 30, percentage: 93.3 },
+            { examName: 'الاختبار النهائي', score: 45, maxScore: 50, percentage: 90 },
+          ],
+        },
+        {
+          subjectCode: 'ENG',
+          subjectName: 'اللغة الإنجليزية (English Language)',
+          activityScore: 18,
+          midtermScore: 27,
+          finalScore: 44,
+          averagePercentage: 89,
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 18, maxScore: 20, percentage: 90 },
+            { examName: 'الاختبار النصفي', score: 27, maxScore: 30, percentage: 90 },
+            { examName: 'الاختبار النهائي', score: 44, maxScore: 50, percentage: 88 },
+          ],
+        },
+        {
+          subjectCode: 'AR',
+          subjectName: 'اللغة العربية والتربية الإسلامية (Arabic)',
+          activityScore: 20,
+          midtermScore: 29,
+          finalScore: 46,
+          averagePercentage: 95,
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 20, maxScore: 20, percentage: 100 },
+            { examName: 'الاختبار النصفي', score: 29, maxScore: 30, percentage: 96.6 },
+            { examName: 'الاختبار النهائي', score: 46, maxScore: 50, percentage: 92 },
+          ],
+        },
+        {
+          subjectCode: 'SCI',
+          subjectName: 'العلوم العامة والتكنولوجيا (Science)',
+          activityScore: 18,
+          midtermScore: 27,
+          finalScore: 45,
+          averagePercentage: 90,
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 18, maxScore: 20, percentage: 90 },
+            { examName: 'الاختبار النصفي', score: 27, maxScore: 30, percentage: 90 },
+            { examName: 'الاختبار النهائي', score: 45, maxScore: 50, percentage: 90 },
+          ],
+        },
+        {
+          subjectCode: 'ICT',
+          subjectName: 'الحاسوب وتكنولوجيا المعلومات (ICT)',
+          activityScore: 19,
+          midtermScore: 28,
+          finalScore: 47,
+          averagePercentage: 94,
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 19, maxScore: 20, percentage: 95 },
+            { examName: 'الاختبار النصفي', score: 28, maxScore: 30, percentage: 93.3 },
+            { examName: 'الاختبار النهائي', score: 47, maxScore: 50, percentage: 94 },
+          ],
+        },
+      ],
     }));
   }
   if (cleanPath === '/reports/executive-analytical') {
