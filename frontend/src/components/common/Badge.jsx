@@ -1,11 +1,12 @@
 import React from 'react';
 
 export default function Badge({ status, label, type }) {
-  const val = status || type || label || '';
+  const safeLabel = typeof label === 'object' && label !== null ? (label.fullName || label.name || label.role || '') : (label || '');
+  const val = status || type || safeLabel || '';
   const normalized = String(val).toLowerCase();
 
   let className = `badge badge-${normalized}`;
-  let display = label || status || type;
+  let display = safeLabel || status || type;
 
   if (normalized === 'active' || normalized === 'present') {
     className = 'badge badge-active';
@@ -23,7 +24,7 @@ export default function Badge({ status, label, type }) {
     className = 'badge badge-admin';
   } else if (normalized === 'staff') {
     className = 'badge badge-staff';
-    if (!label) display = 'شؤون المعلمين والطلاب (Staff)';
+    if (!safeLabel) display = 'شؤون المعلمين والطلاب (Staff)';
   } else if (normalized === 'teacher') {
     className = 'badge badge-teacher';
   }

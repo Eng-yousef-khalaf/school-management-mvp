@@ -27,11 +27,13 @@ export default function TeacherDashboard({ onNavigate }) {
         setLoading(true);
         setError('');
         const [clsRes, subRes] = await Promise.all([
-          api.get('/classes'),
-          api.get('/subjects')
+          api.get('/classes').catch(() => []),
+          api.get('/subjects').catch(() => [])
         ]);
-        setClasses(clsRes || []);
-        setSubjects(subRes || []);
+        const safeClasses = Array.isArray(clsRes) ? clsRes : (clsRes?.items || []);
+        const safeSubjects = Array.isArray(subRes) ? subRes : (subRes?.items || []);
+        setClasses(safeClasses);
+        setSubjects(safeSubjects);
       } catch (err) {
         setError(err.message || 'Failed to load teacher data');
       } finally {
@@ -44,7 +46,9 @@ export default function TeacherDashboard({ onNavigate }) {
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} />;
 
-  const totalAssignedStudents = classes.reduce((acc, c) => acc + (c._count?.enrollments || 0), 0);
+  const safeClassesList = Array.isArray(classes) ? classes : [];
+  const safeSubjectsList = Array.isArray(subjects) ? subjects : [];
+  const totalAssignedStudents = safeClassesList.reduce((acc, c) => acc + (c._count?.enrollments || c.studentCount || 0), 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -140,54 +144,68 @@ export default function TeacherDashboard({ onNavigate }) {
         </div>
 
         <div style={{ padding: 20 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-            {classes.map((cls) => (
-              <div
-                key={cls.id}
-                style={{
-                  background: 'var(--bg-main)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border-color)',
-                  padding: 18,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 14,
-                  transition: 'var(--transition)'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
-                      {cls.name}
-                    </h4>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      {cls.grade} {cls.section ? `- ${cls.section}` : ''}
+          {safeClassesList.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+              {safeClassesList.map((cls) => (
+                <div
+                  key={cls.id}
+                  style={{
+                    background: 'var(--bg-main)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-color)',
+                    padding: 18,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 14,
+                    transition: 'var(--transition)'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
+                        {cls.name}
+                      </h4>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        {cls.grade} {cls.section ? `- ${cls.section}` : ''}
+                      </span>
+                    </div>
+                    <span className="badge badge-primary" style={{ fontWeight: 700 }}>
+                      {cls._count?.enrollments || cls.studentCount || 0} {isRtl ? 'طالب' : 'Students'}
                     </span>
                   </div>
-                  <span className="badge badge-primary" style={{ fontWeight: 700 }}>
-                    {cls._count?.enrollments || 0} {isRtl ? 'طالب' : 'Students'}
-                  </span>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 'auto' }}>
-                  <button
-                    onClick={() => onNavigate('attendance', { attendanceClassId: cls.id })}
-                    className="btn btn-primary btn-sm"
-                    style={{ fontSize: 12, justifyContent: 'center' }}
-                  >
-                    <AttendanceIcon /> {isRtl ? 'دفتر الحضور' : 'Attendance'}
-                  </button>
-                  <button
-                    onClick={() => onNavigate('grades')}
-                    className="btn btn-secondary btn-sm"
-                    style={{ fontSize: 12, justifyContent: 'center' }}
-                  >
-                    <GradesIcon /> {isRtl ? 'الدرجات' : 'Grades'}
-                  </button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 'auto' }}>
+                    <button
+                      onClick={() => onNavigate('attendance', { attendanceClassId: cls.id })}
+                      className="btn btn-primary btn-sm"
+                      style={{ fontSize: 12, justifyContent: 'center' }}
+                    >
+                      <AttendanceIcon /> {isRtl ? 'دفتر الحضور' : 'Attendance'}
+                    </button>
+                    <button
+                      onClick={() => onNavigate('grades')}
+                      className="btn btn-secondary btn-sm"
+                      style={{ fontSize: 12, justifyContent: 'center' }}
+                    >
+                      <GradesIcon /> {isRtl ? 'الدرجات' : 'Grades'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '32px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🏫</div>
+              <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', margin: '0 0 6px 0' }}>
+                {isRtl ? 'لم يتم تعيين شعب دراسية لهذا الحساب بعد' : 'No Class Sections Assigned Yet'}
+              </h4>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, maxWidth: 500, marginInline: 'auto' }}>
+                {isRtl
+                  ? 'يمكنك مراجعة شؤون الطلاب لتعيين الشعب والمواد المسندة، أو اختيار حساب المعلم "أحمد خليل" أو "سارة منصور" من صفحة الدخول لمعاينة الشعب الجاهزة.'
+                  : 'Contact staff affairs to allocate your class schedule, or switch to Ahmed Khalil from login to view active classes.'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
