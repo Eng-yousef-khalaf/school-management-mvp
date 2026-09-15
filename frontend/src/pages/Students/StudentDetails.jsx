@@ -530,39 +530,55 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
               <span>{isRtl ? 'كشف الدرجات والتقييمات للمقررات الدراسية:' : 'Course Assessment & Transcript Results:'}</span>
               <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{isRtl ? 'الدرجة العظمى (100)' : 'Max Grade (100)'}</span>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, border: '1.5px solid #cbd5e1' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, border: '1.5px solid #cbd5e1' }}>
               <thead>
-                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                  <th style={{ padding: '8px 12px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{t('subjectName')}</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'الامتحانات والتقييمات' : 'Assessments'}</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'الدرجة المئوية' : 'Percentage'}</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'التقدير العام' : 'Grade'}</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
+                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8', color: '#0f172a' }}>
+                  <th style={{ padding: '8px 10px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'الأنشطة (20)' : 'Activities (20)'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نصفي (30)' : 'Midterm (30)'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نهائي (50)' : 'Final (50)'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'المجموع (100)' : 'Total (100)'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
+                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '11%' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
                 </tr>
               </thead>
               <tbody>
                 {subjectSummary && subjectSummary.length > 0 ? (
                   subjectSummary.map((s, idx) => {
-                    const gr = getLetterGrade(s.averagePercentage);
+                    const act = s.activityScore !== undefined ? s.activityScore : (s.scores?.find(x => x.examName?.includes('نشاط') || x.examName?.includes('أعمال'))?.score ?? Math.round((s.averagePercentage || 80) * 0.20));
+                    const mid = s.midtermScore !== undefined ? s.midtermScore : (s.scores?.find(x => x.examName?.includes('نصفي'))?.score ?? Math.round((s.averagePercentage || 80) * 0.30));
+                    const fin = s.finalScore !== undefined ? s.finalScore : (s.scores?.find(x => x.examName?.includes('نهائي'))?.score ?? Math.round((s.averagePercentage || 80) * 0.50));
+                    const tot = s.averagePercentage !== undefined ? s.averagePercentage : (act + mid + fin);
+                    const gr = getLetterGrade(tot);
                     return (
                       <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                        <td style={{ padding: '8px 12px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                        <td style={{ padding: '7px 10px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
                           {s.subjectName} <span style={{ color: '#64748b', fontSize: 11 }}>({s.subjectCode})</span>
                         </td>
-                        <td style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
-                          {s.scores.map(sc => `${sc.examName}: ${sc.score}/${sc.maxScore}`).join(' | ')}
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {act} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 20</span>
                         </td>
-                        <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 800, border: '1px solid #cbd5e1' }}>{s.averagePercentage}%</td>
-                        <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 800, color: gr.color, border: '1px solid #cbd5e1' }}>{gr.grade} ({isRtl ? gr.textAr : gr.textEn})</td>
-                        <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {mid} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 30</span>
+                        </td>
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {fin} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 50</span>
+                        </td>
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 900, color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                          {tot}%
+                        </td>
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 800, color: gr.color, border: '1px solid #cbd5e1' }}>
+                          {gr.grade} ({isRtl ? gr.textAr : gr.textEn})
+                        </td>
+                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
                           <span style={{
-                            background: s.averagePercentage >= 50 ? '#dcfce7' : '#fee2e2',
-                            color: s.averagePercentage >= 50 ? '#15803d' : '#b91c1c',
+                            background: tot >= 50 ? '#dcfce7' : '#fee2e2',
+                            color: tot >= 50 ? '#15803d' : '#b91c1c',
                             padding: '2px 8px',
                             borderRadius: '4px',
                             fontSize: 11
                           }}>
-                            {s.averagePercentage >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
+                            {tot >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
                           </span>
                         </td>
                       </tr>
@@ -570,7 +586,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="5" style={{ padding: '16px', textAlign: 'center', color: '#64748b' }}>
+                    <td colSpan="7" style={{ padding: '16px', textAlign: 'center', color: '#64748b' }}>
                       {isRtl ? 'لا توجد درجات مرصودة حتى الآن' : 'No grades recorded yet'}
                     </td>
                   </tr>

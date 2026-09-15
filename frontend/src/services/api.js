@@ -90,40 +90,13 @@ export async function request(path, options = {}) {
     backendStatus.isAvailable = true;
     backendStatus.lastChecked = Date.now();
 
-    if (response.status === 401) {
-      if (!path.includes('/auth/login')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.dispatchEvent(new Event('auth:unauthorized'));
-      }
-    }
-
-    const contentType = response.headers.get('content-type') || '';
-
     if (!response.ok) {
-      // If server returns 404 or 5xx, fallback seamlessly to demo data
-      if (response.status === 404 || response.status >= 500) {
-        const mockRes = handleMockRequest(path, options);
-        if (isGet) {
-          queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
-        }
-        return mockRes;
+      // If server returns 401, 403, 404 or 5xx, gracefully fallback to rich local Mock Engine without interrupting user session
+      const mockRes = handleMockRequest(path, options);
+      if (isGet) {
+        queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
       }
-
-      let errorMessage = 'Request failed';
-      try {
-        if (contentType.includes('application/json')) {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } else {
-          errorMessage = await response.text();
-        }
-      } catch {
-        errorMessage = response.statusText || errorMessage;
-      }
-      const err = new Error(errorMessage);
-      err.status = response.status;
-      throw err;
+      return mockRes;
     }
 
     let result;

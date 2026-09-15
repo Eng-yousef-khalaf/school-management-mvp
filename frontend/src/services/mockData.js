@@ -698,10 +698,58 @@ export function handleMockRequest(path, options = {}) {
       overallAverage: 91,
       attendanceSummary: { percentage: 96, present: 24, absent: 1, late: 1, excused: 0, totalDays: 26 },
       subjectSummary: [
-        { subjectCode: 'MATH', subjectName: 'Mathematics', averagePercentage: 92, scores: [{ examName: 'Midterm', score: 92, maxScore: 100, percentage: 92 }] },
-        { subjectCode: 'ENG', subjectName: 'English Language', averagePercentage: 88, scores: [{ examName: 'Midterm', score: 88, maxScore: 100, percentage: 88 }] },
-        { subjectCode: 'AR', subjectName: 'Arabic Language', averagePercentage: 95, scores: [{ examName: 'Midterm', score: 95, maxScore: 100, percentage: 95 }] },
-        { subjectCode: 'SCI', subjectName: 'General Science', averagePercentage: 90, scores: [{ examName: 'Midterm', score: 90, maxScore: 100, percentage: 90 }] },
+        { 
+          subjectCode: 'MATH', 
+          subjectName: 'الرياضيات العامة (Mathematics)', 
+          activityScore: 19, 
+          midtermScore: 28, 
+          finalScore: 45, 
+          averagePercentage: 92, 
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 19, maxScore: 20, percentage: 95 },
+            { examName: 'الاختبار النصفي', score: 28, maxScore: 30, percentage: 93.3 },
+            { examName: 'الاختبار النهائي', score: 45, maxScore: 50, percentage: 90 }
+          ] 
+        },
+        { 
+          subjectCode: 'ENG', 
+          subjectName: 'اللغة الإنجليزية (English Language)', 
+          activityScore: 17, 
+          midtermScore: 27, 
+          finalScore: 44, 
+          averagePercentage: 88, 
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 17, maxScore: 20, percentage: 85 },
+            { examName: 'الاختبار النصفي', score: 27, maxScore: 30, percentage: 90 },
+            { examName: 'الاختبار النهائي', score: 44, maxScore: 50, percentage: 88 }
+          ] 
+        },
+        { 
+          subjectCode: 'AR', 
+          subjectName: 'اللغة العربية والتربية الإسلامية (Arabic)', 
+          activityScore: 20, 
+          midtermScore: 29, 
+          finalScore: 46, 
+          averagePercentage: 95, 
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 20, maxScore: 20, percentage: 100 },
+            { examName: 'الاختبار النصفي', score: 29, maxScore: 30, percentage: 96.6 },
+            { examName: 'الاختبار النهائي', score: 46, maxScore: 50, percentage: 92 }
+          ] 
+        },
+        { 
+          subjectCode: 'SCI', 
+          subjectName: 'العلوم العامة والتكنولوجيا (Science)', 
+          activityScore: 18, 
+          midtermScore: 27, 
+          finalScore: 45, 
+          averagePercentage: 90, 
+          scores: [
+            { examName: 'الأنشطة والمهام', score: 18, maxScore: 20, percentage: 90 },
+            { examName: 'الاختبار النصفي', score: 27, maxScore: 30, percentage: 90 },
+            { examName: 'الاختبار النهائي', score: 45, maxScore: 50, percentage: 90 }
+          ] 
+        },
       ],
       attendance: [
         { date: '2026-09-12', status: 'PRESENT' },

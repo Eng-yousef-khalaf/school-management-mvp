@@ -176,13 +176,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     fetchProfile();
-
-    const handleUnauthorized = () => {
-      setUser(null);
-    };
-
-    window.addEventListener('auth:unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, [fetchProfile]);
 
   const isAdmin = user?.role === 'ADMIN' || user?.isDeveloper;

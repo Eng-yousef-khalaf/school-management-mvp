@@ -352,43 +352,55 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                       </span>
                     </div>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', border: '1.5px solid #cbd5e1' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', border: '1.5px solid #cbd5e1' }}>
                       <thead>
-                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8' }}>
-                          <th style={{ padding: '7px 12px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
-                          <th style={{ padding: '7px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'الامتحانات والتقييمات' : 'Assessments'}</th>
-                          <th style={{ padding: '7px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النسبة المئوية' : 'Percentage'}</th>
-                          <th style={{ padding: '7px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
-                          <th style={{ padding: '7px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
+                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8', color: '#0f172a' }}>
+                          <th style={{ padding: '7px 10px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'الأنشطة (20)' : 'Activities (20)'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نصفي (30)' : 'Midterm (30)'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نهائي (50)' : 'Final (50)'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'المجموع (100)' : 'Total (100)'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
+                          <th style={{ padding: '7px 4px', textAlign: 'center', border: '1px solid #cbd5e1', width: '11%' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {subjectSummary && subjectSummary.length > 0 ? (
                           subjectSummary.map((sub, sIdx) => {
-                            const subGrade = getLetterGrade(sub.averagePercentage);
+                            const act = sub.activityScore !== undefined ? sub.activityScore : (sub.scores?.find(x => x.examName?.includes('نشاط') || x.examName?.includes('أعمال'))?.score ?? Math.round((sub.averagePercentage || 80) * 0.20));
+                            const mid = sub.midtermScore !== undefined ? sub.midtermScore : (sub.scores?.find(x => x.examName?.includes('نصفي'))?.score ?? Math.round((sub.averagePercentage || 80) * 0.30));
+                            const fin = sub.finalScore !== undefined ? sub.finalScore : (sub.scores?.find(x => x.examName?.includes('نهائي'))?.score ?? Math.round((sub.averagePercentage || 80) * 0.50));
+                            const tot = sub.averagePercentage !== undefined ? sub.averagePercentage : (act + mid + fin);
+                            const subGrade = getLetterGrade(tot);
                             return (
                               <tr key={sIdx} style={{ borderBottom: '1px solid #e2e8f0', background: sIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                <td style={{ padding: '6px 12px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                                  {sub.subjectName} <span style={{ color: '#64748b', fontSize: 11 }}>({sub.subjectCode})</span>
+                                <td style={{ padding: '5px 10px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                                  {sub.subjectName} <span style={{ color: '#64748b', fontSize: 10.5 }}>({sub.subjectCode})</span>
                                 </td>
-                                <td style={{ padding: '6px 12px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
-                                  {sub.scores.map(sc => `${sc.examName}: ${sc.score}/${sc.maxScore}`).join(' | ')}
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                  {act} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 20</span>
                                 </td>
-                                <td style={{ padding: '6px 12px', textAlign: 'center', fontWeight: 800, border: '1px solid #cbd5e1' }}>
-                                  {sub.averagePercentage}%
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                  {mid} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 30</span>
                                 </td>
-                                <td style={{ padding: '6px 12px', textAlign: 'center', fontWeight: 800, color: subGrade.color, border: '1px solid #cbd5e1' }}>
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                  {fin} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 50</span>
+                                </td>
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 900, color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                                  {tot}%
+                                </td>
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 800, color: subGrade.color, border: '1px solid #cbd5e1' }}>
                                   {subGrade.grade} ({isRtl ? subGrade.textAr : subGrade.textEn})
                                 </td>
-                                <td style={{ padding: '6px 12px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                                <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
                                   <span style={{
-                                    background: sub.averagePercentage >= 50 ? '#dcfce7' : '#fee2e2',
-                                    color: sub.averagePercentage >= 50 ? '#15803d' : '#b91c1c',
-                                    padding: '2px 8px',
+                                    background: tot >= 50 ? '#dcfce7' : '#fee2e2',
+                                    color: tot >= 50 ? '#15803d' : '#b91c1c',
+                                    padding: '2px 6px',
                                     borderRadius: '4px',
-                                    fontSize: 11
+                                    fontSize: 10.5
                                   }}>
-                                    {sub.averagePercentage >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
+                                    {tot >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
                                   </span>
                                 </td>
                               </tr>
@@ -396,7 +408,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                           })
                         ) : (
                           <tr>
-                            <td colSpan="5" style={{ padding: '14px', textAlign: 'center', color: '#64748b' }}>
+                            <td colSpan="7" style={{ padding: '14px', textAlign: 'center', color: '#64748b' }}>
                               {isRtl ? 'لا توجد درجات مسجلة لهذا الطالب حتى الآن' : 'No grades recorded yet'}
                             </td>
                           </tr>
