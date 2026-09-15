@@ -100,57 +100,55 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card" style={{ maxWidth: '540px', width: '100%', position: 'relative' }}>
-        {/* Language Switcher Header */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-          <LanguageSwitcher />
-        </div>
-
-        <div className="login-brand" style={{ textAlign: 'center', marginBottom: 20 }}>
-          {/* Official Emblem Logo */}
-          <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'center' }}>
-            {config.logoUrl ? (
-              <img src={config.logoUrl} alt="School Logo" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'contain' }} />
-            ) : (
-              <SchoolLogo size={78} />
-            )}
-          </div>
-
-          {/* Ministry / Instance Badge */}
+      <div className="login-card" style={{ maxWidth: '450px', width: '100%', position: 'relative' }}>
+        {/* Top Header: Language Switcher & Quick Title */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 6,
-            fontSize: '12px',
+            gap: 4,
+            fontSize: '11px',
             fontWeight: 800,
             color: 'var(--primary)',
             background: 'var(--primary-light)',
             border: '1px solid var(--border-color)',
-            padding: '4px 14px',
-            borderRadius: '9999px',
-            marginBottom: 6
+            padding: '2px 10px',
+            borderRadius: '9999px'
           }}>
             <span>🏫</span>
-            <span>{config.schoolCode} • {isRtl ? 'المنظومة الأكاديمية السحابية' : 'Dedicated Cloud Academic Instance'}</span>
+            <span>{config.schoolCode || 'MOE-SCH-2026'}</span>
+          </div>
+          <LanguageSwitcher />
+        </div>
+
+        {/* Brand Header */}
+        <div className="login-brand" style={{ textAlign: 'center', marginBottom: 12 }}>
+          {/* Official Emblem Logo */}
+          <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
+            {config.logoUrl ? (
+              <img src={config.logoUrl} alt="School Logo" style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'contain' }} />
+            ) : (
+              <SchoolLogo size={52} />
+            )}
           </div>
 
-          <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#1e1b4b', margin: '4px 0' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 800, color: '#1e1b4b', margin: '2px 0' }}>
             {isRtl ? config.schoolNameAr : config.schoolNameEn}
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: '4px 0 0 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', margin: '2px 0 0 0' }}>
             {isRtl ? config.schoolSloganAr : config.schoolSloganEn}
           </p>
         </div>
 
         {/* Dedicated Role Selection Portals with 1-Click Fast Actions */}
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
-              {isRtl ? 'اختر البوابة للدخول المباشر بنقرة واحدة:' : 'Select Portal for Instant 1-Click Login:'}
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)' }}>
+              {isRtl ? 'اختر البوابة للدخول المباشر:' : 'Select Portal for Instant Login:'}
             </div>
-            <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700 }}>⚡ {isRtl ? 'دخول فوري 0ms' : '0ms Instant'}</span>
+            <span style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700 }}>⚡ {isRtl ? 'دخول فوري 0ms' : '0ms Instant'}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
             <button
               type="button"
               onClick={() => {
@@ -158,24 +156,24 @@ export default function Login() {
               }}
               onDoubleClick={() => executeInstantLogin('admin@school.local')}
               style={{
-                padding: '12px 8px',
-                borderRadius: 'var(--radius-md)',
+                padding: '6px 4px',
+                borderRadius: '8px',
                 border: activeRole === 'ADMIN' ? '2px solid var(--primary)' : '1px solid var(--border-color)',
                 background: activeRole === 'ADMIN' ? 'var(--primary-light)' : 'var(--bg-main)',
                 color: activeRole === 'ADMIN' ? 'var(--primary-dark)' : 'var(--text-main)',
                 fontWeight: activeRole === 'ADMIN' ? 700 : 500,
-                fontSize: '13px',
+                fontSize: '11.5px',
                 cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 4,
+                justifyContent: 'center',
+                gap: 5,
                 transition: 'var(--transition)'
               }}
               title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '22px' }}>👔</span>
-              <span>{isRtl ? 'المدير العام' : 'Admin'}</span>
+              <span style={{ fontSize: '15px' }}>👔</span>
+              <span>{isRtl ? 'المدير' : 'Admin'}</span>
             </button>
 
             <button
@@ -185,24 +183,24 @@ export default function Login() {
               }}
               onDoubleClick={() => executeInstantLogin('staff@school.local')}
               style={{
-                padding: '12px 8px',
-                borderRadius: 'var(--radius-md)',
+                padding: '6px 4px',
+                borderRadius: '8px',
                 border: activeRole === 'STAFF' ? '2px solid #10b981' : '1px solid var(--border-color)',
                 background: activeRole === 'STAFF' ? 'var(--success-light)' : 'var(--bg-main)',
                 color: activeRole === 'STAFF' ? '#047857' : 'var(--text-main)',
                 fontWeight: activeRole === 'STAFF' ? 700 : 500,
-                fontSize: '13px',
+                fontSize: '11.5px',
                 cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 4,
+                justifyContent: 'center',
+                gap: 5,
                 transition: 'var(--transition)'
               }}
               title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '22px' }}>📋</span>
-              <span>{isRtl ? 'شؤون المعلمين والطلاب' : 'Staff Affairs'}</span>
+              <span style={{ fontSize: '15px' }}>📋</span>
+              <span>{isRtl ? 'شؤون الطلاب' : 'Staff'}</span>
             </button>
 
             <button
@@ -212,23 +210,23 @@ export default function Login() {
               }}
               onDoubleClick={() => executeInstantLogin('ahmed.khalil@school.local')}
               style={{
-                padding: '12px 8px',
-                borderRadius: 'var(--radius-md)',
+                padding: '6px 4px',
+                borderRadius: '8px',
                 border: activeRole === 'TEACHER' ? '2px solid #0ea5e9' : '1px solid var(--border-color)',
                 background: activeRole === 'TEACHER' ? 'rgba(14, 165, 233, 0.1)' : 'var(--bg-main)',
                 color: activeRole === 'TEACHER' ? '#0369a1' : 'var(--text-main)',
                 fontWeight: activeRole === 'TEACHER' ? 700 : 500,
-                fontSize: '13px',
+                fontSize: '11.5px',
                 cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 4,
+                justifyContent: 'center',
+                gap: 5,
                 transition: 'var(--transition)'
               }}
               title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '22px' }}>👨‍🏫</span>
+              <span style={{ fontSize: '15px' }}>👨‍🏫</span>
               <span>{isRtl ? 'المعلمون' : 'Teachers'}</span>
             </button>
           </div>
@@ -239,14 +237,14 @@ export default function Login() {
           <div style={{
             background: 'rgba(14, 165, 233, 0.06)',
             border: '1px solid rgba(14, 165, 233, 0.25)',
-            borderRadius: 'var(--radius-md)',
-            padding: '10px 12px',
-            marginBottom: '16px'
+            borderRadius: '6px',
+            padding: '6px 10px',
+            marginBottom: '10px'
           }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0369a1', marginBottom: '8px' }}>
-              {isRtl ? 'اختر حساب المعلم المخصص للمعاينة والإسناد الأكاديمي:' : 'Select individual teacher account:'}
+            <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#0369a1', marginBottom: '5px' }}>
+              {isRtl ? 'اختر حساب المعلم المخصص:' : 'Select individual teacher account:'}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {teacherAccounts.map((tch, idx) => (
                 <button
                   key={idx}
@@ -260,12 +258,12 @@ export default function Login() {
                     background: email === tch.email ? '#0ea5e9' : '#ffffff',
                     color: email === tch.email ? '#ffffff' : '#0f172a',
                     border: '1px solid #cbd5e1',
-                    borderRadius: '6px',
-                    padding: '4px 10px',
-                    fontSize: '12px',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    boxShadow: email === tch.email ? '0 2px 6px rgba(14, 165, 233, 0.3)' : 'none'
+                    boxShadow: email === tch.email ? '0 1px 4px rgba(14, 165, 233, 0.3)' : 'none'
                   }}
                   title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
                 >
@@ -280,14 +278,14 @@ export default function Login() {
           <div style={{
             background: 'rgba(16, 185, 129, 0.06)',
             border: '1px solid rgba(16, 185, 129, 0.25)',
-            borderRadius: 'var(--radius-md)',
-            padding: '10px 12px',
-            marginBottom: '16px'
+            borderRadius: '6px',
+            padding: '6px 10px',
+            marginBottom: '10px'
           }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#047857', marginBottom: '8px' }}>
+            <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#047857', marginBottom: '5px' }}>
               {isRtl ? 'اختر حساب موظف شؤون الطلاب:' : 'Select staff member account:'}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {staffAccounts.map((stf, idx) => (
                 <button
                   key={idx}
@@ -301,12 +299,12 @@ export default function Login() {
                     background: email === stf.email ? '#10b981' : '#ffffff',
                     color: email === stf.email ? '#ffffff' : '#0f172a',
                     border: '1px solid #cbd5e1',
-                    borderRadius: '6px',
-                    padding: '4px 10px',
-                    fontSize: '12px',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    boxShadow: email === stf.email ? '0 2px 6px rgba(16, 185, 129, 0.3)' : 'none'
+                    boxShadow: email === stf.email ? '0 1px 4px rgba(16, 185, 129, 0.3)' : 'none'
                   }}
                   title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
                 >
@@ -320,50 +318,53 @@ export default function Login() {
         {error && <ErrorAlert message={error} />}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">{t('emailLabel')}</label>
+          <div className="form-group" style={{ marginBottom: 8 }}>
+            <label className="form-label" style={{ fontSize: '12px', marginBottom: 2 }}>{t('emailLabel')}</label>
             <input
               type="email"
               className="form-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. admin@school.local"
+              style={{ padding: '7px 10px', fontSize: '13px' }}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">{t('passwordLabel')}</label>
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label className="form-label" style={{ fontSize: '12px', marginBottom: 2 }}>{t('passwordLabel')}</label>
             <input
               type="password"
               className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
+              style={{ padding: '7px 10px', fontSize: '13px' }}
               required
             />
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 4 }}>
+            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: 2 }}>
               {isRtl ? 'كلمة المرور التجريبية: ChangeMe123!' : 'Demo Password: ChangeMe123!'}
             </div>
           </div>
 
-          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div>
             {/* Primary Instant Login Submit Button */}
             <button
               type="submit"
               className="btn btn-primary"
               style={{
                 width: '100%',
-                padding: '13px',
-                fontSize: '15px',
+                padding: '9px 14px',
+                fontSize: '14px',
                 fontWeight: 800,
                 background: roleColor,
                 borderColor: roleColor,
-                boxShadow: `0 4px 14px ${roleColor}40`,
+                boxShadow: `0 3px 10px ${roleColor}35`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8
+                gap: 6,
+                borderRadius: '8px'
               }}
               disabled={loading}
             >
@@ -375,7 +376,7 @@ export default function Login() {
           </div>
         </form>
 
-        <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '12px', color: 'var(--text-light)' }}>
+        <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '11px', color: 'var(--text-light)' }}>
           {isRtl ? `${config.schoolNameAr} — منظومة إدارة المدرسة الذكية` : `${config.schoolNameEn} — Smart School Management System`}
         </div>
       </div>
