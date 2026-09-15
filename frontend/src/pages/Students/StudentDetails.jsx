@@ -8,6 +8,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import { EditIcon, DownloadIcon, PalestineFlagIcon } from '../../components/common/Icons';
 import SchoolLogo from '../../components/common/SchoolLogo';
+import UnicefLogo from '../../components/common/UnicefLogo';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
   const { canManageStudents } = useAuth();
@@ -453,14 +454,20 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
               {isRtl ? 'قسم شؤون الطلاب والتسجيل والامتحانات' : 'Registrar & Student Affairs Department'}
             </div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <SchoolLogo size={62} />
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <SchoolLogo size={58} />
           </div>
-          <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
+          <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 4 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0f9ff', padding: '4px 10px', borderRadius: 20, border: '1px solid #bae6fd' }}>
+              <UnicefLogo height={16} color="#00AEEF" />
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#00AEEF' }}>
+                {isRtl ? 'معايير اليونيسيف (UNICEF)' : 'UNICEF Standards'}
+              </span>
+            </div>
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary)' }}>
               {isRtl ? 'إفادة درجات ومستوى أداء طالب' : 'Official Student Academic Statement'}
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>
               {isRtl ? 'تاريخ التحرير:' : 'Date Issued:'} {new Date().toLocaleDateString('ar-EG')}
             </div>
           </div>
@@ -531,7 +538,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         </div>
 
         {/* Overall Results & Attendance Statement */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 30 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
           <div style={{ border: '1px solid #cbd5e1', borderRadius: 6, padding: 12 }}>
             <div style={{ fontSize: 12, color: '#64748b' }}>{isRtl ? 'المعدل التراكمي الإجمالي:' : 'Cumulative GPA:'}</div>
             <div style={{ fontSize: 20, fontWeight: 900, color: gpaInfo ? gpaInfo.color : 'inherit', marginTop: 4 }}>
@@ -546,8 +553,37 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           </div>
         </div>
 
+        {/* UNICEF Verified Telemetry Banner */}
+        <div style={{
+          padding: '10px 16px',
+          background: 'linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%)',
+          border: '1px solid #bae6fd',
+          borderRadius: 8,
+          marginBottom: 28,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <UnicefLogo height={18} color="#00AEEF" />
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#0369a1' }}>
+                {isRtl ? 'وثيقة تقييم أكاديمي وتربوي معتمدة' : 'Verified Academic & Educational Standing Document'}
+              </div>
+              <div style={{ fontSize: 11, color: '#0284c7' }}>
+                {isRtl ? 'مطابقة لبروتوكول الرصد والتقييم التربوي الموحد لوزارة التربية والتعليم واليونيسيف' : 'Compliant with MoE & UNICEF Joint Educational Monitoring Protocols'}
+              </div>
+            </div>
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: '#0369a1', background: '#fff', padding: '4px 10px', borderRadius: 4, border: '1px solid #bae6fd' }}>
+            ID: {student.studentNumber}-UNICEF-MOE
+          </div>
+        </div>
+
         {/* Official Endorsement & Signatures */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginTop: 40, textAlign: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginTop: 20, textAlign: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: 20 }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 36 }}>
               {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}

@@ -5,9 +5,9 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
-import EmptyState from '../../components/common/EmptyState';
 import SchoolLogo from '../../components/common/SchoolLogo';
 import { PalestineFlagIcon } from '../../components/common/Icons';
+import UnicefLogo from '../../components/common/UnicefLogo';
 
 export default function BulkCertificatesModal({ isOpen, onClose, initialClassId = '' }) {
   const toast = useToast();
@@ -267,7 +267,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                     <SchoolLogo size={66} />
                   </div>
 
-                  <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
+                  <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 6 }}>
                     <div style={{
                       background: '#f1f5f9',
                       border: '1px solid #cbd5e1',
@@ -282,11 +282,19 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                         {isRtl ? 'العام الدراسي:' : 'Academic Year:'} <strong>{student.academicYear}</strong>
                       </div>
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 6 }}>
+                    {/* UNICEF Partner Accreditation Badge */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0, 174, 239, 0.08)', border: '1px solid rgba(0, 174, 239, 0.3)', padding: '3px 8px', borderRadius: 6 }}>
+                      <UnicefLogo height={16} color="#00AEEF" />
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#0284c7' }}>
+                        {isRtl ? 'معايير اليونيسيف (UNICEF)' : 'UNICEF Standard'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 10.5, color: '#64748b' }}>
                       {isRtl ? 'تاريخ التحرير:' : 'Issue Date:'} {new Date().toLocaleDateString('ar-EG')}
                     </div>
                   </div>
                 </div>
+
 
                 {/* Student Personal Bio Card */}
                 <div style={{
@@ -444,42 +452,43 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                 </div>
 
                 {/* Official Signatures & School Endorsement */}
+                {/* Official Signatures & School Endorsement */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 20,
-                  marginTop: 30,
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: 16,
+                  marginTop: 26,
                   textAlign: 'center',
                   borderTop: '2px dashed #94a3b8',
-                  paddingTop: 18
+                  paddingTop: 16
                 }}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 36 }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 32 }}>
                       {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
                         {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
                       </div>
                     </div>
-                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
+                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 36 }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 32 }}>
                       {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
                         {isRtl ? 'إدارة المدرسة' : 'School Principal'}
                       </div>
                     </div>
-                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
+                    <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
                       {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Seal'}
                     </div>
                     <div style={{
-                      width: 68,
-                      height: 68,
+                      width: 64,
+                      height: 64,
                       border: '2px dashed #4f46e5',
                       borderRadius: '50%',
                       margin: '0 auto',
@@ -488,31 +497,67 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: '#4f46e5',
-                      fontSize: 9,
-                      fontWeight: 800
+                      fontSize: 8.5,
+                      fontWeight: 800,
+                      background: '#faf5ff'
                     }}>
                       <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
-                      <span style={{ fontSize: 8 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+                      <span style={{ fontSize: 7.5 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0284c7', marginBottom: 4 }}>
+                      {isRtl ? 'اعتماد الشريك الإنساني والتربوي' : 'UNICEF Accreditation'}
+                    </div>
+                    <div style={{
+                      height: 64,
+                      border: '1.5px solid rgba(0, 174, 239, 0.4)',
+                      borderRadius: 8,
+                      margin: '0 auto',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(0, 174, 239, 0.05)',
+                      padding: '4px 6px'
+                    }}>
+                      <UnicefLogo height={18} color="#00AEEF" />
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#0369a1', marginTop: 3 }}>
+                        {isRtl ? 'وثيقة موثقة ومعتمدة' : 'UNICEF Telemetry Accredited'}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer Page Note */}
                 <div style={{
-                  marginTop: 20,
+                  marginTop: 18,
                   textAlign: 'center',
                   fontSize: 10,
-                  color: '#94a3b8',
-                  borderTop: '1px solid #f1f5f9',
-                  paddingTop: 8
+                  color: '#64748b',
+                  borderTop: '1px solid #e2e8f0',
+                  paddingTop: 8,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 8
                 }}>
-                  {isRtl
-                    ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
-                    : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
+                  <span>
+                    {isRtl
+                      ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
+                      : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
+                  </span>
+                  <span style={{ fontWeight: 700, color: '#0284c7', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <UnicefLogo height={13} color="#00AEEF" />
+                    <span>• {isRtl ? 'مطابقة لمعايير وزارة التربية والتعليم واليونيسيف' : 'MoE & UNICEF Standards Compliant'}</span>
+                  </span>
                 </div>
               </div>
             );
           })
+
         )}
       </div>
     </div>

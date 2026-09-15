@@ -7,6 +7,7 @@ import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import BulkCertificatesModal from './BulkCertificatesModal';
 import UnicefAnalyticalReportModal from './UnicefAnalyticalReportModal';
+import UnicefLogo from '../../components/common/UnicefLogo';
 import { DownloadIcon, StudentsIcon, TeachersIcon, AttendanceIcon, GradesIcon } from '../../components/common/Icons';
 
 export default function ReportsHub({ onNavigate }) {
@@ -102,8 +103,10 @@ export default function ReportsHub({ onNavigate }) {
             }}
           >
             <div style={{ maxWidth: 640 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <span style={{ fontSize: 22 }}>🏛️</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+                <div style={{ background: '#ffffff', padding: '4px 10px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                  <UnicefLogo height={20} color="#00AEEF" />
+                </div>
                 <span
                   style={{
                     background: 'rgba(255, 255, 255, 0.18)',
@@ -129,6 +132,7 @@ export default function ReportsHub({ onNavigate }) {
                   : 'One-click export of complete student & faculty telemetry formatted for Ministry of Education & UNICEF, or view the institutional printable analytical report (PDF) designed for humanitarian reporting requirements.'}
               </p>
             </div>
+
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               {/* 1-Click Excel Export Button */}

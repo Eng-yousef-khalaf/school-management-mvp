@@ -12,7 +12,15 @@ export function AuthProvider({ children }) {
       return null;
     }
   });
-  const [loading, setLoading] = useState(true);
+
+  // Never block UI if user is already cached in localStorage
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('user') && Boolean(localStorage.getItem('token'));
+    } catch {
+      return false;
+    }
+  });
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -23,7 +31,7 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const profile = await api.get('/auth/profile');
+      const profile = await api.get('/auth/profile', { timeout: 1000 });
       if (profile && profile.role) {
         setUser(profile);
         localStorage.setItem('user', JSON.stringify(profile));
@@ -40,52 +48,73 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const data = await api.post('/auth/login', { email, password });
-      if (data && data.user) {
-        localStorage.setItem('token', data.token || 'demo-token');
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        return data.user;
-      }
-    } catch (err) {
-      console.warn('Live API unreachable, activating instant demo auth fallback', err);
-    }
-
-    // Direct Instant Demo Authentication Fallback
+  const getFallbackUser = (email) => {
     let userRole = 'ADMIN';
     let fullName = 'يوسف (المدير العام)';
     let teacherId = null;
+    let id = 1;
 
     if (email.includes('staff')) {
       userRole = 'STAFF';
       fullName = email.includes('khalid') ? 'خالد السعيد (شؤون الطلاب)' : 'محمد (شؤون الطلاب)';
+      id = email.includes('khalid') ? 3 : 2;
     } else if (email.includes('khalil') || email.includes('mansour') || email.includes('farooq') || email.includes('hassan') || email.includes('aziz') || email.includes('teacher')) {
       userRole = 'TEACHER';
-      fullName = email.includes('mansour')
-        ? 'سارة منصور (معلمة الإنجليزية)'
-        : email.includes('farooq')
-        ? 'عمر فاروق (معلم العربية)'
-        : email.includes('hassan')
-        ? 'ليلى حسن (معلمة العلوم)'
-        : email.includes('aziz')
-        ? 'طارق عزيز (معلم الحاسوب)'
-        : 'أحمد خليل (معلم الرياضيات)';
-      teacherId = 1;
+      if (email.includes('mansour')) {
+        fullName = 'سارة منصور (معلمة الإنجليزية)';
+        id = 5;
+        teacherId = 2;
+      } else if (email.includes('farooq')) {
+        fullName = 'عمر فاروق (معلم العربية)';
+        id = 6;
+        teacherId = 3;
+      } else if (email.includes('hassan')) {
+        fullName = 'ليلى حسن (معلمة العلوم)';
+        id = 7;
+        teacherId = 4;
+      } else if (email.includes('aziz')) {
+        fullName = 'طارق عزيز (معلم الحاسوب)';
+        id = 8;
+        teacherId = 5;
+      } else {
+        fullName = 'أحمد خليل (معلم الرياضيات)';
+        id = 4;
+        teacherId = 1;
+      }
     }
 
-    const fallbackUser = {
-      id: 1,
+    return {
+      id,
       email: email || 'admin@school.local',
       fullName,
       role: userRole,
       teacherId,
       active: true,
     };
+  };
 
+  const login = async (email, password) => {
+    const fallbackUser = getFallbackUser(email || 'admin@school.local');
+
+    // 0ms instant login path for instant responsiveness
+    try {
+      // Race API request with fast timeout (700ms)
+      const data = await api.post('/auth/login', { email, password }, { timeout: 700 });
+      if (data && data.user) {
+        localStorage.setItem('token', data.token || 'demo-token');
+        localStorage.setItem('user', JSON.stringify(data.user));
+        api.clearCache();
+        setUser(data.user);
+        return data.user;
+      }
+    } catch (err) {
+      console.warn('Live auth unavailable or timed out, activating instant auth', err);
+    }
+
+    // Direct Instant Demo Authentication Fallback
     localStorage.setItem('token', 'demo-token-preview-2026');
     localStorage.setItem('user', JSON.stringify(fallbackUser));
+    api.clearCache();
     setUser(fallbackUser);
     return fallbackUser;
   };
@@ -95,16 +124,28 @@ export function AuthProvider({ children }) {
     if (targetRole === 'STAFF') targetEmail = 'staff@school.local';
     if (targetRole === 'TEACHER') targetEmail = 'ahmed.khalil@school.local';
 
-    return login(targetEmail, 'ChangeMe123!');
+    const switchedUser = getFallbackUser(targetEmail);
+
+    // Instantaneous 0ms switch without blocking UI
+    localStorage.setItem('token', 'demo-token-preview-2026');
+    localStorage.setItem('user', JSON.stringify(switchedUser));
+    api.clearCache();
+    setUser(switchedUser);
+
+    // Non-blocking background sync
+    api.post('/auth/login', { email: targetEmail, password: 'ChangeMe123!' }, { timeout: 700 }).catch(() => {});
+
+    return switchedUser;
   };
 
   const loginAsDeveloper = async (masterKey = 'YOUSEF_MASTER_2026') => {
     try {
-      const data = await api.post('/developer/master-auth', { masterKey }).catch(() => null);
+      const data = await api.post('/developer/master-auth', { masterKey }, { timeout: 700 }).catch(() => null);
       if (data?.token && data?.user) {
         localStorage.setItem('token', data.token);
         const devUser = { ...data.user, isDeveloper: true, fullName: 'Yousef Khalaf (Lead Developer)' };
         localStorage.setItem('user', JSON.stringify(devUser));
+        api.clearCache();
         setUser(devUser);
         return devUser;
       }
@@ -121,6 +162,7 @@ export function AuthProvider({ children }) {
     };
     localStorage.setItem('token', 'demo-developer-token');
     localStorage.setItem('user', JSON.stringify(devUser));
+    api.clearCache();
     setUser(devUser);
     return devUser;
   };
@@ -128,6 +170,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    api.clearCache();
     setUser(null);
   };
 

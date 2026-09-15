@@ -7,13 +7,58 @@ const isHttps = typeof window !== 'undefined' && window.location.protocol === 'h
 // Default to live Render backend on production HTTPS, or configured URL, or localhost in dev
 const API_BASE_URL = configuredApiUrl || (isHttps ? LIVE_RENDER_API : 'http://localhost:4000/api');
 
-// Live mode is now active by default; mock engine acts as a resilient fallback
-const isDemoMode = false;
+// Fast network timeout threshold (1200ms) to eliminate UI freezes on sleeping backends
+const NETWORK_TIMEOUT_MS = 1200;
+const BACKEND_RETRY_COOLDOWN_MS = 15000;
 
+// Track backend availability
+let backendStatus = {
+  isAvailable: null, // null = untested, true = online, false = offline/sleeping
+  lastChecked: 0,
+  lastFailure: 0,
+};
+
+// In-memory query cache for instant (0ms) reads and smooth navigation
+const queryCache = new Map();
+const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute
+
+export function clearApiCache() {
+  queryCache.clear();
+}
+
+/**
+ * Intelligent Request Handler:
+ * - 0ms response for cached GET queries
+ * - Fast 1200ms timeout race with AbortController
+ * - Instant fallback to Mock Engine when server is sleeping/offline
+ * - Automatic cache invalidation on mutations (POST/PUT/DELETE)
+ */
 export async function request(path, options = {}) {
-  // If explicitly flagged in demo mode, execute via Mock Engine
-  if (isDemoMode) {
-    return handleMockRequest(path, options);
+  const method = (options.method || 'GET').toUpperCase();
+  const isGet = method === 'GET';
+  const cacheKey = `${method}:${path}`;
+
+  // 1. Check in-memory cache for GET requests
+  if (isGet && !options.noCache) {
+    const cached = queryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < (options.cacheTTL || DEFAULT_CACHE_TTL_MS)) {
+      return cached.data;
+    }
+  }
+
+  // 2. Invalidate cache on write operations
+  if (!isGet) {
+    queryCache.clear();
+  }
+
+  // 3. Fast-path: If backend recently failed within cooldown, immediately use mock engine (0ms)
+  const now = Date.now();
+  if (backendStatus.isAvailable === false && now - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) {
+    const mockRes = handleMockRequest(path, options);
+    if (isGet) {
+      queryCache.set(cacheKey, { data: mockRes, timestamp: now });
+    }
+    return mockRes;
   }
 
   const token = localStorage.getItem('token');
@@ -30,11 +75,20 @@ export async function request(path, options = {}) {
 
   const url = `${API_BASE_URL}${path}`;
 
+  // 4. Setup AbortController for strict timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), options.timeout || NETWORK_TIMEOUT_MS);
+
   try {
     const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
+    backendStatus.isAvailable = true;
+    backendStatus.lastChecked = Date.now();
 
     if (response.status === 401) {
       if (!path.includes('/auth/login')) {
@@ -49,7 +103,11 @@ export async function request(path, options = {}) {
     if (!response.ok) {
       // If server returns 404 or 5xx, fallback seamlessly to demo data
       if (response.status === 404 || response.status >= 500) {
-        return handleMockRequest(path, options);
+        const mockRes = handleMockRequest(path, options);
+        if (isGet) {
+          queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+        }
+        return mockRes;
       }
 
       let errorMessage = 'Request failed';
@@ -68,14 +126,30 @@ export async function request(path, options = {}) {
       throw err;
     }
 
+    let result;
     if (contentType.includes('application/json')) {
-      return response.json();
+      result = await response.json();
+    } else {
+      result = await response.blob();
     }
 
-    return response.blob();
-  } catch (networkError) {
-    // Graceful fallback to rich Demo Mock Engine if backend is offline or mixed-content blocked
-    return handleMockRequest(path, options);
+    // Cache successful GET results
+    if (isGet) {
+      queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    }
+
+    return result;
+  } catch (networkOrTimeoutError) {
+    clearTimeout(timeoutId);
+    backendStatus.isAvailable = false;
+    backendStatus.lastFailure = Date.now();
+
+    // Graceful and instant fallback to rich Mock Engine
+    const mockRes = handleMockRequest(path, options);
+    if (isGet) {
+      queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+    }
+    return mockRes;
   }
 }
 
@@ -84,6 +158,7 @@ export const api = {
   post: (path, body, options) => request(path, { ...options, method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body) }),
   put: (path, body, options) => request(path, { ...options, method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body) }),
   delete: (path, options) => request(path, { ...options, method: 'DELETE' }),
+  clearCache: clearApiCache,
 
   download: async (path, filename) => {
     try {

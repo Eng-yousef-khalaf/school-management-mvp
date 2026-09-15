@@ -247,13 +247,34 @@ export function PalestineFlagIcon({ width = 22, height = 15, style = {}, classNa
   );
 }
 
-export function UnicefEmblemIcon({ size = 32, color = '#00aef0', style = {} }) {
+export function UnicefEmblemIcon({ size = 32, color = '#00AEEF', style = {} }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}>
-      <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="1.8" />
-      <path d="M12 4 C10 8 10 16 12 20 M12 4 C14 8 14 16 12 20 M4 12 C8 10 16 10 20 12 M4 12 C8 14 16 14 20 12" stroke={color} strokeWidth="1.2" fill="none" />
-      <circle cx="12" cy="9" r="2" fill={color} />
-      <path d="M9 16 C9 13.5 15 13.5 15 16" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 200 200"
+      style={{ display: 'inline-block', verticalAlign: 'middle', ...style }}
+    >
+      <g transform="translate(100, 100) scale(0.95)">
+        <path d="M -15 88 C -55 80 -95 40 -95 -15 C -95 -45 -80 -75 -55 -95 C -58 -85 -55 -70 -42 -60 C -52 -50 -55 -35 -48 -22 C -58 -10 -60 8 -50 22 C -58 35 -55 52 -42 64 C -50 74 -35 84 -15 88 Z" fill={color} />
+        <path d="M -75 -40 C -82 -32 -85 -18 -80 -8 C -86 2 -88 18 -80 28 C -86 38 -82 52 -70 62 C -80 48 -80 30 -75 15 C -80 0 -78 -20 -75 -40 Z" fill={color} />
+        <path d="M 15 88 C 55 80 95 40 95 -15 C 95 -45 80 -75 55 -95 C 58 -85 55 -70 42 -60 C 52 -50 55 -35 48 -22 C 58 -10 60 8 50 22 C 58 35 55 52 42 64 C 50 74 35 84 15 88 Z" fill={color} />
+        <path d="M 75 -40 C 82 -32 85 -18 80 -8 C 86 2 88 18 80 28 C 86 38 82 52 70 62 C 80 48 80 30 75 15 C 80 0 78 -20 75 -40 Z" fill={color} />
+        <path d="M -18 90 C -6 98 6 98 18 90 C 24 105 10 115 0 102 C -10 115 -24 105 -18 90 Z" fill={color} />
+        <circle cx="0" cy="-6" r="68" fill="none" stroke={color} strokeWidth="3" />
+        <ellipse cx="0" cy="-6" rx="68" ry="46" fill="none" stroke={color} strokeWidth="2.2" />
+        <ellipse cx="0" cy="-6" rx="68" ry="24" fill="none" stroke={color} strokeWidth="2.2" />
+        <line x1="-68" y1="-6" x2="68" y2="-6" stroke={color} strokeWidth="2.2" />
+        <line x1="0" y1="-74" x2="0" y2="62" stroke={color} strokeWidth="2.2" />
+        <line x1="-48" y1="-54" x2="48" y2="42" stroke={color} strokeWidth="2.2" />
+        <line x1="48" y1="-54" x2="-48" y2="42" stroke={color} strokeWidth="2.2" />
+        <path d="M 4 -12 C 14 -32 38 -36 48 -18 C 55 -4 55 18 42 32 C 32 42 12 48 -4 44 C -18 40 -26 28 -20 22 C -14 16 -8 24 4 24 C 18 24 30 16 32 2 C 34 -10 24 -20 12 -18 C 6 -17 2 -15 4 -12 Z" fill={color} />
+        <circle cx="36" cy="-14" r="17" fill={color} />
+        <circle cx="-16" cy="-10" r="14" fill={color} />
+        <path d="M -30 2 C -30 -2 -24 -4 -16 -4 C -8 -4 0 -2 0 6 C 0 16 -12 28 -24 28 C -30 28 -32 22 -30 14 C -28 6 -30 4 -30 2 Z" fill={color} />
+        <path d="M -4 2 C 6 2 14 -4 16 -10 C 14 -12 8 -8 0 -6 Z" fill={color} />
+      </g>
     </svg>
   );
 }
+

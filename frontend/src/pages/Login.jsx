@@ -78,13 +78,11 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const executeInstantLogin = async (targetEmail, targetPassword = 'ChangeMe123!') => {
     setError('');
     setLoading(true);
-
     try {
-      const user = await login(email, password);
+      const user = await login(targetEmail, targetPassword);
       toast.success(`${t('welcomeBack')}, ${user.fullName}!`);
     } catch (err) {
       setError(err.message || t('loginFailed'));
@@ -93,11 +91,16 @@ export default function Login() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+    executeInstantLogin(email, password);
+  };
+
   const roleColor = activeRole === 'ADMIN' ? 'var(--primary)' : activeRole === 'STAFF' ? '#10b981' : '#0ea5e9';
 
   return (
     <div className="login-page">
-      <div className="login-card" style={{ maxWidth: '520px', width: '100%', position: 'relative' }}>
+      <div className="login-card" style={{ maxWidth: '540px', width: '100%', position: 'relative' }}>
         {/* Language Switcher Header */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
           <LanguageSwitcher />
@@ -139,15 +142,21 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Dedicated Role Selection Portals */}
+        {/* Dedicated Role Selection Portals with 1-Click Fast Actions */}
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
-            {isRtl ? 'اختر بوابة الحساب لتسجيل الدخول:' : 'Select Portal Account:'}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
+              {isRtl ? 'اختر البوابة للدخول المباشر بنقرة واحدة:' : 'Select Portal for Instant 1-Click Login:'}
+            </div>
+            <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700 }}>⚡ {isRtl ? 'دخول فوري 0ms' : '0ms Instant'}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
             <button
               type="button"
-              onClick={() => selectRole('ADMIN')}
+              onClick={() => {
+                selectRole('ADMIN');
+              }}
+              onDoubleClick={() => executeInstantLogin('admin@school.local')}
               style={{
                 padding: '12px 8px',
                 borderRadius: 'var(--radius-md)',
@@ -163,14 +172,18 @@ export default function Login() {
                 gap: 4,
                 transition: 'var(--transition)'
               }}
+              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '20px' }}>👔</span>
+              <span style={{ fontSize: '22px' }}>👔</span>
               <span>{isRtl ? 'المدير العام' : 'Admin'}</span>
             </button>
 
             <button
               type="button"
-              onClick={() => selectRole('STAFF')}
+              onClick={() => {
+                selectRole('STAFF');
+              }}
+              onDoubleClick={() => executeInstantLogin('staff@school.local')}
               style={{
                 padding: '12px 8px',
                 borderRadius: 'var(--radius-md)',
@@ -186,14 +199,18 @@ export default function Login() {
                 gap: 4,
                 transition: 'var(--transition)'
               }}
+              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '20px' }}>📋</span>
+              <span style={{ fontSize: '22px' }}>📋</span>
               <span>{isRtl ? 'شؤون المعلمين والطلاب' : 'Staff Affairs'}</span>
             </button>
 
             <button
               type="button"
-              onClick={() => selectRole('TEACHER')}
+              onClick={() => {
+                selectRole('TEACHER');
+              }}
+              onDoubleClick={() => executeInstantLogin('ahmed.khalil@school.local')}
               style={{
                 padding: '12px 8px',
                 borderRadius: 'var(--radius-md)',
@@ -209,9 +226,10 @@ export default function Login() {
                 gap: 4,
                 transition: 'var(--transition)'
               }}
+              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
             >
-              <span style={{ fontSize: '20px' }}>👨‍🏫</span>
-              <span>{isRtl ? 'المعلمون (فردي)' : 'Teachers'}</span>
+              <span style={{ fontSize: '22px' }}>👨‍🏫</span>
+              <span>{isRtl ? 'المعلمون' : 'Teachers'}</span>
             </button>
           </div>
         </div>
@@ -237,6 +255,7 @@ export default function Login() {
                     setEmail(tch.email);
                     setPassword('ChangeMe123!');
                   }}
+                  onDoubleClick={() => executeInstantLogin(tch.email)}
                   style={{
                     background: email === tch.email ? '#0ea5e9' : '#ffffff',
                     color: email === tch.email ? '#ffffff' : '#0f172a',
@@ -248,6 +267,7 @@ export default function Login() {
                     cursor: 'pointer',
                     boxShadow: email === tch.email ? '0 2px 6px rgba(14, 165, 233, 0.3)' : 'none'
                   }}
+                  title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
                 >
                   {tch.name} ({tch.subject})
                 </button>
@@ -276,6 +296,7 @@ export default function Login() {
                     setEmail(stf.email);
                     setPassword('ChangeMe123!');
                   }}
+                  onDoubleClick={() => executeInstantLogin(stf.email)}
                   style={{
                     background: email === stf.email ? '#10b981' : '#ffffff',
                     color: email === stf.email ? '#ffffff' : '#0f172a',
@@ -287,6 +308,7 @@ export default function Login() {
                     cursor: 'pointer',
                     boxShadow: email === stf.email ? '0 2px 6px rgba(16, 185, 129, 0.3)' : 'none'
                   }}
+                  title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
                 >
                   {stf.name} - {stf.roleDesc}
                 </button>
@@ -325,21 +347,30 @@ export default function Login() {
             </div>
           </div>
 
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Primary Instant Login Submit Button */}
             <button
               type="submit"
               className="btn btn-primary"
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '13px',
                 fontSize: '15px',
-                fontWeight: 700,
+                fontWeight: 800,
                 background: roleColor,
-                borderColor: roleColor
+                borderColor: roleColor,
+                boxShadow: `0 4px 14px ${roleColor}40`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8
               }}
               disabled={loading}
             >
-              {loading ? t('signingIn') : `${t('signInBtn')} (${activeRole === 'ADMIN' ? (isRtl ? 'المدير' : 'Admin') : activeRole === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher')})`}
+              <span>⚡</span>
+              <span>
+                {loading ? t('signingIn') : `${t('signInBtn')} (${activeRole === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : activeRole === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher')})`}
+              </span>
             </button>
           </div>
         </form>

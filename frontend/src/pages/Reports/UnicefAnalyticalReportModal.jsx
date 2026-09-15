@@ -5,8 +5,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import SchoolLogo from '../../components/common/SchoolLogo';
 import { PageLoader } from '../../components/common/Loader';
-import ErrorAlert from '../../components/common/ErrorAlert';
 import { PalestineFlagIcon, UnicefEmblemIcon } from '../../components/common/Icons';
+import UnicefLogo from '../../components/common/UnicefLogo';
 
 export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
   const { config } = useSchoolConfig();
@@ -266,21 +266,16 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                         display: 'inline-flex',
                         flexDirection: 'column',
                         alignItems: isRtl ? 'flex-start' : 'flex-end',
-                        background: 'rgba(255, 255, 255, 0.12)',
-                        border: '1.5px solid rgba(125, 211, 252, 0.6)',
-                        padding: '8px 16px',
-                        borderRadius: 10,
-                        backdropFilter: 'blur(6px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                        background: 'rgba(255, 255, 255, 0.14)',
+                        border: '1.5px solid rgba(125, 211, 252, 0.7)',
+                        padding: '10px 18px',
+                        borderRadius: 12,
+                        backdropFilter: 'blur(8px)',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <UnicefEmblemIcon size={26} color="#38bdf8" />
-                        <span style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', letterSpacing: 0.5 }}>
-                          unicef
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#e0f2fe', marginTop: 2 }}>
+                      <UnicefLogo height={30} color="#ffffff" />
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#e0f2fe', marginTop: 4 }}>
                         منظمة الأمم المتحدة للطفولة
                       </div>
                       <div style={{ fontSize: 9.5, color: '#7dd3fc', fontWeight: 600 }}>
@@ -289,6 +284,7 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                     </div>
                   </div>
                 </div>
+
 
                 {/* Cover Center Main Title & Hero Branding */}
                 <div style={{ textAlign: 'center', margin: '26px 0 18px 0' }}>
@@ -455,17 +451,17 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#047857' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: '#047857' }}>
                       <PalestineFlagIcon width={18} height={12} />
                       <span>وزارة التربية والتعليم</span>
                     </div>
                     <span style={{ color: '#cbd5e1' }}>|</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 800, color: '#0284c7' }}>
-                      <UnicefEmblemIcon size={18} />
-                      <span>UNICEF</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <UnicefLogo height={16} color="#00AEEF" />
                     </div>
                   </div>
                 </div>
+
 
                 {/* 1. EXECUTIVE KPI SUMMARY CARDS */}
                 <div className="report-section-card">
@@ -813,18 +809,23 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Receiving Organization Box (MoE / UNICEF) */}
-                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 10px' }}>
+                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div style={{ fontWeight: 900, color: '#0f172a', fontSize: 12 }}>خانة استلام واعتماد الجهة المستقبلة</div>
-                      <div style={{ fontSize: 10, color: '#0369a1', fontWeight: 700, marginTop: 1 }}>وزارة التربية والتعليم / اليونيسيف</div>
-                      <div style={{ height: 55, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#0369a1', fontSize: 10.5, fontWeight: 700, margin: '4px 0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '4px 0' }}>
+                        <span style={{ fontSize: 10, color: '#047857', fontWeight: 800 }}>وزارة التربية والتعليم</span>
+                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <UnicefLogo height={16} color="#00AEEF" />
+                      </div>
+                      <div style={{ height: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#0369a1', fontSize: 10.5, fontWeight: 700, margin: '2px 0' }}>
                         <div>تاريخ الاستلام: ...... / ...... / 2026م</div>
-                        <div style={{ fontSize: 9.5, color: '#64748b', marginTop: 3 }}>دائرة الرقابة والتقييم</div>
+                        <div style={{ fontSize: 9.5, color: '#64748b', marginTop: 2 }}>دائرة الرقابة والتقييم والرصد الإنساني</div>
                       </div>
                       <div style={{ borderTop: '1px dashed #94a3b8', width: '90%', margin: '0 auto', paddingTop: 4, color: '#475569', fontSize: 10.5, fontWeight: 700 }}>
                         التوقيع وخاتم الاستلام والمصادقة
                       </div>
                     </div>
                   </div>
+
 
                   {/* Document Bottom Footer Note */}
                   <div
