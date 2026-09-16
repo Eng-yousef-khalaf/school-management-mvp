@@ -34,6 +34,8 @@ import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
 import DeveloperPortalStandalone from './pages/Developer/DeveloperPortalStandalone';
 import DailyMotivationalModal from './components/common/DailyMotivationalModal';
+import FeeManagement from './pages/Fees/FeeManagement';
+import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole } = useAuth();
@@ -55,13 +57,29 @@ export default function App() {
     );
   });
 
+  const [isParentPortal, setIsParentPortal] = useState(() => {
+    const search = window.location.search.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    return (
+      path.includes('pay') ||
+      path.includes('parent-pay') ||
+      hash.includes('pay') ||
+      hash.includes('parent-pay') ||
+      hash.includes('tuition') ||
+      search.includes('portal=pay') ||
+      search.includes('portal=parent') ||
+      search.includes('role=parent')
+    );
+  });
+
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState(null);
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [attendanceClassId, setAttendanceClassId] = useState('');
 
-  // Auto-switch role or detect developer portal
+  // Auto-switch role or detect developer/parent portal
   useEffect(() => {
     const handleUrlRoute = () => {
       const search = window.location.search.toLowerCase();
@@ -77,7 +95,18 @@ export default function App() {
         search.includes('portal=developer') ||
         search.includes('role=dev');
 
+      const isParent =
+        path.includes('pay') ||
+        path.includes('parent-pay') ||
+        hash.includes('pay') ||
+        hash.includes('parent-pay') ||
+        hash.includes('tuition') ||
+        search.includes('portal=pay') ||
+        search.includes('portal=parent') ||
+        search.includes('role=parent');
+
       setIsDeveloperPortal(isDev);
+      setIsParentPortal(isParent);
 
       const urlParams = new URLSearchParams(window.location.search);
       const roleParam = urlParams.get('role')?.toUpperCase();
@@ -101,6 +130,20 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlRoute);
     };
   }, [user, switchPortalRole]);
+
+  // If in standalone parent payment portal route, render parent portal
+  if (isParentPortal) {
+    return (
+      <ParentPaymentPortalStandalone
+        onExitToSchool={() => {
+          window.location.hash = '';
+          window.location.search = '';
+          window.history.pushState({}, '', '/');
+          setIsParentPortal(false);
+        }}
+      />
+    );
+  }
 
   // If in standalone developer route, render isolated developer portal
   if (isDeveloperPortal) {
@@ -189,6 +232,11 @@ export default function App() {
         return { 
           title: isRtl ? 'لوحة تحكم مهندس ومطور المنظومة' : 'Developer Engineering & Diagnostics Hub', 
           subtitle: isRtl ? 'فحص الخادم وقاعدة البيانات، مراقبة استهلاك الجداول، وأدوات الصيانة' : 'Server health diagnostics, live database table analysis, and maintenance utilities' 
+        };
+      case 'fees':
+        return {
+          title: isRtl ? (user?.role === 'STAFF' ? 'الرسوم والأقساط والمقبوضات' : 'الرسوم المالية وحسابات الطلاب') : 'Student Tuition & Fee Management',
+          subtitle: isRtl ? 'إدارة الذمم المالية للطلاب، تسديد الدفعات، إصدار السندات الرسمية، وتنبيهات الأقساط' : 'Tuition ledgers, payment recording, official digital receipts & installment alerts'
         };
       case 'settings':
         return { title: t('settingsTitle'), subtitle: t('settingsSubtitle') };
@@ -357,6 +405,17 @@ export default function App() {
       {currentPage === 'reports' && (
         (isAdmin || isStaff) ? (
           <ReportsHub onNavigate={navigateTo} />
+        ) : (
+          <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
+        )
+      )}
+
+      {/* Student Tuition & Fee Management - Accessible by Admin and Staff */}
+      {currentPage === 'fees' && (
+        (isAdmin || isStaff) ? (
+          <FeeManagement
+            onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
+          />
         ) : (
           <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
         )

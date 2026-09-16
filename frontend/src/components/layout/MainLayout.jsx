@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import { useAcademicYear } from '../../context/AcademicYearContext';
 import { useLanguage } from '../../context/LanguageContext';
+import IncomingTransferPopup from '../common/IncomingTransferPopup';
 
 export default function MainLayout({ children, currentPage, onNavigate, pageTitle, pageSubtitle }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -80,6 +81,9 @@ export default function MainLayout({ children, currentPage, onNavigate, pageTitl
 
         <main className="content-body">{children}</main>
       </div>
+
+      {/* Global Real-Time Incoming Payment Notice Popup for Staff / Admin */}
+      <IncomingTransferPopup currentPage={currentPage} onNavigate={onNavigate} />
     </div>
   );
 }

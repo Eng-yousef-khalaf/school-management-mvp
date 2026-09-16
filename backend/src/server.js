@@ -30,6 +30,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const userRoutes = require('./routes/userRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const developerRoutes = require('./routes/developerRoutes');
+const feeRoutes = require('./routes/feeRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 const prisma = require('./utils/prisma');
@@ -429,6 +430,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/developer', developerRoutes);
+app.use('/api/fees', feeRoutes);
 
 // Centralized error handler
 app.use(errorHandler);

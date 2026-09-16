@@ -23,6 +23,7 @@ export default function AdminDashboard({ onNavigate }) {
   const { t, isRtl } = useLanguage();
   const { selectedYearId, isArchiveView, selectedYear } = useAcademicYear();
   const [data, setData] = useState(null);
+  const [feeSummary, setFeeSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isRolloverOpen, setIsRolloverOpen] = useState(false);
@@ -32,8 +33,14 @@ export default function AdminDashboard({ onNavigate }) {
       setLoading(true);
       setError('');
       const query = selectedYearId ? `?academicYearId=${selectedYearId}` : '';
-      const res = await api.get(`/dashboard${query}`);
+      const [res, feeRes] = await Promise.all([
+        api.get(`/dashboard${query}`),
+        api.get('/fees').catch(() => null)
+      ]);
       setData(res);
+      if (feeRes?.summary) {
+        setFeeSummary(feeRes.summary);
+      }
     } catch (err) {
       setError(err.message || 'Failed to load admin metrics');
     } finally {
@@ -110,6 +117,13 @@ export default function AdminDashboard({ onNavigate }) {
             <TeachersIcon /> {isRtl ? 'الهيئة التعليمية' : 'Faculty Directory'}
           </button>
           <button
+            onClick={() => onNavigate('fees')}
+            className="btn"
+            style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
+          >
+            💰 {isRtl ? 'الرسوم والتحصيل' : 'Fees & Accounts'}
+          </button>
+          <button
             onClick={() => onNavigate('users')}
             className="btn"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
@@ -153,6 +167,80 @@ export default function AdminDashboard({ onNavigate }) {
           color="secondary"
         />
       </div>
+
+      {/* Executive Financial Oversight & Tuition Health Panel for Admin */}
+      {feeSummary && (
+        <div className="panel" style={{
+          padding: '22px 26px',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+          color: '#ffffff',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.3)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99, 102, 241, 0.25)', border: '1px solid rgba(129, 140, 248, 0.4)', padding: '3px 10px', borderRadius: 14, fontSize: 11.5, fontWeight: 700, marginBottom: 6, color: '#c7d2fe' }}>
+                <span>💰</span>
+                <span>{isRtl ? 'الرقابة المالية المؤسسية العامة للمدير' : 'Executive School Financial Supervision'}</span>
+              </div>
+              <h3 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{isRtl ? 'مؤشر الإيرادات العامة ونسب التحصيل المالي للمدرسة' : 'School Revenue & Tuition Collection Health'}</span>
+              </h3>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94a3b8' }}>
+                {isRtl
+                  ? 'نظرة شمولية على إجمالي الأقساط المقررة، السيولة النقدية المحصلة، والديون المتبقية تحت متابعة قسم شؤون الطلاب (Staff)'
+                  : 'High-level financial snapshot of total expected tuition, collected cash flow, and pending balances'}
+              </p>
+            </div>
+
+            <button
+              onClick={() => onNavigate('fees')}
+              className="btn"
+              style={{
+                background: '#4f46e5',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 800,
+                padding: '9px 18px',
+                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
+              }}
+            >
+              {isRtl ? 'فتح لوحة الإشراف المالي الكاملة ←' : 'Open Financial Ledger →'}
+            </button>
+          </div>
+
+          {/* 4 Mini KPIs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '12px 16px' }}>
+              <div style={{ fontSize: 11.5, color: '#cbd5e1', fontWeight: 700 }}>{isRtl ? 'إجمالي الرسوم المقررة' : 'Expected Tuition'}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', marginTop: 4 }}>
+                {(feeSummary.totalExpected || 0).toLocaleString()} ₪
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 10, padding: '12px 16px' }}>
+              <div style={{ fontSize: 11.5, color: '#6ee7b7', fontWeight: 700 }}>{isRtl ? 'المبالغ المحصلة فعلياً' : 'Total Collected'}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#34d399', marginTop: 4 }}>
+                {(feeSummary.totalCollected || 0).toLocaleString()} ₪
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 10, padding: '12px 16px' }}>
+              <div style={{ fontSize: 11.5, color: '#fca5a5', fontWeight: 700 }}>{isRtl ? 'المتبقي تحت التحصيل' : 'Outstanding Balance'}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#f87171', marginTop: 4 }}>
+                {(feeSummary.totalOutstanding || 0).toLocaleString()} ₪
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: 10, padding: '12px 16px' }}>
+              <div style={{ fontSize: 11.5, color: '#fde68a', fontWeight: 700 }}>{isRtl ? 'نسبة التحصيل الإجمالية' : 'Collection Rate'}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#fbbf24', marginTop: 4 }}>
+                {feeSummary.collectionRate || 0}%
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Teacher Attendance & Weekly Punctuality Hub */}
       <div className="panel" style={{ padding: 24 }}>

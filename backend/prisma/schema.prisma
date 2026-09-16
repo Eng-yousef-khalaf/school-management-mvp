@@ -18,6 +18,7 @@ model User {
   teacherId    Int?       @unique
   teacher      Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   auditLogs    AuditLog[]
+  recordedPayments Payment[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -33,6 +34,7 @@ model AcademicYear {
   active      Boolean       @default(false)
   classes     SchoolClass[]
   enrollments Enrollment[]
+  fees        StudentFee[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -74,6 +76,8 @@ model Student {
   enrollments   Enrollment[]
   attendance    Attendance[]
   grades        Grade[]
+  fees          StudentFee[]
+  payments      Payment[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -227,3 +231,56 @@ model AuditLog {
   @@index([entity])
   @@index([timestamp])
 }
+
+model StudentFee {
+  id             Int           @id @default(autoincrement())
+  studentId      Int
+  academicYearId Int?
+  totalAmount    Float         @default(1500)
+  discountAmount Float         @default(0)
+  paidAmount     Float         @default(0)
+  currency       String        @default("ILS")
+  dueDate        DateTime?
+  status         String        @default("UNPAID")
+  notes          String?
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  payments       Payment[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([studentId, academicYearId])
+  @@index([studentId])
+  @@index([status])
+  @@index([academicYearId])
+}
+
+model Payment {
+  id                Int         @id @default(autoincrement())
+  studentFeeId      Int?
+  studentId         Int
+  amount            Float
+  currency          String      @default("ILS")
+  method            String      // CASH, BANK_OF_PALESTINE, JAWWAL_PAY, PALPAY, SPONSOR_GRANT
+  status            String      @default("COMPLETED") // COMPLETED, PENDING_VERIFICATION, REJECTED
+  payerName         String?
+  payerRelationship String?     // FATHER, MOTHER, GUARDIAN, SPONSOR, SELF, OTHER
+  payerPhone        String?
+  transactionRef    String?
+  receiptNumber     String?     @unique
+  proofUrl          String?
+  notes             String?
+  recordedByUserId  Int?
+  recordedByUser    User?       @relation(fields: [recordedByUserId], references: [id], onDelete: SetNull)
+  studentFee        StudentFee? @relation(fields: [studentFeeId], references: [id], onDelete: SetNull)
+  student           Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([studentId])
+  @@index([method])
+  @@index([status])
+  @@index([receiptNumber])
+  @@index([createdAt])
+}
+

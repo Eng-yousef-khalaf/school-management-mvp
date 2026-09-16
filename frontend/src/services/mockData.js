@@ -4,7 +4,122 @@
  */
 
 // Dynamic in-memory stores for interactive offline testing
-const mockAttendanceStore = {};
+// Dynamic persistent stores for interactive multi-tab offline and demo testing
+const initialPayments = [
+  {
+    id: 1,
+    studentId: 1,
+    amount: 1500,
+    currency: 'ILS',
+    method: 'CASH',
+    status: 'COMPLETED',
+    payerName: 'ياسر الأحمد (ولي الأمر)',
+    payerRelationship: 'FATHER',
+    payerPhone: '0599123456',
+    transactionRef: 'CSH-001',
+    receiptNumber: 'GZ-REC-2026-10492',
+    notes: 'تسديد القسط السنوي كاملاً في الصندوق',
+    recordedBy: 'محمد (موظف Staff)',
+    date: '2026-09-05',
+    createdAt: '2026-09-05T09:30:00Z'
+  },
+  {
+    id: 2,
+    studentId: 2,
+    amount: 800,
+    currency: 'ILS',
+    method: 'BANK_OF_PALESTINE',
+    status: 'COMPLETED',
+    payerName: 'سامي النجار',
+    payerRelationship: 'FATHER',
+    payerPhone: '0599654321',
+    transactionRef: 'BOP-TRX-883921',
+    receiptNumber: 'GZ-REC-2026-10493',
+    notes: 'تحويل عبر تطبيق بنكي - الدفعة الأولى',
+    recordedBy: 'محمد (موظف Staff)',
+    date: '2026-09-08',
+    createdAt: '2026-09-08T11:15:00Z'
+  },
+  {
+    id: 3,
+    studentId: 3,
+    amount: 600,
+    currency: 'ILS',
+    method: 'JAWWAL_PAY',
+    status: 'COMPLETED',
+    payerName: 'أم كمال العشي',
+    payerRelationship: 'MOTHER',
+    payerPhone: '0598112233',
+    transactionRef: 'JP-90234812',
+    receiptNumber: 'GZ-REC-2026-10494',
+    notes: 'محفظة جوال باي',
+    recordedBy: 'محمد (موظف Staff)',
+    date: '2026-09-10',
+    createdAt: '2026-09-10T14:20:00Z'
+  },
+  {
+    id: 4,
+    studentId: 4,
+    studentName: 'مريم يوسف النجار',
+    studentNumber: 'STU-2026-004',
+    className: 'الصف السابع أ',
+    amount: 300,
+    currency: 'ILS',
+    method: 'BANK_OF_PALESTINE',
+    status: 'PENDING',
+    payerName: 'يوسف النجار',
+    payerRelationship: 'FATHER',
+    payerPhone: '0599887766',
+    transactionRef: '497590',
+    receiptNumber: null,
+    notes: 'تحويل بنك فلسطين - قيد مراجعة واعتماد شؤون الطلاب',
+    date: '2026-09-16',
+    createdAt: '2026-09-16T11:45:00Z'
+  },
+  {
+    id: 5,
+    studentId: 6,
+    studentName: 'خالد مصطفى العشي',
+    studentNumber: 'STU-2026-006',
+    className: 'الصف الثامن ب',
+    amount: 250,
+    currency: 'ILS',
+    method: 'JAWWAL_PAY',
+    status: 'PENDING',
+    payerName: 'مصطفى العشي',
+    payerRelationship: 'FATHER',
+    payerPhone: '0599112233',
+    transactionRef: 'JP-8891024',
+    receiptNumber: null,
+    notes: 'تحويل محفظة جوال باي - دفعة قسط',
+    date: '2026-09-16',
+    createdAt: '2026-09-16T12:10:00Z'
+  }
+];
+
+export function getMockPayments() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_payments_store') : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return initialPayments;
+}
+
+export function saveMockPayments(store) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_payments_store', JSON.stringify(store));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('payment_notice_updated', { detail: store }));
+    }
+  } catch {}
+}
+
+const mockPaymentsStore = getMockPayments();
+const mockStudentFeesStore = {};
 
 // Initial mock state
 const initialData = {
@@ -1161,6 +1276,307 @@ export function handleMockRequest(path, options = {}) {
         students: initialData.students,
         teachers: initialData.teachers,
       },
+    };
+  }
+
+  // 17. Fees & Tuition Management (Gaza & Palestine Mock Handlers)
+  if (cleanPath === '/fees/summary') {
+    let totalExpected = 0;
+    let totalCollected = 0;
+    let countPaid = 0;
+    let countPartial = 0;
+    let countUnpaid = 0;
+    let countOverdue = 0;
+
+    const methodBreakdown = {
+      CASH: 0,
+      BANK_OF_PALESTINE: 0,
+      JAWWAL_PAY: 0,
+      PALPAY: 0,
+      SPONSOR_GRANT: 0
+    };
+
+    const currentPayments = getMockPayments();
+
+    currentPayments.forEach(p => {
+      if (p.status === 'COMPLETED') {
+        totalCollected += p.amount;
+        if (methodBreakdown[p.method] !== undefined) {
+          methodBreakdown[p.method] += p.amount;
+        }
+      }
+    });
+
+    initialData.students.forEach((s, idx) => {
+      const defaultTuition = 1500;
+      const discount = idx % 5 === 0 ? 300 : idx % 7 === 0 ? 500 : 0;
+      const netTotal = defaultTuition - discount;
+      totalExpected += netTotal;
+
+      const studentPaid = currentPayments.filter(p => p.studentId === s.id && p.status === 'COMPLETED').reduce((sum, p) => sum + p.amount, 0);
+      if (studentPaid >= netTotal && netTotal > 0) countPaid++;
+      else if (idx % 4 === 0 && studentPaid === 0) countOverdue++;
+      else if (studentPaid > 0) countPartial++;
+      else countUnpaid++;
+    });
+
+    const totalOutstanding = Math.max(0, totalExpected - totalCollected);
+    const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0;
+
+    return {
+      totalExpected,
+      totalDiscount: 12000,
+      totalCollected,
+      totalOutstanding,
+      collectionRate,
+      studentCounts: {
+        total: initialData.students.length,
+        paid: countPaid,
+        partial: countPartial,
+        unpaid: countUnpaid,
+        overdue: countOverdue
+      },
+      methodBreakdown
+    };
+  }
+
+  if (cleanPath === '/fees/alerts') {
+    const alerts = [];
+    const currentPayments = getMockPayments();
+    initialData.students.forEach((s, idx) => {
+      const defaultTuition = 1500;
+      const discount = idx % 5 === 0 ? 300 : 0;
+      const studentPaid = currentPayments.filter(p => p.studentId === s.id && p.status === 'COMPLETED').reduce((sum, p) => sum + p.amount, 0);
+      const balance = Math.max(0, defaultTuition - discount - studentPaid);
+
+      if (balance > 0) {
+        alerts.push({
+          studentId: s.id,
+          studentNumber: s.studentNumber,
+          studentName: s.fullName,
+          className: s.className || 'الصف السابع أ',
+          parentName: s.parentName || 'ولي الأمر',
+          parentPhone: s.parentPhone || '0599112233',
+          balanceDue: balance,
+          paidAmount: studentPaid,
+          totalAmount: defaultTuition,
+          isOverdue: idx % 3 === 0,
+          dueDate: '2026-09-20'
+        });
+      }
+    });
+
+    return {
+      count: alerts.length,
+      overdueCount: alerts.filter(a => a.isOverdue).length,
+      alerts: alerts.slice(0, 20)
+    };
+  }
+
+  if (cleanPath.startsWith('/fees/student/')) {
+    const sId = parseInt(cleanPath.split('/fees/student/')[1], 10) || 1;
+    const student = initialData.students.find(s => s.id === sId) || initialData.students[0];
+    const currentPayments = getMockPayments();
+    const payments = currentPayments.filter(p => p.studentId === student.id);
+    const paidAmount = payments.filter(p => p.status === 'COMPLETED').reduce((sum, p) => sum + p.amount, 0);
+    const totalAmount = 1500;
+    const discountAmount = student.id % 5 === 0 ? 300 : 0;
+    const balanceDue = Math.max(0, totalAmount - discountAmount - paidAmount);
+
+    return {
+      student: {
+        id: student.id,
+        studentNumber: student.studentNumber,
+        fullName: student.fullName,
+        className: student.className || 'الصف السابع أ',
+        parentName: student.parentName,
+        parentPhone: student.parentPhone
+      },
+      fee: {
+        id: student.id,
+        totalAmount,
+        discountAmount,
+        paidAmount,
+        balanceDue,
+        currency: 'ILS',
+        status: balanceDue === 0 ? 'PAID' : paidAmount > 0 ? 'PARTIAL' : 'UNPAID',
+        dueDate: '2026-09-30',
+        notes: ''
+      },
+      payments
+    };
+  }
+
+  if (cleanPath === '/fees/pending-notices') {
+    const currentPayments = getMockPayments();
+    const pending = currentPayments.filter(p => p.status === 'PENDING').map(p => {
+      const student = initialData.students.find(s => s.id === p.studentId) || {};
+      return {
+        ...p,
+        studentName: p.studentName || student.fullName || 'طالب المدرسة',
+        studentNumber: p.studentNumber || student.studentNumber || 'STU-000',
+        className: p.className || student.className || 'الصف السابع أ'
+      };
+    });
+    return pending;
+  }
+
+  if (cleanPath.startsWith('/fees/payments/') && cleanPath.endsWith('/approve') && method === 'POST') {
+    const parts = cleanPath.split('/');
+    const pId = parseInt(parts[3], 10);
+    const currentPayments = getMockPayments();
+    const payment = currentPayments.find(p => p.id === pId);
+    if (payment) {
+      payment.status = 'COMPLETED';
+      payment.receiptNumber = `GZ-REC-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+      payment.recordedBy = 'محمد (موظف Staff)';
+      payment.approvedAt = new Date().toISOString();
+      saveMockPayments(currentPayments);
+      return {
+        ok: true,
+        payment,
+        receiptNumber: payment.receiptNumber,
+        message: 'Payment approved and official receipt issued successfully'
+      };
+    }
+    return { ok: false, message: 'Payment not found' };
+  }
+
+  if (cleanPath.startsWith('/fees/payments/') && cleanPath.endsWith('/reject') && method === 'POST') {
+    const parts = cleanPath.split('/');
+    const pId = parseInt(parts[3], 10);
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const currentPayments = getMockPayments();
+    const payment = currentPayments.find(p => p.id === pId);
+    if (payment) {
+      payment.status = 'REJECTED';
+      payment.notes = `${payment.notes ? payment.notes + ' | ' : ''}تم الرفض من شؤون الطلاب: ${body.reason || 'بيانات الحوالة غير متطابقة'}`;
+      saveMockPayments(currentPayments);
+      return { ok: true, payment };
+    }
+    return { ok: false, message: 'Payment not found' };
+  }
+
+  if ((cleanPath === '/fees/parent-notice' || cleanPath === '/fees/payments') && method === 'POST') {
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const sId = parseInt(body.studentId, 10) || 1;
+    const numAmount = parseFloat(body.amount) || 0;
+    const isPending = body.status === 'PENDING' || cleanPath === '/fees/parent-notice';
+    const student = initialData.students.find(s => s.id === sId || s.studentNumber === body.studentNumber);
+    const receiptNumber = isPending ? null : `GZ-REC-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+    const currentPayments = getMockPayments();
+
+    const newPayment = {
+      id: currentPayments.length + 1,
+      studentId: student?.id || sId,
+      studentName: body.studentName || student?.fullName || 'طالب المدرسة',
+      studentNumber: body.studentNumber || student?.studentNumber || 'STU-2026-001',
+      className: student?.className || 'الصف السابع أ',
+      amount: numAmount,
+      currency: body.currency || 'ILS',
+      method: body.method || 'CASH',
+      status: isPending ? 'PENDING' : (body.status || 'COMPLETED'),
+      payerName: body.payerName || 'ولي الأمر',
+      payerRelationship: body.payerRelationship || 'FATHER',
+      payerPhone: body.payerPhone || '',
+      transactionRef: body.transactionRef || `TRX-${Date.now().toString().slice(-6)}`,
+      receiptNumber,
+      notes: body.notes || (isPending ? 'إشعار تحويل إلكتروني قيد مراجعة واعتماد شؤون الطلاب' : ''),
+      recordedBy: isPending ? null : 'محمد (موظف Staff)',
+      date: new Date().toISOString().slice(0, 10),
+      createdAt: new Date().toISOString()
+    };
+
+    currentPayments.unshift(newPayment);
+    saveMockPayments(currentPayments);
+
+    return {
+      ok: true,
+      payment: newPayment,
+      receiptNumber
+    };
+  }
+
+  if (cleanPath === '/fees') {
+    const classId = searchParams.get('classId');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search')?.toLowerCase() || '';
+
+    let students = initialData.students;
+    if (classId && classId !== 'ALL') {
+      students = students.filter(s => s.classId == classId || s.className?.includes(classId));
+    }
+    if (search) {
+      students = students.filter(s => s.fullName?.toLowerCase().includes(search) || s.studentNumber?.toLowerCase().includes(search));
+    }
+
+    const currentPayments = getMockPayments();
+    const items = students.map((st, idx) => {
+      const defaultTuition = 1500;
+      const discount = idx % 5 === 0 ? 300 : idx % 7 === 0 ? 500 : 0;
+      const studentPayments = currentPayments.filter(p => p.studentId === st.id && p.status === 'COMPLETED');
+      const paid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+      const netTotal = Math.max(0, defaultTuition - discount);
+      const balance = Math.max(0, netTotal - paid);
+
+      let calcStatus = 'UNPAID';
+      if (paid >= netTotal && netTotal > 0) calcStatus = 'PAID';
+      else if (idx % 4 === 0 && paid === 0) calcStatus = 'OVERDUE';
+      else if (paid > 0) calcStatus = 'PARTIAL';
+
+      return {
+        studentId: st.id,
+        studentNumber: st.studentNumber,
+        fullName: st.fullName,
+        className: st.className || 'الصف السابع أ',
+        classId: st.classId || 1,
+        parentName: st.parentName || 'غير مسجل',
+        parentPhone: st.parentPhone || '0599123456',
+        totalAmount: defaultTuition,
+        discountAmount: discount,
+        paidAmount: paid,
+        balanceDue: balance,
+        currency: 'ILS',
+        status: calcStatus,
+        dueDate: '2026-09-30',
+        recentPaymentsCount: studentPayments.length,
+        lastPaymentDate: studentPayments[0]?.date || null
+      };
+    });
+
+    const filteredItems = status && status !== 'ALL'
+      ? items.filter(it => it.status === status)
+      : items;
+
+    return {
+      items: filteredItems,
+      summary: {
+        totalExpected: items.reduce((sum, i) => sum + (i.totalAmount - i.discountAmount), 0),
+        totalCollected: items.reduce((sum, i) => sum + i.paidAmount, 0),
+        totalOutstanding: items.reduce((sum, i) => sum + i.balanceDue, 0),
+        collectionRate: Math.round((items.reduce((sum, i) => sum + i.paidAmount, 0) / Math.max(1, items.reduce((sum, i) => sum + (i.totalAmount - i.discountAmount), 0))) * 100),
+        methodBreakdown: {
+          CASH: currentPayments.filter(p => p.status === 'COMPLETED' && p.method === 'CASH').reduce((s, p) => s + p.amount, 0),
+          BANK_OF_PALESTINE: currentPayments.filter(p => p.status === 'COMPLETED' && p.method === 'BANK_OF_PALESTINE').reduce((s, p) => s + p.amount, 0),
+          JAWWAL_PAY: currentPayments.filter(p => p.status === 'COMPLETED' && p.method === 'JAWWAL_PAY').reduce((s, p) => s + p.amount, 0),
+          PALPAY: currentPayments.filter(p => p.status === 'COMPLETED' && p.method === 'PALPAY').reduce((s, p) => s + p.amount, 0)
+        },
+        studentCounts: {
+          total: items.length,
+          paid: items.filter(i => i.status === 'PAID').length,
+          partial: items.filter(i => i.status === 'PARTIAL').length,
+          unpaid: items.filter(i => i.status === 'UNPAID').length,
+          overdue: items.filter(i => i.status === 'OVERDUE').length
+        }
+      },
+      pagination: {
+        total: filteredItems.length,
+        page: 1,
+        limit: 50,
+        totalPages: 1
+      }
     };
   }
 

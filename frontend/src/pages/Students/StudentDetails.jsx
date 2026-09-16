@@ -9,15 +9,20 @@ import Badge from '../../components/common/Badge';
 import { EditIcon, DownloadIcon, PalestineFlagIcon } from '../../components/common/Icons';
 import SchoolLogo from '../../components/common/SchoolLogo';
 import UnicefLogo from '../../components/common/UnicefLogo';
+import RecordPaymentModal from '../Fees/RecordPaymentModal';
+import PaymentReceiptModal from '../Fees/PaymentReceiptModal';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
-  const { canManageStudents } = useAuth();
+  const { canManageStudents, isStaff, isAdmin } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
   const [student, setStudent] = useState(null);
+  const [feeData, setFeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'grades' | 'attendance' | 'statement'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'grades' | 'attendance' | 'fees' | 'statement'
+  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
 
   const loadStudent = async () => {
     try {
@@ -25,6 +30,13 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
       setError('');
       const data = await api.get(`/students/${studentId}`);
       setStudent(data);
+
+      try {
+        const feeRes = await api.get(`/fees/student/${studentId}`);
+        setFeeData(feeRes);
+      } catch (err) {
+        console.warn('Fee details not available:', err);
+      }
     } catch (err) {
       setError(err.message || 'Failed to load student details');
     } finally {
@@ -190,6 +202,13 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             onClick={() => setActiveTab('attendance')}
           >
             📅 {isRtl ? 'سجل الحضور والغياب' : 'Attendance Records'}
+          </button>
+          <button
+            type="button"
+            className={`btn ${activeTab === 'fees' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            onClick={() => setActiveTab('fees')}
+          >
+            💰 {isRtl ? 'الرسوم والأقساط والمقبوضات' : 'Fees & Ledger'}
           </button>
           <button
             type="button"
@@ -429,7 +448,215 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         </div>
       )}
 
-      {/* OFFICIAL PRINTABLE PARENT STATEMENT - Visible during print OR when statement tab is active */}
+      {/* TAB 4: Fees & Payments Ledger */}
+      {activeTab === 'fees' && (
+        <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 24 }}>
+          {/* Header Action Card */}
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px 0' }}>
+                  💰 {isRtl ? 'الملف المالي وسجل الأقساط والتحصيل' : 'Financial Ledger & Tuition Summary'}
+                </h3>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--text-muted)' }}>
+                  {isRtl ? 'متابعة الرسوم المستحقة، المنح والخصومات، الدفعات المسددة، وتوليد سندات القبض الرسمية' : 'Track annual fees, scholarship grants, recorded payments and official receipts'}
+                </p>
+              </div>
+
+              {isStaff && (
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setShowRecordModal(true)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+                >
+                  ➕ {isRtl ? 'تسجيل دفعة / قبض قسط للطالب' : 'Record New Payment'}
+                </button>
+              )}
+            </div>
+
+            {/* Financial KPI Summary Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginTop: 18 }}>
+              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', display: 'block' }}>
+                  {isRtl ? 'إجمالي الرسوم المقررة' : 'TOTAL REQUIRED FEE'}
+                </span>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-main)', marginTop: 4 }}>
+                  ₪{Number(feeData?.totalAmount || student?.totalFee || 850).toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(14, 165, 233, 0.08)', padding: 14, borderRadius: 10, border: '1px solid rgba(14, 165, 233, 0.2)' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', display: 'block' }}>
+                  {isRtl ? 'الخصم / المنحة' : 'DISCOUNT / GRANT'}
+                </span>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#0284c7', marginTop: 4 }}>
+                  ₪{Number(feeData?.discountAmount || 0).toLocaleString()}
+                </div>
+                {feeData?.discountReason && (
+                  <span style={{ fontSize: 10.5, color: '#0369a1', fontWeight: 600 }}>({feeData.discountReason})</span>
+                )}
+              </div>
+
+              <div style={{ background: 'var(--success-light)', padding: 14, borderRadius: 10, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--success)', display: 'block' }}>
+                  {isRtl ? 'المبلغ المسدد (المقبوض)' : 'TOTAL PAID'}
+                </span>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>
+                  ₪{Number(feeData?.paidAmount || 0).toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{
+                background: (feeData?.remainingBalance || 0) > 0 ? 'var(--danger-light)' : 'var(--success-light)',
+                padding: 14,
+                borderRadius: 10,
+                border: `1px solid ${(feeData?.remainingBalance || 0) > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`
+              }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: (feeData?.remainingBalance || 0) > 0 ? 'var(--danger)' : 'var(--success)', display: 'block' }}>
+                  {isRtl ? 'الرصيد المتبقي المستحق' : 'REMAINING BALANCE'}
+                </span>
+                <div style={{ fontSize: 20, fontWeight: 800, color: (feeData?.remainingBalance || 0) > 0 ? 'var(--danger)' : 'var(--success)', marginTop: 4 }}>
+                  ₪{Number(feeData?.remainingBalance !== undefined ? feeData.remainingBalance : ((student?.totalFee || 850) - (feeData?.paidAmount || 0))).toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{ background: '#f1f5f9', padding: 14, borderRadius: 10, border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', display: 'block' }}>
+                  {isRtl ? 'حالة السداد' : 'PAYMENT STATUS'}
+                </span>
+                <div style={{ marginTop: 4 }}>
+                  {feeData?.status === 'PAID' ? (
+                    <span className="badge badge-success" style={{ fontSize: 12, padding: '4px 10px' }}>
+                      ✓ {isRtl ? 'خالص الرسوم' : 'Fully Paid'}
+                    </span>
+                  ) : feeData?.status === 'PARTIAL' ? (
+                    <span className="badge badge-warning" style={{ fontSize: 12, padding: '4px 10px' }}>
+                      ⏳ {isRtl ? 'مسدد جزئياً' : 'Partially Paid'}
+                    </span>
+                  ) : feeData?.status === 'OVERDUE' ? (
+                    <span className="badge badge-danger" style={{ fontSize: 12, padding: '4px 10px' }}>
+                      ⚠️ {isRtl ? 'متأخر عن السداد' : 'Overdue'}
+                    </span>
+                  ) : (
+                    <span className="badge badge-danger" style={{ fontSize: 12, padding: '4px 10px' }}>
+                      🔴 {isRtl ? 'غير مسدد' : 'Unpaid'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Receipts History Table */}
+          <div className="panel" style={{ padding: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>
+                📑 {isRtl ? 'سجل سندات القبض والدفعات المودعة' : 'Payment History & Digital Receipts'}
+              </h4>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {feeData?.payments?.length || 0} {isRtl ? 'سند مقبوض' : 'receipts'}
+              </span>
+            </div>
+
+            {feeData?.payments && feeData.payments.length > 0 ? (
+              <div className="table-responsive">
+                <table className="table" style={{ margin: 0 }}>
+                  <thead>
+                    <tr>
+                      <th>{isRtl ? 'رقم السند' : 'Receipt No'}</th>
+                      <th>{isRtl ? 'تاريخ القبض' : 'Date'}</th>
+                      <th>{isRtl ? 'المبلغ المدفوع' : 'Amount'}</th>
+                      <th>{isRtl ? 'طريقة الدفع' : 'Payment Method'}</th>
+                      <th>{isRtl ? 'المسدد والصلة' : 'Payer'}</th>
+                      <th>{isRtl ? 'المستلم' : 'Received By'}</th>
+                      <th style={{ textAlign: 'center' }}>{isRtl ? 'الإجراءات' : 'Actions'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {feeData.payments.map((pmt) => {
+                      const methodLabels = {
+                        CASH: { ar: '💵 نقداً (صندوق المدرسة)', en: 'Cash at School' },
+                        BANK_OF_PALESTINE: { ar: '🏦 بنك فلسطين', en: 'Bank of Palestine' },
+                        JAWWAL_PAY: { ar: '📱 جوال باي (Jawwal Pay)', en: 'Jawwal Pay' },
+                        PALPAY: { ar: '💳 بال باي (PalPay)', en: 'PalPay' },
+                        SCHOLARSHIP_GRANT: { ar: '🤝 منحة / كفالة خيرية', en: 'Scholarship Grant' },
+                      };
+                      const methodInfo = methodLabels[pmt.method] || { ar: pmt.method, en: pmt.method };
+
+                      return (
+                        <tr key={pmt.id || pmt.receiptNumber}>
+                          <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--primary)' }}>
+                            {pmt.receiptNumber}
+                          </td>
+                          <td style={{ fontSize: 13 }}>
+                            {new Date(pmt.paidAt).toLocaleDateString()}
+                          </td>
+                          <td style={{ fontWeight: 800, color: 'var(--success)' }}>
+                            ₪{Number(pmt.amount).toLocaleString()}
+                          </td>
+                          <td style={{ fontSize: 13 }}>
+                            {isRtl ? methodInfo.ar : methodInfo.en}
+                          </td>
+                          <td style={{ fontSize: 13 }}>
+                            <strong>{pmt.payerName || student.parentName || 'ولي الأمر'}</strong>
+                            {pmt.payerRelation && (
+                              <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)' }}>
+                                ({pmt.payerRelation === 'FATHER' ? (isRtl ? 'الأب' : 'Father') : pmt.payerRelation === 'MOTHER' ? (isRtl ? 'الأم' : 'Mother') : pmt.payerRelation})
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                            {pmt.receivedByName || (isRtl ? 'أمين الصندوق' : 'Cashier')}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => setSelectedReceipt({
+                                ...pmt,
+                                student: {
+                                  firstName: student.firstName,
+                                  lastName: student.lastName,
+                                  studentNumber: student.studentNumber,
+                                  currentClass: student.currentClass
+                                }
+                              })}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, padding: '4px 10px' }}
+                            >
+                              🖨️ {isRtl ? 'عرض وطباعة السند' : 'View Receipt'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '32px 16px', background: '#f8fafc', borderRadius: 8, border: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>🧾</div>
+                <h5 style={{ fontWeight: 700, margin: '0 0 6px 0' }}>
+                  {isRtl ? 'لا توجد دفعات أو سندات مسجلة لهذا الطالب حتى الآن' : 'No payment records found for this student yet'}
+                </h5>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 16px 0' }}>
+                  {isRtl ? 'يمكنك تسجيل أول دفعة من رسوم الطالب وإصدار سند رسمي فوري' : 'You can record the first tuition installment and generate an official receipt'}
+                </p>
+                {(isAdmin || isStaff) && (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setShowRecordModal(true)}
+                  >
+                    ➕ {isRtl ? 'تسجيل دفعة جديدة' : 'Record Payment'}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* OFFICIAL PRINTABLE PARENT STATEMENT - Visible during print OR when statement tab is active */}
       <div
         className={`panel official-parent-statement ${activeTab === 'statement' ? '' : 'only-print'}`}
@@ -681,6 +908,36 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           </div>
         </div>
       </div>
+
+      {/* Record Payment Modal */}
+      {showRecordModal && (
+        <RecordPaymentModal
+          isOpen={showRecordModal}
+          onClose={() => setShowRecordModal(false)}
+          defaultStudentId={student.id}
+          onPaymentSuccess={(newPayment) => {
+            loadStudent();
+            setSelectedReceipt({
+              ...newPayment,
+              student: {
+                firstName: student.firstName,
+                lastName: student.lastName,
+                studentNumber: student.studentNumber,
+                currentClass: student.currentClass
+              }
+            });
+          }}
+        />
+      )}
+
+      {/* Official Printable Digital Receipt Modal */}
+      {selectedReceipt && (
+        <PaymentReceiptModal
+          isOpen={Boolean(selectedReceipt)}
+          onClose={() => setSelectedReceipt(null)}
+          payment={selectedReceipt}
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSchoolConfig } from '../../context/SchoolConfigContext';
+import { useNotifications } from '../../context/NotificationContext';
 import {
   DashboardIcon,
   StudentsIcon,
@@ -24,6 +25,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
   const { user, logout, isAdmin, isStaff, isTeacher, isDeveloper } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
+  const { unreadCount } = useNotifications();
 
   // Role-specific navigation definitions
   let navItems = [];
@@ -50,6 +52,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
       { id: 'academic-years', label: isRtl ? 'السنوات الدراسية' : 'Academic Years', icon: <AcademicYearIcon />, visible: true },
       { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور والغياب' : 'Attendance Reports', icon: <ReportsIcon />, visible: true },
+      { id: 'fees', label: isRtl ? 'الرسوم والأقساط والمقبوضات' : 'Tuition & Fees Accounting', icon: <span style={{ fontSize: 18 }}>💰</span>, visible: true },
       { id: 'reports', label: isRtl ? 'مركز التقارير الشامل' : 'Reports Hub', icon: <ReportsIcon />, visible: true },
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, visible: true }
     ];
@@ -57,6 +60,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     // ADMIN (Executive & Governance Scope)
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
+      { id: 'fees', label: isRtl ? 'الرسوم المالية وحسابات الطلاب' : 'Tuition & Fees Ledger', icon: <span style={{ fontSize: 18 }}>💰</span>, visible: true },
       { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
       { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty & Staff Directory', icon: <TeachersIcon />, visible: true },
@@ -118,8 +122,29 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
                 if (onClose) onClose();
               }}
             >
-              {item.icon}
-              <span style={item.id === 'developer-fleet' ? { color: '#a5b4fc', fontWeight: 700 } : {}}>{item.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                {item.icon}
+                <span style={item.id === 'developer-fleet' ? { color: '#a5b4fc', fontWeight: 700 } : {}}>{item.label}</span>
+              </div>
+              {user?.role === 'STAFF' && item.id === 'fees' && unreadCount > 0 && (
+                <span
+                  style={{
+                    background: '#ea580c',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    padding: '2px 8px',
+                    borderRadius: 12,
+                    boxShadow: '0 2px 8px rgba(234, 88, 12, 0.5)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={isRtl ? `${unreadCount} إشعارات حوالات بانتظار الاعتماد` : `${unreadCount} Pending Transfers`}
+                >
+                  {unreadCount}
+                </span>
+              )}
             </button>
           ))}
       </div>

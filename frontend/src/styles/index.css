@@ -1408,7 +1408,8 @@ tbody tr:hover {
   }
 
   .modal-overlay,
-  .unicef-report-overlay {
+  .unicef-report-overlay,
+  .receipt-modal-backdrop {
     position: static !important;
     background: transparent !important;
     backdrop-filter: none !important;
@@ -1583,4 +1584,33 @@ tbody tr:hover {
     display: block !important;
   }
 }
+
+/* Floating Real-Time Transfer Notice Animations */
+@keyframes slideInPopup {
+  0% {
+    transform: translateY(100px) scale(0.9);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-8px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseNotifBadge {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
 

@@ -248,6 +248,43 @@ export default function Login() {
               <span>{isRtl ? 'المعلمون' : 'Teachers'}</span>
             </button>
           </div>
+
+          {/* Direct Public Parent Tuition Payment Hub Access */}
+          <div style={{ marginTop: '10px' }}>
+            <a
+              href="#pay"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.hash = '#pay';
+                window.location.reload();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, #0284c7 0%, #1e40af 100%)',
+                color: '#ffffff',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 800,
+                fontSize: '11.5px',
+                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.3)',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '16px' }}>💳</span>
+                <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
+                  <div>{isRtl ? 'بوابة أولياء الأمور لتسديد الرسوم والإشعار' : 'Parent Tuition Payment Portal'}</div>
+                  <div style={{ fontSize: '9.5px', opacity: 0.9, fontWeight: 500 }}>
+                    {isRtl ? 'بنك فلسطين • جوال باي • بال باي (دخول فوري بدون تسجيل)' : 'Bank of Palestine • Jawwal Pay • PalPay'}
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: '13px' }}>{isRtl ? '←' : '→'}</span>
+            </a>
+          </div>
         </div>
 
         {/* Quick Teacher / Staff Account Chips */}

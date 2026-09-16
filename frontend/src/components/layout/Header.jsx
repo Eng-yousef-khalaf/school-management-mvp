@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import { useAcademicYear } from '../../context/AcademicYearContext';
 import { useSchoolConfig } from '../../context/SchoolConfigContext';
+import { useNotifications } from '../../context/NotificationContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { AcademicYearIcon, LogoutIcon } from '../common/Icons';
 
@@ -13,7 +14,21 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
   const { config } = useSchoolConfig();
   const toast = useToast();
   const { activeYear, allYears, selectedYearId, isArchiveView, setViewingYearId } = useAcademicYear();
+  const { pendingNotices, unreadCount, isStaffOnly, showPopupForNotice } = useNotifications();
   const [switching, setSwitching] = useState(false);
+  const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
+  const notifDropdownRef = useRef(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifDropdownRef.current && !notifDropdownRef.current.contains(e.target)) {
+        setIsNotifDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const roleColor = user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
   const roleIcon = user?.role === 'ADMIN' ? '👔' : user?.role === 'STAFF' ? '📋' : '👨‍🏫';
@@ -143,6 +158,178 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
             <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
           </button>
         </div>
+
+        {/* Staff-Exclusive Incoming Payment Notices Bell */}
+        {isStaffOnly && (
+          <div style={{ position: 'relative' }} ref={notifDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
+              style={{
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 36,
+                height: 36,
+                borderRadius: 'var(--radius-md)',
+                background: unreadCount > 0 ? '#0284c7' : 'var(--bg-main)',
+                color: unreadCount > 0 ? '#ffffff' : 'var(--text-muted)',
+                border: unreadCount > 0 ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                cursor: 'pointer',
+                fontSize: 16,
+                boxShadow: unreadCount > 0 ? '0 0 14px rgba(56, 189, 248, 0.5)' : 'var(--shadow-sm)',
+                transition: 'var(--transition)'
+              }}
+              title={isRtl ? `إشعارات الحوالات الواردة (${unreadCount})` : `Payment Notices (${unreadCount})`}
+              aria-label="Payment Notifications"
+            >
+              <span style={{ transform: unreadCount > 0 ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }}>🔔</span>
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -5,
+                    right: isRtl ? 'auto' : -5,
+                    left: isRtl ? -5 : 'auto',
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    width: 19,
+                    height: 19,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(239, 68, 68, 0.6)',
+                    border: '2px solid #ffffff'
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notifications Dropdown Panel */}
+            {isNotifDropdownOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '46px',
+                  right: isRtl ? 'auto' : 0,
+                  left: isRtl ? 0 : 'auto',
+                  width: '340px',
+                  background: 'linear-gradient(135deg, #091a2b 0%, #0c2b44 100%)',
+                  border: '1.5px solid #38bdf8',
+                  borderRadius: '14px',
+                  boxShadow: '0 16px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.25)',
+                  zIndex: 9999,
+                  color: '#ffffff',
+                  padding: '14px',
+                  animation: 'fadeIn 0.2s ease',
+                  direction: isRtl ? 'rtl' : 'ltr'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', paddingBottom: 10, marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 16 }}>📬</span>
+                    <strong style={{ fontSize: 13.5, color: '#ffffff' }}>
+                      {isRtl ? 'إشعارات التحويل الواردة' : 'Incoming Payment Proofs'}
+                    </strong>
+                  </div>
+                  <span style={{ background: unreadCount > 0 ? '#ea580c' : '#10b981', color: '#ffffff', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 12 }}>
+                    {unreadCount} {isRtl ? 'قيد الاعتماد' : 'Pending'}
+                  </span>
+                </div>
+
+                {/* List of Pending Notices */}
+                <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {pendingNotices.length > 0 ? (
+                    pendingNotices.map((notice) => (
+                      <div
+                        key={notice.id}
+                        style={{
+                          background: 'rgba(3, 14, 26, 0.75)',
+                          border: '1px solid rgba(56, 189, 248, 0.2)',
+                          borderRadius: '10px',
+                          padding: '10px 12px',
+                          fontSize: 12.5,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 4
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <strong style={{ color: '#ffffff', fontSize: 13 }}>{notice.studentName}</strong>
+                            <div style={{ color: '#7dd3fc', fontSize: 11 }}>{notice.studentNumber} • {notice.className}</div>
+                          </div>
+                          <span style={{ color: '#34d399', fontWeight: 900, fontSize: 14 }}>{notice.amount} ₪</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{notice.method === 'BANK_OF_PALESTINE' ? 'بنك فلسطين' : notice.method === 'JAWWAL_PAY' ? 'جوال باي' : notice.method}</span>
+                          <code style={{ color: '#38bdf8' }}>{notice.transactionRef}</code>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsNotifDropdownOpen(false);
+                            if (onNavigate) onNavigate('fees');
+                          }}
+                          style={{
+                            background: '#10b981',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '5px 10px',
+                            fontSize: 11.5,
+                            fontWeight: 800,
+                            marginTop: 4,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 4
+                          }}
+                        >
+                          <span>👁️</span>
+                          <span>{isRtl ? 'معاينة واعتماد بنقرة واحدة' : '1-Click Review & Approve'}</span>
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '16px 0', color: '#94a3b8', fontSize: 12.5 }}>
+                      <span>✓ {isRtl ? 'لا توجد إشعارات تحويل معلقة حالياً' : 'No pending payment notices'}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer link to full fees page */}
+                <div style={{ borderTop: '1px solid rgba(56, 189, 248, 0.2)', paddingTop: 10, marginTop: 10, textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNotifDropdownOpen(false);
+                      if (onNavigate) onNavigate('fees');
+                    }}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#38bdf8',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    {isRtl ? 'الانتقال إلى صفحة الرسوم والأقساط كاملة ⤶' : 'Go to All Fees & Ledger ⤶'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Daily Motivation Trigger */}
         <button

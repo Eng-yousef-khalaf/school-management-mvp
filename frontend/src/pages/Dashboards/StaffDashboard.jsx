@@ -132,6 +132,13 @@ export default function StaffDashboard({ onNavigate }) {
             🕒 {isRtl ? 'متابعة المعلمين والدوام' : 'Track Teachers'}
           </button>
           <button
+            onClick={() => onNavigate('fees')}
+            className="btn"
+            style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
+          >
+            💰 {isRtl ? 'الرسوم والأقساط' : 'Fees & Payments'}
+          </button>
+          <button
             onClick={() => onNavigate('students')}
             className="btn"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
