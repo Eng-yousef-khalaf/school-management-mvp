@@ -167,29 +167,31 @@ export default function DailyMotivationalModal() {
   useEffect(() => {
     if (!user) return;
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const storageKey = `school_daily_motivation_${user.id || user.email}_${todayStr}`;
-    const hasSeenToday = localStorage.getItem(storageKey);
-
-    // Auto-open if not seen today
-    if (!hasSeenToday) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
-
-    // Also listen for manual open requests
+    // Listen for manual trigger from Header button continuously
     const handleManualOpen = () => setIsOpen(true);
     window.addEventListener('open-daily-motivation', handleManualOpen);
-    return () => window.removeEventListener('open-daily-motivation', handleManualOpen);
+
+    // Auto-open on login / new session entry
+    const sessionKey = `school_welcome_seen_${user.id || user.email || user.role}`;
+    const hasSeenInSession = sessionStorage.getItem(sessionKey);
+
+    let timer;
+    if (!hasSeenInSession) {
+      timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 400);
+    }
+
+    return () => {
+      window.removeEventListener('open-daily-motivation', handleManualOpen);
+      if (timer) clearTimeout(timer);
+    };
   }, [user]);
 
   const handleClose = () => {
     if (user) {
-      const todayStr = new Date().toISOString().slice(0, 10);
-      const storageKey = `school_daily_motivation_${user.id || user.email}_${todayStr}`;
-      localStorage.setItem(storageKey, 'true');
+      const sessionKey = `school_welcome_seen_${user.id || user.email || user.role}`;
+      sessionStorage.setItem(sessionKey, 'true');
     }
     setIsOpen(false);
   };

@@ -95,6 +95,10 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const fallbackUser = getFallbackUser(email || 'admin@school.local');
+    const targetRole = fallbackUser.role;
+    sessionStorage.removeItem(`school_welcome_seen_${fallbackUser.id}`);
+    sessionStorage.removeItem(`school_welcome_seen_${email}`);
+    sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
 
     // 0ms instant login path for instant responsiveness
     try {
@@ -103,6 +107,9 @@ export function AuthProvider({ children }) {
       if (data && data.user) {
         localStorage.setItem('token', data.token || 'demo-token');
         localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.removeItem(`school_welcome_seen_${data.user.id}`);
+        sessionStorage.removeItem(`school_welcome_seen_${data.user.email}`);
+        sessionStorage.removeItem(`school_welcome_seen_${data.user.role}`);
         api.clearCache();
         setUser(data.user);
         return data.user;
@@ -125,6 +132,9 @@ export function AuthProvider({ children }) {
     if (targetRole === 'TEACHER') targetEmail = 'ahmed.khalil@school.local';
 
     const switchedUser = getFallbackUser(targetEmail);
+    sessionStorage.removeItem(`school_welcome_seen_${switchedUser.id}`);
+    sessionStorage.removeItem(`school_welcome_seen_${targetEmail}`);
+    sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
 
     // Instantaneous 0ms switch without blocking UI
     localStorage.setItem('token', 'demo-token-preview-2026');
@@ -145,6 +155,9 @@ export function AuthProvider({ children }) {
         localStorage.setItem('token', data.token);
         const devUser = { ...data.user, isDeveloper: true, fullName: 'Yousef Khalaf (Lead Developer)' };
         localStorage.setItem('user', JSON.stringify(devUser));
+        sessionStorage.removeItem(`school_welcome_seen_${devUser.id}`);
+        sessionStorage.removeItem(`school_welcome_seen_${devUser.email}`);
+        sessionStorage.removeItem(`school_welcome_seen_${devUser.role}`);
         api.clearCache();
         setUser(devUser);
         return devUser;
@@ -162,6 +175,9 @@ export function AuthProvider({ children }) {
     };
     localStorage.setItem('token', 'demo-developer-token');
     localStorage.setItem('user', JSON.stringify(devUser));
+    sessionStorage.removeItem(`school_welcome_seen_${devUser.id}`);
+    sessionStorage.removeItem(`school_welcome_seen_${devUser.email}`);
+    sessionStorage.removeItem(`school_welcome_seen_${devUser.role}`);
     api.clearCache();
     setUser(devUser);
     return devUser;
@@ -170,6 +186,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.clear();
     api.clearCache();
     setUser(null);
   };
