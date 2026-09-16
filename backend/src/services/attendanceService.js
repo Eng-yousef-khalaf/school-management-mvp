@@ -80,7 +80,9 @@ async function saveBulkAttendance({ classId, date, records }, user, req) {
   const results = [];
 
   for (const item of records) {
+    if (!item || !item.status) continue;
     const sId = parseInt(item.studentId, 10);
+    if (!sId) continue;
     const record = await prisma.attendance.upsert({
       where: {
         studentId_date: {

@@ -3,6 +3,9 @@
  * Provides rich, realistic data and interactive state when backend is offline or on demo hosts.
  */
 
+// Dynamic in-memory stores for interactive offline testing
+const mockAttendanceStore = {};
+
 // Initial mock state
 const initialData = {
   academicYears: [
@@ -762,18 +765,41 @@ export function handleMockRequest(path, options = {}) {
 
   // 10. Attendance Sheet & Bulk
   if (cleanPath === '/attendance/sheet') {
+    const classId = searchParams.get('classId') || String(initialData.classes[0]?.id || 1);
+    const date = searchParams.get('date') || '';
+    const key = `${classId}_${date}`;
+    const savedForDate = mockAttendanceStore[key] || null;
+
+    const targetClass = initialData.classes.find(c => String(c.id) === String(classId)) || initialData.classes[0];
+    const enrolledStudents = initialData.students.filter(s => !s.classId || String(s.classId) === String(classId) || s.className === targetClass?.name);
+    const studentsToUse = enrolledStudents.length > 0 ? enrolledStudents : initialData.students;
+
     return {
-      class: initialData.classes[0],
-      sheet: initialData.students.map((s, idx) => ({
-        studentId: s.id,
-        studentNumber: s.studentNumber,
-        fullName: s.fullName,
-        status: idx === 2 ? 'LATE' : idx === 3 ? 'ABSENT' : 'PRESENT',
-        note: idx === 2 ? 'تأخر عن الطابور' : '',
-      })),
+      class: targetClass,
+      date,
+      sheet: studentsToUse.map((s) => {
+        const saved = savedForDate ? savedForDate[s.id] : null;
+        return {
+          studentId: s.id,
+          studentNumber: s.studentNumber,
+          fullName: s.fullName,
+          status: saved ? saved.status : null, // Clean/null on new days!
+          note: saved ? (saved.note || '') : '',
+        };
+      }),
     };
   }
   if (cleanPath === '/attendance/bulk' && method === 'POST') {
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const { classId, date, records } = body;
+    const key = `${classId || '1'}_${date || ''}`;
+    if (!mockAttendanceStore[key]) mockAttendanceStore[key] = {};
+    if (Array.isArray(records)) {
+      records.forEach(r => {
+        mockAttendanceStore[key][r.studentId] = { status: r.status, note: r.note };
+      });
+    }
     return { ok: true, message: 'Bulk attendance recorded' };
   }
   if (cleanPath.includes('/attendance')) {
