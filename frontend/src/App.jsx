@@ -33,6 +33,7 @@ import UserList from './pages/Users/UserList';
 import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
 import DeveloperPortalStandalone from './pages/Developer/DeveloperPortalStandalone';
+import DailyMotivationalModal from './components/common/DailyMotivationalModal';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole } = useAuth();
@@ -405,6 +406,9 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Daily Motivational & Welcoming Modal for Admin, Staff & Teachers */}
+      <DailyMotivationalModal />
     </MainLayout>
   );
 }

@@ -144,6 +144,31 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           </button>
         </div>
 
+        {/* Daily Motivation Trigger */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-daily-motivation'))}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+            color: '#92400e',
+            border: '1px solid #fcd34d',
+            padding: '6px 12px',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: 'var(--shadow-sm)',
+            transition: 'var(--transition)'
+          }}
+          title={isRtl ? 'عرض رسالة وطاقة اليوم التحفيزية' : 'View Today’s Motivational Message'}
+        >
+          <span>✨</span>
+          <span>{isRtl ? 'رسالة اليوم' : 'Daily Spark'}</span>
+        </button>
+
         {/* School Instance Badge */}
         <div style={{
           display: 'inline-flex',
