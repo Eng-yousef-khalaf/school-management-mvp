@@ -18,6 +18,7 @@ export default function Login() {
   const [password, setPassword] = useState('ChangeMe123!');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [secretClickCount, setSecretClickCount] = useState(0);
 
   // Check URL query parameters or hash on initial load (e.g. ?role=teacher or #teacher)
   useEffect(() => {
@@ -35,6 +36,17 @@ export default function Login() {
     } else if (targetRole === 'DEVELOPER' || targetRole === 'DEV') {
       handleDeveloperMasterLogin();
     }
+
+    // Discreet keyboard shortcut for Lead Developer (Ctrl + Shift + D)
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+        e.preventDefault();
+        window.location.hash = '#developer';
+        window.location.reload();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleDeveloperMasterLogin = async () => {
@@ -48,6 +60,15 @@ export default function Login() {
       setError(err.message || 'Developer login failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSecretFooterClick = () => {
+    const nextCount = secretClickCount + 1;
+    setSecretClickCount(nextCount);
+    if (nextCount >= 5) {
+      window.location.hash = '#developer';
+      window.location.reload();
     }
   };
 
@@ -286,41 +307,6 @@ export default function Login() {
               <span style={{ fontSize: '13px' }}>{isRtl ? '←' : '→'}</span>
             </a>
           </div>
-
-          {/* Standalone Developer Engineering Hub Access */}
-          <div style={{ marginTop: '8px' }}>
-            <button
-              type="button"
-              onClick={handleDeveloperMasterLogin}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-                color: '#ffffff',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid #4338ca',
-                fontWeight: 800,
-                fontSize: '11.5px',
-                boxShadow: '0 3px 10px rgba(49, 46, 129, 0.25)',
-                cursor: 'pointer',
-                transition: 'var(--transition)'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '15px' }}>⚡</span>
-                <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
-                  <div>{isRtl ? 'بوابة مهندس ومطور المنظومة (Eng. Yousef Khalaf)' : 'Lead Developer Master Hub (Eng. Yousef)'}</div>
-                  <div style={{ fontSize: '9.5px', color: '#c7d2fe', fontWeight: 500 }}>
-                    {isRtl ? 'تشخيص الخادم • فحص الجداول • الصيانة والمطابقة الفورية' : 'Server Health • Table Footprints • Live Auto-Repair'}
-                  </div>
-                </div>
-              </div>
-              <span style={{ fontSize: '12px', color: '#a5b4fc' }}>{isRtl ? 'دخول ⚡' : 'Enter ⚡'}</span>
-            </button>
-          </div>
         </div>
 
         {/* Quick Teacher / Staff Account Chips */}
@@ -467,7 +453,20 @@ export default function Login() {
           </div>
         </form>
 
-        <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '11px', color: 'var(--text-light)' }}>
+        <div
+          onClick={handleSecretFooterClick}
+          style={{
+            marginTop: 12,
+            paddingTop: 8,
+            borderTop: '1px solid var(--border-color)',
+            textAlign: 'center',
+            fontSize: '11px',
+            color: 'var(--text-light)',
+            cursor: 'default',
+            userSelect: 'none'
+          }}
+          title={secretClickCount > 0 ? `Developer Access: ${secretClickCount}/5` : ''}
+        >
           {isRtl ? `${config.schoolNameAr} — منظومة إدارة المدرسة الذكية` : `${config.schoolNameEn} — Smart School Management System`}
         </div>
       </div>

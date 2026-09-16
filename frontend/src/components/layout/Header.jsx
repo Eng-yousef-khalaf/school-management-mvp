@@ -158,33 +158,35 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
             <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
           </button>
 
-          {/* Direct Developer Engineering Hub Switcher */}
-          <button
-            type="button"
-            onClick={() => {
-              window.location.hash = '#developer';
-              window.location.reload();
-            }}
-            style={{
-              padding: '6px 10px',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid #4338ca',
-              background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-              color: '#c7d2fe',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              transition: 'var(--transition)',
-              boxShadow: '0 2px 6px rgba(49, 46, 129, 0.2)'
-            }}
-            title={isRtl ? 'الانتقال إلى لوحة تحكم وتشخيص مهندس المنظومة' : 'Open Developer Engineering Hub'}
-          >
-            <span>⚡</span>
-            <span>{isRtl ? 'المطور' : 'Dev Hub'}</span>
-          </button>
+          {/* Direct Developer Engineering Hub Switcher - Strictly visible only if authenticated as Developer */}
+          {user?.isDeveloper && (
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = '#developer';
+                window.location.reload();
+              }}
+              style={{
+                padding: '6px 10px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid #4338ca',
+                background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+                color: '#c7d2fe',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'var(--transition)',
+                boxShadow: '0 2px 6px rgba(49, 46, 129, 0.2)'
+              }}
+              title={isRtl ? 'الانتقال إلى لوحة تحكم وتشخيص مهندس المنظومة' : 'Open Developer Engineering Hub'}
+            >
+              <span>⚡</span>
+              <span>{isRtl ? 'المطور' : 'Dev Hub'}</span>
+            </button>
+          )}
         </div>
 
         {/* Staff-Exclusive Incoming Payment Notices Bell */}
