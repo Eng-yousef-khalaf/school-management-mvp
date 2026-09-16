@@ -1209,24 +1209,45 @@ export function handleMockRequest(path, options = {}) {
         studentsCount: 200,
         teachersCount: 15,
         classesCount: 8,
-        totalRecords: 1420,
-        storageUsedMb: 1.25,
+        totalRecords: 1650,
+        storageUsedMb: 1.42,
         storageLimitMb: 500,
-        storagePercent: 0.25,
+        storagePercent: 0.28,
         latencyMs: 12,
+        tables: {
+          students: 200,
+          teachers: 15,
+          classes: 8,
+          enrollments: 200,
+          attendance: 840,
+          grades: 320,
+          studentFees: 200,
+          payments: 45,
+          auditLogs: 150,
+          users: 18,
+          subjects: 12,
+          academicYears: 3,
+        },
       },
       stats: {
+        totalSchools: 1,
         totalStudents: 200,
         totalTeachers: 15,
         totalClasses: 8,
-        totalRecords: 1420,
-        totalStorageUsedMb: 1.25,
+        totalRecords: 1650,
+        totalStorageUsedMb: 1.42,
         totalStorageLimitMb: 500,
-        fleetStoragePercent: 0.25,
+        fleetStoragePercent: 0.28,
         latencyMs: 12,
         healthStatus: 'ALL_SYSTEMS_OPERATIONAL',
         serverUptimeSec: 3600,
         nodeVersion: 'v20.x',
+        memoryUsage: {
+          rss: 45 * 1024 * 1024,
+          heapTotal: 28 * 1024 * 1024,
+          heapUsed: 19 * 1024 * 1024,
+          external: 2 * 1024 * 1024,
+        },
       },
     };
   }
@@ -1234,12 +1255,14 @@ export function handleMockRequest(path, options = {}) {
   if (cleanPath === '/developer/storage-analysis') {
     return {
       ok: true,
-      totalEstMb: 1.25,
+      totalEstMb: 1.42,
       allocatedTierMb: 500,
-      percentUsed: 0.25,
+      percentUsed: 0.28,
       tableBreakdown: [
         { table: 'Attendance', rows: 840, estBytes: 840 * 256, category: 'Academic Transactions' },
         { table: 'Grade', rows: 320, estBytes: 320 * 256, category: 'Academic Transactions' },
+        { table: 'StudentFee', rows: 200, estBytes: 200 * 384, category: 'Financial & Ledger' },
+        { table: 'Payment', rows: 45, estBytes: 45 * 512, category: 'Financial & Ledger' },
         { table: 'AuditLog', rows: 150, estBytes: 150 * 512, category: 'Security & Logs' },
         { table: 'Student', rows: 200, estBytes: 200 * 1024, category: 'Core Entity' },
         { table: 'Enrollment', rows: 200, estBytes: 200 * 256, category: 'Core Entity' },
@@ -1256,25 +1279,52 @@ export function handleMockRequest(path, options = {}) {
     return {
       ok: true,
       status: 'HEALTHY',
-      latencyMs: 12,
+      latencyMs: 9,
       timestamp: new Date().toISOString(),
-      message: 'Demo mode responsive',
+      message: 'Database connection is healthy and responsive (Latency: 9ms)',
     };
   }
 
   if (cleanPath === '/developer/clear-cache') {
-    return { ok: true, message: 'Cache cleared' };
+    return { ok: true, message: 'Server & memory cache cleared successfully' };
+  }
+
+  if (cleanPath === '/developer/repair-integrity' && method === 'POST') {
+    return {
+      ok: true,
+      durationMs: 48,
+      diagnostics: {
+        totalStudentsChecked: 200,
+        resyncedFees: 12,
+        createdMissingFees: 0,
+        fixedOrphanPayments: 0,
+        integrityStatus: 'VERIFIED_100_PERCENT',
+      },
+      message: 'System audit and database integrity repair completed successfully!',
+    };
   }
 
   if (cleanPath === '/developer/export-backup') {
     return {
       ok: true,
       backup: {
-        schoolCode: 'SCH-001',
-        schoolNameAr: 'مدرسة النور النموذجية',
-        exportedAt: new Date().toISOString(),
-        students: initialData.students,
-        teachers: initialData.teachers,
+        exportMetadata: {
+          schoolCode: 'SCH-001',
+          schoolNameAr: 'مدرسة النور النموذجية',
+          schoolNameEn: 'Al-Noor Model School',
+          exportedAt: new Date().toISOString(),
+          version: 'v2.0.0 (Standalone Instance)',
+        },
+        counts: {
+          students: (initialData.students || []).length,
+          teachers: (initialData.teachers || []).length,
+          studentFees: 200,
+          payments: 45,
+        },
+        data: {
+          students: initialData.students,
+          teachers: initialData.teachers,
+        },
       },
     };
   }

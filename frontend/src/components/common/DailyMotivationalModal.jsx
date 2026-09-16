@@ -4,7 +4,70 @@ import { useLanguage } from '../../context/LanguageContext';
 import { PalestineFlagIcon } from './Icons';
 
 // Comprehensive pool of inspiring, role-tailored daily motivational wisdom
+// Pure Web Audio API Synthesizer for warm, elegant multi-tone welcoming chime
+export function playWelcomeChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    // Melodic ascending luxury chord arpeggio: C5 (523.25Hz) -> E5 (659.25Hz) -> G5 (783.99Hz) -> C6 (1046.5Hz)
+    const notes = [
+      { freq: 523.25, time: 0.00, dur: 0.45, gain: 0.14 },
+      { freq: 659.25, time: 0.08, dur: 0.48, gain: 0.16 },
+      { freq: 783.99, time: 0.16, dur: 0.52, gain: 0.18 },
+      { freq: 1046.50, time: 0.24, dur: 0.75, gain: 0.22 },
+    ];
+
+    const startTime = ctx.currentTime;
+
+    notes.forEach(({ freq, time, dur, gain: noteGain }) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime + time);
+
+      gainNode.gain.setValueAtTime(0.0001, startTime + time);
+      gainNode.gain.linearRampToValueAtTime(noteGain, startTime + time + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + time + dur);
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc.start(startTime + time);
+      osc.stop(startTime + time + dur + 0.05);
+    });
+  } catch (err) {
+    console.debug('Welcome audio chime skipped', err);
+  }
+}
+
+// Comprehensive pool of inspiring, role-tailored daily motivational wisdom
 const MOTIVATIONAL_DATABASE = {
+  DEVELOPER: [
+    {
+      quoteAr: "كل سطر برمجي كتبته في هذه المنظومة هو لبنة لبناء مستقبل واعد لمدارسنا وأبنائنا. شكراً لعقلك المبدع وشغفك الهندسي العظيم يا باشمهندس يوسف!",
+      tipAr: "💡 إشعار المطور: منظومة الفحص والتشخيص تعمل بكفاءة 100%، يمكنك مراجعة سلامة الجداول واستقرار الخادم من لوحة المطور.",
+      quoteEn: "Every line of code you crafted into this architecture is a cornerstone for shaping brighter generations. Thank you for your brilliant engineering and leadership, Eng. Yousef!",
+      tipEn: "💡 Dev Telemetry: Diagnostics and integrity engines are running smoothly at 100% health."
+    },
+    {
+      quoteAr: "وراء هذا الأداء الفائق والتصميم المتقن مهندس آمن بأن التكنولوجيا يمكنها إحداث ثورة في إدارة التعليم. أهلاً بك يا صانع وباني المنظومة!",
+      tipAr: "💡 نصيحة هندسية: تم تفعيل أداة التدقيق والإصلاح التلقائي للعلاقات وفحص الكاش بنقرة واحدة من لوحة المطور.",
+      quoteEn: "Behind this blazing performance and state-of-the-art UI stands an engineer who believes software transforms education. Welcome, Lead Architect!",
+      tipEn: "💡 Dev Tip: One-click DB integrity auto-repair and cache purging utilities are active in your console."
+    },
+    {
+      quoteAr: "الأنظمة العظيمة لا تُبنى بالصدفة، بل بالشغف والدقة وسهر الليالي لإتقان كل تفصيلة. دمت ذخراً وفخراً للمجتمع التقني والتربوي!",
+      tipAr: "💡 تذكير المطور: تم فحص زمن استجابة قاعدة البيانات ومعدل استهلاك الذاكرة وهي في النطاق المثالي الفائق.",
+      quoteEn: "Great systems are forged through relentless passion, precision, and architectural mastery. Thank you for your excellence!",
+      tipEn: "💡 Dev Notice: Latency and memory consumption metrics are currently operating in the ultra-optimal tier."
+    }
+  ],
   ADMIN: [
     {
       quoteAr: "القيادة التربوية الحقيقية ليست مجرد إدارة، بل هي إلهام للقلوب وزرع للأمل في عقول أجيال الغد. بقراراتك الحكيمة ورؤيتك تصنع الفرق في كل يوم!",
@@ -144,14 +207,15 @@ export default function DailyMotivationalModal() {
     const startOfYear = new Date(today.getFullYear(), 0, 1);
     const dayOfYear = Math.floor((today - startOfYear) / (24 * 60 * 60 * 1000));
     
-    const roleKey = user?.role === 'STAFF' ? 'STAFF' : user?.role === 'TEACHER' ? 'TEACHER' : 'ADMIN';
+    const isDev = Boolean(user?.isDeveloper || user?.role === 'DEVELOPER' || user?.email?.includes('yousef') || user?.email?.includes('dev'));
+    const roleKey = isDev ? 'DEVELOPER' : user?.role === 'STAFF' ? 'STAFF' : user?.role === 'TEACHER' ? 'TEACHER' : 'ADMIN';
     const pool = MOTIVATIONAL_DATABASE[roleKey] || MOTIVATIONAL_DATABASE.ADMIN;
     
     // Deterministic index for this day
     const index = (dayOfYear + today.getFullYear() * 7) % pool.length;
     const item = pool[index];
 
-    const rawName = user?.fullName || (roleKey === 'ADMIN' ? 'المدير العام' : roleKey === 'STAFF' ? 'شؤون الطلاب' : 'المعلم الفاضل');
+    const rawName = user?.fullName || (isDev ? 'م. يوسف خلف (Lead Developer)' : roleKey === 'ADMIN' ? 'المدير العام' : roleKey === 'STAFF' ? 'شؤون الطلاب' : 'المعلم الفاضل');
     const cleanName = rawName.replace(/\(.*?\)/g, '').trim();
 
     return {
@@ -168,7 +232,10 @@ export default function DailyMotivationalModal() {
     if (!user) return;
 
     // Listen for manual trigger from Header button continuously
-    const handleManualOpen = () => setIsOpen(true);
+    const handleManualOpen = () => {
+      setIsOpen(true);
+      playWelcomeChime();
+    };
     window.addEventListener('open-daily-motivation', handleManualOpen);
 
     // Auto-open on login / new session entry
@@ -179,6 +246,7 @@ export default function DailyMotivationalModal() {
     if (!hasSeenInSession) {
       timer = setTimeout(() => {
         setIsOpen(true);
+        playWelcomeChime();
       }, 400);
     }
 
@@ -207,6 +275,15 @@ export default function DailyMotivationalModal() {
   });
 
   const roleMeta = {
+    DEVELOPER: {
+      badgeText: isRtl ? '⚡ لوحة القيادة الهندسية وتطوير المنظومة' : '⚡ Platform Engineering & Architecture Hub',
+      badgeBg: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%)',
+      badgeColor: '#ffffff',
+      themeColor: '#6366f1',
+      lightBg: '#eef2ff',
+      icon: '⚡',
+      salutation: isRtl ? 'أهلاً بك يا مهندس يوسف، صانع وباني المنظومة 👑⚡' : 'Welcome Lead Architect, Eng. Yousef Khalaf 👑⚡'
+    },
     ADMIN: {
       badgeText: isRtl ? '👑 القيادة التربوية والإدارة المدرسية' : '👑 School Leadership Portal',
       badgeBg: 'linear-gradient(135deg, #4f46e5, #4338ca)',

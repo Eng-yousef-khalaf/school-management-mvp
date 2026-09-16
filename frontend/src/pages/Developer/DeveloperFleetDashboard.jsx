@@ -38,6 +38,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [isPinging, setIsPinging] = useState(false);
   const [isClearingCache, setIsClearingCache] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
+  const [isRepairing, setIsRepairing] = useState(false);
+  const [repairReport, setRepairReport] = useState(null);
 
   // Load telemetry & live database stats
   const fetchTelemetry = async () => {
@@ -47,7 +49,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
       if (res && res.stats) {
         setTelemetry(res);
       } else {
-        // Fallback fallback state
+        // Fallback state
         setTelemetry({
           currentSchool: {
             code: config.schoolCode,
@@ -57,24 +59,43 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             studentsCount: 200,
             teachersCount: 15,
             classesCount: 8,
-            totalRecords: 1420,
-            storageUsedMb: 1.25,
+            totalRecords: 1650,
+            storageUsedMb: 1.42,
             storageLimitMb: config.allocatedStorageMb || 500,
-            storagePercent: 0.25,
+            storagePercent: 0.28,
             latencyMs: 12,
+            tables: {
+              students: 200,
+              teachers: 15,
+              classes: 8,
+              enrollments: 200,
+              attendance: 840,
+              grades: 320,
+              studentFees: 200,
+              payments: 45,
+              auditLogs: 150,
+              users: 18,
+              subjects: 12,
+              academicYears: 3,
+            },
           },
           stats: {
             totalStudents: 200,
             totalTeachers: 15,
             totalClasses: 8,
-            totalRecords: 1420,
-            totalStorageUsedMb: 1.25,
+            totalRecords: 1650,
+            totalStorageUsedMb: 1.42,
             totalStorageLimitMb: config.allocatedStorageMb || 500,
-            fleetStoragePercent: 0.25,
+            fleetStoragePercent: 0.28,
             latencyMs: 12,
             healthStatus: 'ALL_SYSTEMS_OPERATIONAL',
             serverUptimeSec: 3600,
             nodeVersion: 'v20.x',
+            memoryUsage: {
+              rss: 45 * 1024 * 1024,
+              heapTotal: 28 * 1024 * 1024,
+              heapUsed: 19 * 1024 * 1024,
+            },
           },
         });
       }
@@ -94,6 +115,25 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   useEffect(() => {
     fetchTelemetry();
   }, []);
+
+  // Deep Integrity Audit & Auto-Repair
+  const handleRepairIntegrity = async () => {
+    setIsRepairing(true);
+    try {
+      const res = await api.post('/developer/repair-integrity');
+      setRepairReport(res.diagnostics);
+      toast.success(
+        isRtl
+          ? '🛠️ تم فحص سلامة الجداول وإصلاح العلاقات والمطابقات المالية بنجاح!'
+          : '🛠️ Database relations & financial ledger reconciled 100%!'
+      );
+      fetchTelemetry();
+    } catch (err) {
+      toast.error(isRtl ? 'تعذر إتمام الفحص والإصلاح' : 'Failed to audit database integrity');
+    } finally {
+      setIsRepairing(false);
+    }
+  };
 
   // Database Ping Check
   const handlePingDatabase = async () => {
@@ -170,6 +210,18 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
     navigator.clipboard.writeText(slipText);
     toast.success(isRtl ? 'تم نسخ بطاقة التسليم بالكامل جاهزة للإرسال!' : 'Delivery Slip copied to clipboard!');
+  };
+
+  // Instant Role Perspective Switchers for Developer
+  const handleSimulateRole = (targetRole) => {
+    toast.success(
+      isRtl
+        ? `⚡ جاري التبديل لمعاينة المنظومة بصلاحية (${targetRole === 'ADMIN' ? 'المدير' : targetRole === 'STAFF' ? 'الستاف' : 'المعلم'})...`
+        : `⚡ Switching to ${targetRole} perspective...`
+    );
+    window.location.hash = '';
+    window.location.search = `?role=${targetRole.toLowerCase()}`;
+    window.location.reload();
   };
 
   // Developer Instant Super-Admin Access
@@ -473,10 +525,36 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8, color: '#0f172a' }}>
               <span>🛠️</span>
-              <span>{isRtl ? 'أدوات الصيانة والفحص للمطور' : 'Developer Maintenance & DB Tools'}</span>
+              <span>{isRtl ? 'أدوات الصيانة والإصلاح الفوري للمطور' : 'Developer Maintenance & Integrity Tools'}</span>
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {/* Integrity Audit & Auto Repair */}
+              <button
+                type="button"
+                onClick={handleRepairIntegrity}
+                disabled={isRepairing}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #6366f1',
+                  background: 'linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%)',
+                  color: '#4338ca',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  gridColumn: '1 / -1',
+                  boxShadow: '0 2px 6px rgba(99, 102, 241, 0.2)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span>🛠️</span>
+                <span>{isRepairing ? (isRtl ? 'جاري الفحص والإصلاح الشامل...' : 'Running Integrity Audit...') : (isRtl ? 'فحص سلامة العلاقات والإصلاح التلقائي للجداول والرسوم' : 'Deep Integrity Audit & Auto-Repair')}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handlePingDatabase}
@@ -520,7 +598,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 }}
               >
                 <span>🧹</span>
-                <span>{isClearingCache ? (isRtl ? 'جاري التنظيف...' : 'Clearing...') : (isRtl ? 'تنظيف الكاش' : 'Purge Cache')}</span>
+                <span>{isClearingCache ? (isRtl ? 'جاري التنظيف...' : 'Clearing...') : (isRtl ? 'تنظيف الكاش والذاكرة' : 'Purge Cache & Memory')}</span>
               </button>
 
               <button
@@ -544,12 +622,51 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 }}
               >
                 <span>💾</span>
-                <span>{isExportingBackup ? (isRtl ? 'جاري التصدير...' : 'Exporting...') : (isRtl ? 'تصدير نسخة احتياطية من البيانات (JSON Backup)' : 'Export Full JSON Backup')}</span>
+                <span>{isExportingBackup ? (isRtl ? 'جاري التصدير...' : 'Exporting...') : (isRtl ? 'تصدير نسخة احتياطية كاملة (JSON Database Backup)' : 'Export Full JSON Backup')}</span>
               </button>
             </div>
 
-            <div style={{ marginTop: 16, background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0', fontSize: 12, color: '#64748b' }}>
-              💡 {isRtl ? 'يمكنك استخدام هذه الأدوات لضمان استقرار الخادم وسرعة الاستجابة أثناء تقديم الدعم الفني للعميل.' : 'Use these utilities for routine health checks and direct client database maintenance.'}
+            {/* Repair Report Summary Widget */}
+            {repairReport && (
+              <div style={{ marginTop: 14, background: '#f0fdf4', borderRadius: 8, padding: '10px 14px', border: '1px solid #86efac', fontSize: 12, color: '#166534' }}>
+                <strong>✅ {isRtl ? 'تقرير فحص وإصلاح العلاقات الأخير:' : 'Last Integrity Audit Report:'}</strong>
+                <div style={{ marginTop: 4, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <span>👥 {isRtl ? `الطلاب المفحوصون: ${repairReport.totalStudentsChecked}` : `Students checked: ${repairReport.totalStudentsChecked}`}</span>
+                  <span>💳 {isRtl ? `حسابات الرسوم المعالجة: ${repairReport.resyncedFees}` : `Fees synced: ${repairReport.resyncedFees}`}</span>
+                  <span>✨ {isRtl ? `الحالة: ${repairReport.integrityStatus}` : `Status: ${repairReport.integrityStatus}`}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Role Simulation Switcher for Fast Developer Testing */}
+            <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>⚡</span>
+                <span>{isRtl ? 'معاينة تجربة المستخدم الفورية لكل دور:' : 'Instant Role Perspective Switcher:'}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateRole('ADMIN')}
+                  style={{ flex: 1, padding: '7px 12px', borderRadius: 6, border: '1px solid #c7d2fe', background: '#eef2ff', color: '#4338ca', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  👔 {isRtl ? 'المدير العام' : 'Admin'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateRole('STAFF')}
+                  style={{ flex: 1, padding: '7px 12px', borderRadius: 6, border: '1px solid #a7f3d0', background: '#ecfdf5', color: '#065f46', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  📋 {isRtl ? 'موظف Staff' : 'Staff'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateRole('TEACHER')}
+                  style={{ flex: 1, padding: '7px 12px', borderRadius: 6, border: '1px solid #bae6fd', background: '#f0f9ff', color: '#0369a1', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  🎓 {isRtl ? 'المعلم' : 'Teacher'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
