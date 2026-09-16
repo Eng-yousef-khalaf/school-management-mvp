@@ -812,24 +812,22 @@ export default function DailyMotivationalModal() {
     const today = new Date();
     const dayOfMonth = today.getDate(); // 1 to 31
     
-    const isDev = Boolean(
-      user?.isDeveloper || 
-      user?.role === 'DEVELOPER' || 
-      user?.email?.includes('yousef') || 
-      user?.email?.includes('dev') ||
-      user?.fullName?.toLowerCase().includes('yousef') ||
-      user?.fullName?.includes('يوسف') ||
-      user?.fullName?.toLowerCase().includes('developer') ||
-      user?.fullName?.includes('مطور')
-    );
-    const roleKey = isDev ? 'DEVELOPER' : user?.role === 'STAFF' ? 'STAFF' : user?.role === 'TEACHER' ? 'TEACHER' : 'ADMIN';
+    // Strictly isolate the 4 distinct roles: DEVELOPER vs ADMIN vs STAFF vs TEACHER
+    const isDev = Boolean(user?.isDeveloper === true || user?.role === 'DEVELOPER');
+    const roleKey = isDev
+      ? 'DEVELOPER'
+      : user?.role === 'STAFF'
+      ? 'STAFF'
+      : user?.role === 'TEACHER'
+      ? 'TEACHER'
+      : 'ADMIN';
     const pool = MOTIVATIONAL_DATABASE[roleKey] || MOTIVATIONAL_DATABASE.ADMIN;
     
     // Deterministic index for this day of the month (1-31), with shuffle ability
     const index = (dayOfMonth - 1 + shuffleOffset + pool.length * 10) % pool.length;
     const item = pool[index];
 
-    const rawName = user?.fullName || (isDev ? 'م. يوسف خلف (Lead Developer)' : roleKey === 'ADMIN' ? 'المدير العام' : roleKey === 'STAFF' ? 'شؤون الطلاب' : 'المعلم الفاضل');
+    const rawName = user?.fullName || (isDev ? 'م. يوسف خلف (Lead Developer)' : roleKey === 'ADMIN' ? 'أ. عبد الرحمن (مدير المدرسة)' : roleKey === 'STAFF' ? 'شؤون الطلاب' : 'المعلم الفاضل');
     const cleanName = rawName.replace(/\(.*?\)/g, '').trim();
 
     return {
@@ -904,31 +902,31 @@ export default function DailyMotivationalModal() {
       salutation: isRtl ? 'أهلاً بك يا مهندس يوسف، صانع وباني المنظومة 👑⚡' : 'Welcome Lead Architect, Eng. Yousef Khalaf 👑⚡'
     },
     ADMIN: {
-      badgeText: isRtl ? '👑 القيادة التربوية والإدارة المدرسية' : '👑 School Leadership Portal',
-      badgeBg: 'linear-gradient(135deg, #4f46e5, #4338ca)',
+      badgeText: isRtl ? '👑 القيادة التربوية والإدارة المدرسية العامة' : '👑 School Leadership & Executive Administration',
+      badgeBg: 'linear-gradient(135deg, #4338ca 0%, #3730a3 100%)',
       badgeColor: '#ffffff',
       themeColor: '#4f46e5',
       lightBg: '#eef2ff',
       icon: '👔',
-      salutation: isRtl ? `أهلاً بك يا أستاذ ${data.cleanName} 🌟` : `Welcome back, Director ${data.cleanName} 🌟`
+      salutation: isRtl ? `أهلاً بك يا سيادة المدير، قائد الصرح التعليمي (${data.cleanName}) 👑` : `Welcome Esteemed School Principal, ${data.cleanName} 👑`
     },
     STAFF: {
-      badgeText: isRtl ? '📋 الكادر الإداري وشؤون الطلاب' : '📋 Administrative & Student Affairs',
-      badgeBg: 'linear-gradient(135deg, #10b981, #059669)',
+      badgeText: isRtl ? '📋 الكادر الإداري وشؤون المعلمين والطلاب' : '📋 Faculty & Student Affairs Office',
+      badgeBg: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
       badgeColor: '#ffffff',
       themeColor: '#10b981',
       lightBg: '#ecfdf5',
       icon: '📁',
-      salutation: isRtl ? `صباح الهمة والنشاط يا ${data.cleanName} 🌟` : `Welcome, esteemed ${data.cleanName} 🌟`
+      salutation: isRtl ? `صباح الهمة والنشاط يا زميلنا الإداري (${data.cleanName}) 🌟` : `Welcome, Administrative Officer ${data.cleanName} 🌟`
     },
     TEACHER: {
-      badgeText: isRtl ? '🎓 صانع الأجيال والكادر التعليمي' : '🎓 Educator & Faculty Portal',
-      badgeBg: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+      badgeText: isRtl ? '🎓 الكادر التعليمي وصناع الأجيال' : '🎓 Faculty & Teaching Cadre',
+      badgeBg: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
       badgeColor: '#ffffff',
       themeColor: '#0ea5e9',
       lightBg: '#eff6ff',
       icon: '👨‍🏫',
-      salutation: isRtl ? `أهلاً بك يا أستاذ ${data.cleanName} 🌟` : `Welcome, Instructor ${data.cleanName} 🌟`
+      salutation: isRtl ? `أهلاً بك يا صانع الأجيال، أستاذ ${data.cleanName} 🎓🌟` : `Welcome Respected Educator, ${data.cleanName} 🎓🌟`
     }
   }[data.roleKey] || {
     badgeText: isRtl ? 'مرحباً بك' : 'Welcome',

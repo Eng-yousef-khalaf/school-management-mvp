@@ -8,14 +8,14 @@ async function main() {
 
   const defaultPasswordHash = await bcrypt.hash('ChangeMe123!', 12);
 
-  // 1. Create Default Users (يوسف for Admin, محمد for Staff)
+  // 1. Create Default Users (Principal for Admin, محمد for Staff)
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@school.local' },
-    update: { passwordHash: defaultPasswordHash, fullName: 'يوسف', role: 'ADMIN', active: true },
+    update: { passwordHash: defaultPasswordHash, fullName: 'أ. عبد الرحمن خليل (المدير العام)', role: 'ADMIN', active: true },
     create: {
       email: 'admin@school.local',
       passwordHash: defaultPasswordHash,
-      fullName: 'يوسف',
+      fullName: 'أ. عبد الرحمن خليل (المدير العام)',
       role: 'ADMIN',
       active: true
     }

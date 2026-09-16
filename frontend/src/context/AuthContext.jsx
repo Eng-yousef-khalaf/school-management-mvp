@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
 
   const getFallbackUser = (email) => {
     let userRole = 'ADMIN';
-    let fullName = 'يوسف (المدير العام)';
+    let fullName = 'أ. عبد الرحمن خليل (المدير العام)';
     let teacherId = null;
     let id = 1;
 
@@ -198,7 +198,7 @@ export function AuthProvider({ children }) {
   const isAdmin = user?.role === 'ADMIN' || user?.isDeveloper;
   const isStaff = user?.role === 'STAFF';
   const isTeacher = user?.role === 'TEACHER';
-  const isDeveloper = user?.isDeveloper || user?.email?.includes('dev') || user?.role === 'ADMIN';
+  const isDeveloper = Boolean(user?.isDeveloper === true || user?.role === 'DEVELOPER');
   
   // Specific permission capabilities
   const canManageStudents = user?.role === 'STAFF' || user?.isDeveloper;
