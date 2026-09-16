@@ -33,6 +33,7 @@ import UserList from './pages/Users/UserList';
 import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
 import DeveloperPortalStandalone from './pages/Developer/DeveloperPortalStandalone';
+import DeveloperFleetDashboard from './pages/Developer/DeveloperFleetDashboard';
 import DailyMotivationalModal from './components/common/DailyMotivationalModal';
 import FeeManagement from './pages/Fees/FeeManagement';
 import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
@@ -145,8 +146,8 @@ export default function App() {
     );
   }
 
-  // If in standalone developer route, render isolated developer portal
-  if (isDeveloperPortal) {
+  // If in standalone developer route OR user is explicitly logged in as Developer, render isolated developer portal
+  if (isDeveloperPortal || user?.isDeveloper || user?.role === 'DEVELOPER') {
     return (
       <DeveloperPortalStandalone
         onExitToSchool={() => {
@@ -154,6 +155,7 @@ export default function App() {
           window.location.search = '';
           window.history.pushState({}, '', '/');
           setIsDeveloperPortal(false);
+          switchPortalRole('ADMIN');
         }}
       />
     );
@@ -437,6 +439,11 @@ export default function App() {
         ) : (
           <AccessDenied requiredRole="ADMIN" onBack={() => navigateTo('dashboard')} />
         )
+      )}
+
+      {/* Developer Engineering Hub - Inside MainLayout */}
+      {(currentPage === 'developer-hub' || currentPage === 'developer-fleet') && (
+        <DeveloperFleetDashboard onNavigate={navigateTo} />
       )}
 
       {/* Settings - Accessible by all */}

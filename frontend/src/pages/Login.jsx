@@ -41,8 +41,9 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
+      window.location.hash = '#developer';
       const devUser = await loginAsDeveloper('YOUSEF_MASTER_2026');
-      toast.success(isRtl ? `مرحباً بك يا مطور المنصة الرئيسي، ${devUser.fullName}!` : `Welcome Platform Lead Developer, ${devUser.fullName}!`);
+      toast.success(isRtl ? `مرحباً بك يا مهندس ومطور المنظومة، ${devUser.fullName}!` : `Welcome Platform Lead Developer, ${devUser.fullName}!`);
     } catch (err) {
       setError(err.message || 'Developer login failed');
     } finally {

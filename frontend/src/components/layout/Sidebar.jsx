@@ -60,6 +60,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     // ADMIN (Executive & Governance Scope)
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
+      { id: 'developer-hub', label: isRtl ? 'لوحة تحكم مهندس المنظومة ⚡' : 'Developer Engineering Hub ⚡', icon: <span style={{ fontSize: 18 }}>⚡</span>, visible: true },
       { id: 'fees', label: isRtl ? 'الرسوم المالية وحسابات الطلاب' : 'Tuition & Fees Ledger', icon: <span style={{ fontSize: 18 }}>💰</span>, visible: true },
       { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
       { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
