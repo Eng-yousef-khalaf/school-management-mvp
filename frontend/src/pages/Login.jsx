@@ -285,6 +285,41 @@ export default function Login() {
               <span style={{ fontSize: '13px' }}>{isRtl ? '←' : '→'}</span>
             </a>
           </div>
+
+          {/* Standalone Developer Engineering Hub Access */}
+          <div style={{ marginTop: '8px' }}>
+            <button
+              type="button"
+              onClick={handleDeveloperMasterLogin}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+                color: '#ffffff',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #4338ca',
+                fontWeight: 800,
+                fontSize: '11.5px',
+                boxShadow: '0 3px 10px rgba(49, 46, 129, 0.25)',
+                cursor: 'pointer',
+                transition: 'var(--transition)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '15px' }}>⚡</span>
+                <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
+                  <div>{isRtl ? 'بوابة مهندس ومطور المنظومة (Eng. Yousef Khalaf)' : 'Lead Developer Master Hub (Eng. Yousef)'}</div>
+                  <div style={{ fontSize: '9.5px', color: '#c7d2fe', fontWeight: 500 }}>
+                    {isRtl ? 'تشخيص الخادم • فحص الجداول • الصيانة والمطابقة الفورية' : 'Server Health • Table Footprints • Live Auto-Repair'}
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: '12px', color: '#a5b4fc' }}>{isRtl ? 'دخول ⚡' : 'Enter ⚡'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Quick Teacher / Staff Account Chips */}

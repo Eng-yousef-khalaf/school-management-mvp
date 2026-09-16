@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import DeveloperFleetDashboard from './DeveloperFleetDashboard';
+import DailyMotivationalModal from '../../components/common/DailyMotivationalModal';
 
 export default function DeveloperPortalStandalone({ onExitToSchool }) {
   const { user, loginAsDeveloper, logout } = useAuth();
@@ -22,7 +23,15 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
 
     try {
       const devUser = await loginAsDeveloper(masterKey.trim());
+      sessionStorage.removeItem(`school_welcome_seen_${devUser.id}`);
+      sessionStorage.removeItem(`school_welcome_seen_${devUser.email}`);
+      sessionStorage.removeItem(`school_welcome_seen_${devUser.role}`);
+      sessionStorage.removeItem('school_welcome_seen_DEVELOPER');
+      sessionStorage.removeItem('school_welcome_seen_ADMIN');
       toast.success(isRtl ? `مرحباً بك يا مهندس ومطور المنظومة، ${devUser.fullName}!` : `Developer Master Session Unlocked: ${devUser.fullName}`);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('open-daily-motivation'));
+      }, 250);
     } catch (err) {
       setError(isRtl ? 'مفتاح المطور غير صحيح. يرجى التحقق من المفتاح السري.' : 'Invalid Developer Master Key.');
     } finally {
@@ -93,23 +102,48 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {isUnlocked && (
-            <div
-              style={{
-                background: '#ecfdf5',
-                color: '#047857',
-                padding: '6px 14px',
-                borderRadius: 99,
-                fontSize: 12,
-                fontWeight: 800,
-                border: '1px solid #a7f3d0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              <span>🟢</span>
-              <span>{isRtl ? 'جلسة المطور نشطة' : 'Developer Session Active'}</span>
-            </div>
+            <>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-daily-motivation'))}
+                style={{
+                  background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                  color: '#92400e',
+                  border: '1px solid #fcd34d',
+                  padding: '8px 14px',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                }}
+                title={isRtl ? 'عرض رسالة وطاقة المطور' : 'View Developer Motivation'}
+              >
+                <span>✨</span>
+                <span>{isRtl ? 'رسالة المهندس' : 'Dev Spark'}</span>
+              </button>
+
+              <div
+                style={{
+                  background: '#ecfdf5',
+                  color: '#047857',
+                  padding: '6px 14px',
+                  borderRadius: 99,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  border: '1px solid #a7f3d0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <span>🟢</span>
+                <span>{isRtl ? 'جلسة المطور نشطة' : 'Developer Session Active'}</span>
+              </div>
+            </>
           )}
 
           <button
@@ -266,6 +300,9 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
           <DeveloperFleetDashboard onNavigate={() => {}} />
         )}
       </main>
+
+      {/* Daily Motivational & Welcoming Modal for Developer */}
+      <DailyMotivationalModal />
     </div>
   );
 }

@@ -345,6 +345,34 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             </button>
 
             <button
+              type="button"
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#ffffff',
+                padding: '11px 18px',
+                borderRadius: 8,
+                fontWeight: 800,
+                fontSize: 13,
+                boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => {
+                sessionStorage.removeItem(`school_welcome_seen_${user?.id || user?.email || 'DEVELOPER'}`);
+                sessionStorage.removeItem('school_welcome_seen_DEVELOPER');
+                window.dispatchEvent(new CustomEvent('open-daily-motivation'));
+              }}
+              title={isRtl ? 'عرض رسالة وطاقة المطور' : 'View Developer Motivation'}
+            >
+              <span>✨</span>
+              <span>{isRtl ? 'رسالة المهندس' : 'Dev Spark'}</span>
+            </button>
+
+            <button
               style={{
                 background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
                 color: '#ffffff',
