@@ -118,8 +118,27 @@ export function saveMockPayments(store) {
   } catch {}
 }
 
+export function getMockAttendance() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_attendance_store') : null;
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveMockAttendance(store) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_attendance_store', JSON.stringify(store));
+      window.dispatchEvent(new Event('storage'));
+    }
+  } catch {}
+}
+
 const mockPaymentsStore = getMockPayments();
 const mockStudentFeesStore = {};
+const mockAttendanceStore = getMockAttendance();
 
 // Initial mock state
 const initialData = {
@@ -895,9 +914,12 @@ export function handleMockRequest(path, options = {}) {
     const targetClass = initialData.classes.find(c => String(c.id) === String(classId)) || initialData.classes[0];
     const enrolledStudents = initialData.students.filter(s => 
       String(s.classId) === String(classId) || 
-      s.className === targetClass?.name || 
-      s.currentClass === targetClass?.name ||
-      (targetClass?.name && s.className?.includes(targetClass.name.split(' ')[1] || ''))
+      (targetClass && (
+        s.className === targetClass.name || 
+        s.currentClass === targetClass.name ||
+        (s.className && targetClass.name && s.className.toLowerCase() === targetClass.name.toLowerCase()) ||
+        (s.className && targetClass.grade && s.className.includes(targetClass.grade) && targetClass.section && s.className.includes(targetClass.section))
+      ))
     );
     const studentsToUse = enrolledStudents.length > 0 ? enrolledStudents : initialData.students;
 
@@ -909,8 +931,9 @@ export function handleMockRequest(path, options = {}) {
         return {
           studentId: s.id,
           studentNumber: s.studentNumber || s.code || `STD-${1000 + s.id}`,
-          fullName: s.fullName || `${s.firstName} ${s.lastName}`,
+          fullName: s.fullName || `${s.firstName} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName}`,
           firstName: s.firstName,
+          middleName: s.middleName,
           lastName: s.lastName,
           className: s.className || targetClass?.name,
           status: saved ? saved.status : null,
@@ -930,6 +953,7 @@ export function handleMockRequest(path, options = {}) {
         mockAttendanceStore[key][r.studentId] = { status: r.status, note: r.note };
       });
     }
+    saveMockAttendance(mockAttendanceStore);
     return { ok: true, message: 'Bulk attendance recorded' };
   }
   if (cleanPath.includes('/attendance')) {
