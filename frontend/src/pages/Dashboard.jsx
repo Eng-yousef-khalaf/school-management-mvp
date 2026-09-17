@@ -50,32 +50,31 @@ export default function Dashboard({ onNavigate }) {
   const { todayAttendance } = overview || { todayAttendance: { rate: 95, present: 0, absent: 0, late: 0 } };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Welcome Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
         color: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        padding: '24px 28px',
-        marginBottom: '24px',
+        borderRadius: 'var(--radius-md)',
+        padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '16px',
-        boxShadow: 'var(--shadow-md)',
+        gap: '12px',
+        boxShadow: 'var(--shadow-sm)',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: '11.5px', fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', padding: '2px 10px', borderRadius: 'var(--radius-full)', fontSize: '11px', fontWeight: 700, marginBottom: 4 }}>
             <span>📅</span>
             <span>{new Date().toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
-          <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.4px', margin: 0 }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.3px', margin: 0 }}>
             {isRtl ? `مرحباً بك، ${user?.fullName || 'المستخدم'}` : `Welcome back, ${user?.fullName || 'User'}`} 👋
           </h2>
-          <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: 4, maxWidth: 500 }}>
+          <p style={{ fontSize: '12px', color: '#cbd5e1', marginTop: 3, maxWidth: 500 }}>
             {isRtl
               ? 'إليك ملخص مؤشرات الأداء والعمليات اليومية في المدرسة لهذا اليوم.'
               : 'Here is the high-level summary of your school daily operations and performance.'}
@@ -83,12 +82,12 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         {/* Quick Action Shortcuts */}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {(isAdmin || isStaff) && (
             <button
               className="btn btn-primary btn-sm"
               onClick={() => onNavigate('students')}
-              style={{ background: '#4f46e5', borderColor: '#4f46e5', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.4)' }}
+              style={{ background: '#4f46e5', borderColor: '#4f46e5', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)' }}
             >
               <PlusIcon /> {isRtl ? 'إدارة وقبول الطلاب' : 'Admissions'}
             </button>
@@ -101,8 +100,8 @@ export default function Dashboard({ onNavigate }) {
             <AttendanceIcon /> {isRtl ? 'دفتر الحضور' : 'Attendance'}
           </button>
           <button
-            className="btn btn-secondary btn-sm"
             onClick={() => onNavigate('reports')}
+            className="btn btn-secondary btn-sm"
             style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.25)' }}
           >
             <ReportsIcon /> {isRtl ? 'مركز التقارير' : 'Reports'}

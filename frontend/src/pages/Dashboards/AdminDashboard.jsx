@@ -65,67 +65,67 @@ export default function AdminDashboard({ onNavigate }) {
   const fMetrics = overview.facultyMetrics || { totalTeachers: overview.totalTeachers || 15, assignedTeachersCount: 15, pendingTeachersCount: 0, classesCovered: overview.totalClasses || 8, totalClasses: overview.totalClasses || 8, classCoverageRate: 100 };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Admin Executive Banner */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Executive Welcome Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
         color: '#fff',
-        padding: '24px 28px',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.35)',
+        padding: '16px 20px',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 14px rgba(79, 70, 229, 0.25)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 16
+        gap: 12
       }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
             <span>👔</span>
             <span>{isRtl ? 'بوابة المدير العام (صلاحيات كاملة)' : 'Executive Admin Portal (Full Authority)'}</span>
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
             {isRtl ? `مرحباً بك، مدير النظام (${user?.fullName || 'Administrator'})` : `Welcome, Administrator (${user?.fullName || 'Administrator'})`}
           </h2>
-          <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
+          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
             {isRtl
               ? 'متابعة نسب حضور والتزام المعلمين، تقييم الأداء الأكاديمي وتغطية الشعب، وسجل التدقيق والأمان المؤسسي'
               : 'Executive supervision over faculty daily attendance rates, teacher academic performance, and institutional security'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button
             onClick={() => setIsRolloverOpen(true)}
-            className="btn"
-            style={{ background: '#10b981', color: '#fff', border: 'none', fontWeight: 800, boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}
+            className="btn btn-sm"
+            style={{ background: '#10b981', color: '#fff', border: 'none', fontWeight: 800, boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)' }}
           >
-            ✨ {isRtl ? 'تجديد وتفعيل المعلمين للعام الجديد' : 'Reactivate Faculty for New Year'}
+            ✨ {isRtl ? 'تجديد وتفعيل المعلمين للعام الجديد' : 'Reactivate Faculty'}
           </button>
           <button
             onClick={() => onNavigate('teacher-tracker')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: '#fff', color: 'var(--primary-dark)', fontWeight: 800 }}
           >
-            🕒 {isRtl ? 'دفتر دوام المعلمين' : 'Teacher Timecards'}
+            🕒 {isRtl ? 'دفتر دوام المعلمين' : 'Timecards'}
           </button>
           <button
             onClick={() => onNavigate('teachers')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
-            <TeachersIcon /> {isRtl ? 'الهيئة التعليمية' : 'Faculty Directory'}
+            <TeachersIcon /> {isRtl ? 'الهيئة التعليمية' : 'Faculty'}
           </button>
           <button
             onClick={() => onNavigate('fees')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
-            💰 {isRtl ? 'الرسوم والتحصيل' : 'Fees & Accounts'}
+            💰 {isRtl ? 'الرسوم والتحصيل' : 'Fees'}
           </button>
           <button
             onClick={() => onNavigate('users')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
             <UsersIcon /> {isRtl ? 'المستخدمون' : 'Users'}
@@ -134,7 +134,7 @@ export default function AdminDashboard({ onNavigate }) {
       </div>
 
       {/* Admin Executive Stat Cards (Focused Exclusively on Teachers & Performance) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+      <div className="grid-cards-4">
         <StatCard
           title={isRtl ? 'نسبة حضور المعلمين اليوم' : "Today's Teacher Attendance Rate"}
           value={`${tAtt.rate}%`}
@@ -171,22 +171,22 @@ export default function AdminDashboard({ onNavigate }) {
       {/* Executive Financial Oversight & Tuition Health Panel for Admin */}
       {feeSummary && (
         <div className="panel" style={{
-          padding: '22px 26px',
+          padding: '16px 20px',
           background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
           color: '#ffffff',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.3)'
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-sm)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99, 102, 241, 0.25)', border: '1px solid rgba(129, 140, 248, 0.4)', padding: '3px 10px', borderRadius: 14, fontSize: 11.5, fontWeight: 700, marginBottom: 6, color: '#c7d2fe' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99, 102, 241, 0.25)', border: '1px solid rgba(129, 140, 248, 0.4)', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700, marginBottom: 4, color: '#c7d2fe' }}>
                 <span>💰</span>
                 <span>{isRtl ? 'الرقابة المالية المؤسسية العامة للمدير' : 'Executive School Financial Supervision'}</span>
               </div>
-              <h3 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>{isRtl ? 'مؤشر الإيرادات العامة ونسب التحصيل المالي للمدرسة' : 'School Revenue & Tuition Collection Health'}</span>
               </h3>
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94a3b8' }}>
+              <p style={{ margin: '2px 0 0', fontSize: 11.5, color: '#94a3b8' }}>
                 {isRtl
                   ? 'نظرة شمولية على إجمالي الأقساط المقررة، السيولة النقدية المحصلة، والديون المتبقية تحت متابعة قسم شؤون الطلاب (Staff)'
                   : 'High-level financial snapshot of total expected tuition, collected cash flow, and pending balances'}
@@ -195,14 +195,14 @@ export default function AdminDashboard({ onNavigate }) {
 
             <button
               onClick={() => onNavigate('fees')}
-              className="btn"
+              className="btn btn-sm"
               style={{
                 background: '#4f46e5',
                 color: '#ffffff',
                 border: 'none',
                 fontWeight: 800,
-                padding: '9px 18px',
-                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
+                padding: '7px 14px',
+                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)'
               }}
             >
               {isRtl ? 'فتح لوحة الإشراف المالي الكاملة ←' : 'Open Financial Ledger →'}
@@ -210,10 +210,10 @@ export default function AdminDashboard({ onNavigate }) {
           </div>
 
           {/* 4 Mini KPIs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '12px 16px' }}>
-              <div style={{ fontSize: 11.5, color: '#cbd5e1', fontWeight: 700 }}>{isRtl ? 'إجمالي الرسوم المقررة' : 'Expected Tuition'}</div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', marginTop: 4 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 14px' }}>
+              <div style={{ fontSize: 11, color: '#cbd5e1', fontWeight: 700 }}>{isRtl ? 'إجمالي الرسوم المقررة' : 'Expected Tuition'}</div>
+              <div style={{ fontSize: 17, fontWeight: 900, color: '#ffffff', marginTop: 2 }}>
                 {(feeSummary.totalExpected || 0).toLocaleString()} ₪
               </div>
             </div>
@@ -419,66 +419,68 @@ export default function AdminDashboard({ onNavigate }) {
       {/* Admin Quick Controls Hub */}
       <div className="panel">
         <div className="panel-header">
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+          <h3 className="panel-title">
             {isRtl ? 'أدوات الإدارة والرقابة المؤسسية (Executive Controls)' : 'Executive Controls & Administration'}
           </h3>
         </div>
-        <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-          <button
-            onClick={() => onNavigate('teachers')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--success)', fontWeight: 700, fontSize: 15 }}>
-              <TeachersIcon />
-              <span>{isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty Management'}</span>
+        <div style={{ padding: 14 }}>
+          <div className="action-hub-grid">
+            <div
+              onClick={() => onNavigate('teachers')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--success)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--success)' }}>
+                <TeachersIcon />
+                <span>{isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty Management'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'إضافة وتعديل سجلات المعلمين وتخصيص الجداول والشعب' : 'Register teachers, allocate classes and subjects'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'إضافة وتعديل سجلات المعلمين وتخصيص الجداول والشعب' : 'Register teachers, allocate classes and subjects'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('teacher-tracker')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', fontWeight: 700, fontSize: 15 }}>
-              <AttendanceIcon />
-              <span>{isRtl ? 'تقارير ونسب دوام المعلمين' : 'Teacher Attendance Logs'}</span>
+            <div
+              onClick={() => onNavigate('teacher-tracker')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--primary)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--primary)' }}>
+                <AttendanceIcon />
+                <span>{isRtl ? 'تقارير ونسب دوام المعلمين' : 'Teacher Attendance Logs'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'سجل البصمة والدوام اليومي ومتابعة التزام المعلمين' : 'Live timecards, punctuality logs and attendance rates'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'سجل البصمة والدوام اليومي ومتابعة التزام المعلمين' : 'Live timecards, punctuality logs and attendance rates'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('users')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed', fontWeight: 700, fontSize: 15 }}>
-              <UsersIcon />
-              <span>{isRtl ? 'إدارة المستخدمين والأدوار' : 'User Accounts & Roles'}</span>
+            <div
+              onClick={() => onNavigate('users')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid #7c3aed' }}
+            >
+              <div className="action-hub-card-header" style={{ color: '#7c3aed' }}>
+                <UsersIcon />
+                <span>{isRtl ? 'إدارة المستخدمين والأدوار' : 'User Accounts & Roles'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'إنشاء وتعديل وتفعيل حسابات المدراء والمعلمين وشؤون المعلمين والطلاب' : 'Create, activate accounts and assign RBAC roles'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'إنشاء وتعديل وتفعيل حسابات المدراء والمعلمين وشؤون المعلمين والطلاب' : 'Create, activate accounts and assign RBAC roles'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('audit-logs')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--warning)', fontWeight: 700, fontSize: 15 }}>
-              <AuditLogsIcon />
-              <span>{isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail'}</span>
+            <div
+              onClick={() => onNavigate('audit-logs')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--warning)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--warning)' }}>
+                <AuditLogsIcon />
+                <span>{isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'تتبع زمني لكافة التعديلات والحركات الإدارية مع الـIP' : 'Chronological tracking of sensitive operations & IPs'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'تتبع زمني لكافة التعديلات والحركات الإدارية مع الـIP' : 'Chronological tracking of sensitive operations & IPs'}
-            </span>
-          </button>
+          </div>
         </div>
       </div>
 

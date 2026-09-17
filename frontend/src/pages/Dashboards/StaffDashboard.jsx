@@ -87,60 +87,60 @@ export default function StaffDashboard({ onNavigate }) {
   const { todayAttendance } = overview;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Staff Welcome Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #10b981, #059669)',
         color: '#fff',
-        padding: '24px 28px',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+        padding: '16px 20px',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 16
+        gap: 12
       }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
             <span>📋</span>
             <span>{isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Portal'}</span>
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
             {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون المعلمين والطلاب)` : `Welcome, ${user?.fullName || ''} (Faculty & Student Affairs)`}
           </h2>
-          <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
+          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
             {isRtl
               ? 'إدارة شؤون المعلمين وتوزيع الشعب والمناهج، تسجيل وتسكين الطلاب، ومتابعة سجلات الدوام الأكاديمي والنتائج'
               : 'Faculty management, subject allocations, student admissions, attendance, and transcripts'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button
             onClick={() => onNavigate('teachers')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: '#fff', color: '#059669', fontWeight: 800 }}
           >
             👨‍🏫 {isRtl ? 'دليل المعلمين وتعيين الشعب' : 'Teachers & Allocation'}
           </button>
           <button
             onClick={() => onNavigate('teacher-tracker')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
             🕒 {isRtl ? 'متابعة المعلمين والدوام' : 'Track Teachers'}
           </button>
           <button
             onClick={() => onNavigate('fees')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
             💰 {isRtl ? 'الرسوم والأقساط' : 'Fees & Payments'}
           </button>
           <button
             onClick={() => onNavigate('students')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
             <PlusIcon /> {isRtl ? 'تسجيل الطلاب' : 'Register Students'}
@@ -152,51 +152,51 @@ export default function StaffDashboard({ onNavigate }) {
       {data.pendingTeachersList && data.pendingTeachersList.length > 0 && (
         <div style={{
           background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-          border: '2px solid #f59e0b',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px 24px',
-          boxShadow: '0 4px 14px rgba(245, 158, 11, 0.18)'
+          border: '1px solid #f59e0b',
+          borderRadius: 'var(--radius-md)',
+          padding: '14px 18px',
+          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.12)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 26 }}>🔔</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 20 }}>🔔</span>
               <div>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#92400e' }}>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#92400e' }}>
                   {isRtl ? 'تنبيه: يوجد معلمون جدد تم تسجيلهم بحاجة لاستكمال الشعب والمواد' : 'Action Required: Newly Registered Teachers Awaiting Class & Subject Allocation'}
                 </h3>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#b45309' }}>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#b45309' }}>
                   {isRtl
                     ? `قامت الإدارة بإضافة ${data.pendingTeachersList.length} معلم جديد. يرجى استكمال تعيين الشعب والمقررات الدراسية المناسبة لكل منهم:`
                     : `Administrator created ${data.pendingTeachersList.length} new teacher record(s). Please assign their classes and subjects below:`}
                 </p>
               </div>
             </div>
-            <span className="badge" style={{ background: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 14px' }}>
+            <span className="badge" style={{ background: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: 11.5, padding: '4px 10px' }}>
               {data.pendingTeachersList.length} {isRtl ? 'معلم بانتظار التعيين' : 'Pending Allocation'}
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
             {data.pendingTeachersList.map(t => (
               <div
                 key={t.id}
                 style={{
                   background: '#ffffff',
                   border: '1px solid #fde68a',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '14px 16px',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '10px 14px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: 12,
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                  gap: 10,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 14, color: '#1e293b' }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, color: '#1e293b' }}>
                     {t.firstName} {t.lastName}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
                     <span>{t.employeeNo}</span> • <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{t.specialty}</span>
                   </div>
                 </div>
@@ -210,10 +210,9 @@ export default function StaffDashboard({ onNavigate }) {
                     background: '#f59e0b',
                     color: '#ffffff',
                     fontWeight: 800,
-                    fontSize: 12,
-                    padding: '8px 14px',
-                    whiteSpace: 'nowrap',
-                    boxShadow: '0 2px 5px rgba(245, 158, 11, 0.3)'
+                    fontSize: 11,
+                    padding: '6px 10px',
+                    boxShadow: '0 2px 4px rgba(245, 158, 11, 0.25)'
                   }}
                 >
                   ✏️ {isRtl ? 'استكمال التعيين الآن' : 'Assign Classes'}
@@ -229,43 +228,43 @@ export default function StaffDashboard({ onNavigate }) {
         <div style={{
           background: '#fff',
           border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px 24px',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 18px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 16,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+          gap: 12,
+          boxShadow: 'var(--shadow-sm)'
         }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>👨‍🏫</span>
-              <h4 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 16 }}>👨‍🏫</span>
+              <h4 style={{ fontSize: 13.5, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
                 {isRtl ? 'حالة دوام وحضور المعلمين اليوم:' : "Today's Teacher Attendance Status:"}
               </h4>
             </div>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0' }}>
+            <p style={{ fontSize: 11.5, color: 'var(--text-muted)', margin: '3px 0 0' }}>
               {isRtl
                 ? `إجمالي الهيئة التعليمية: ${teacherAttSummary.total} معلماً | حاضر: ${teacherAttSummary.present} | متأخر: ${teacherAttSummary.late} | غائب / إجازة: ${teacherAttSummary.absent + teacherAttSummary.excused}`
                 : `Total Faculty: ${teacherAttSummary.total} | Present: ${teacherAttSummary.present} | Late: ${teacherAttSummary.late} | Absent/Excused: ${teacherAttSummary.absent + teacherAttSummary.excused}`}
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)', fontWeight: 700, padding: '4px 8px', fontSize: 11.5 }}>
               🟢 {teacherAttSummary.present} {isRtl ? 'حاضر' : 'Present'}
             </span>
-            <span className="badge" style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+            <span className="badge" style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontWeight: 700, padding: '4px 8px', fontSize: 11.5 }}>
               🟡 {teacherAttSummary.late} {isRtl ? 'متأخر' : 'Late'}
             </span>
-            <span className="badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+            <span className="badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)', fontWeight: 700, padding: '4px 8px', fontSize: 11.5 }}>
               🔴 {teacherAttSummary.absent} {isRtl ? 'غائب' : 'Absent'}
             </span>
             <button
               onClick={() => onNavigate('teacher-tracker')}
               className="btn btn-primary btn-sm"
-              style={{ fontWeight: 700, marginRight: isRtl ? 8 : 0, marginLeft: isRtl ? 0 : 8 }}
+              style={{ fontWeight: 700, marginRight: isRtl ? 6 : 0, marginLeft: isRtl ? 0 : 6 }}
             >
               {isRtl ? 'فتح سجل المتابعة التفصيلي ←' : 'Open Tracker →'}
             </button>
@@ -274,16 +273,16 @@ export default function StaffDashboard({ onNavigate }) {
       )}
 
       {/* Parent & Student Rapid Inquiry Widget */}
-      <div className="panel" style={{ padding: '24px', border: '2px solid rgba(16, 185, 129, 0.25)', borderRadius: 'var(--radius-lg)', background: '#fff' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+      <div className="panel" style={{ padding: '16px 18px', border: '1.5px solid rgba(16, 185, 129, 0.25)', background: '#fff' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 22 }}>🔍</span>
-              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 18 }}>🔍</span>
+              <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
                 {isRtl ? 'مركز استعلام أولياء الأمور والبحث السريع عن الطلاب' : 'Parent Inquiry & Instant Student 360 Lookup'}
               </h3>
             </div>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0' }}>
+            <p style={{ fontSize: 11.5, color: 'var(--text-muted)', margin: '2px 0 0' }}>
               {isRtl
                 ? 'استعلم فورياً عن درجات وسجل حضور أي طالب عند مراجعة ولي الأمر، مع إمكانية طباعة إفادة رسمية فورية'
                 : 'Instantly lookup student academic standing, exams, and attendance logs when a parent inquires'}
@@ -298,22 +297,22 @@ export default function StaffDashboard({ onNavigate }) {
         </div>
 
         {/* Live Search Input */}
-        <div style={{ position: 'relative', marginBottom: 16 }}>
+        <div style={{ position: 'relative', marginBottom: 12 }}>
           <input
             type="text"
             className="form-input"
             style={{
-              padding: isRtl ? '12px 42px 12px 16px' : '12px 16px 12px 42px',
-              fontSize: '15px',
-              borderRadius: 'var(--radius-md)',
-              border: '2px solid var(--border-color)',
+              padding: isRtl ? '9px 38px 9px 12px' : '9px 12px 9px 38px',
+              fontSize: '13px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1.5px solid var(--border-color)',
               background: '#f8fafc'
             }}
             placeholder={isRtl ? 'اكتب اسم الطالب، الرقم الأكاديمي، اسم ولي الأمر، أو رقم هاتف ولي الأمر...' : 'Search by student name, ID, parent name, or parent phone number...'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <span style={{ position: 'absolute', [isRtl ? 'right' : 'left']: '14px', top: '14px', fontSize: '18px', color: 'var(--text-muted)' }}>
+          <span style={{ position: 'absolute', [isRtl ? 'right' : 'left']: '12px', top: '10px', fontSize: '15px', color: 'var(--text-muted)' }}>
             🔍
           </span>
           {searchQuery && (
@@ -321,13 +320,13 @@ export default function StaffDashboard({ onNavigate }) {
               onClick={() => setSearchQuery('')}
               style={{
                 position: 'absolute',
-                [isRtl ? 'left' : 'right']: '12px',
-                top: '12px',
+                [isRtl ? 'left' : 'right']: '10px',
+                top: '9px',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 color: 'var(--text-muted)',
-                fontSize: '14px'
+                fontSize: '13px'
               }}
             >
               ✕
@@ -337,31 +336,31 @@ export default function StaffDashboard({ onNavigate }) {
 
         {/* Search Results Display */}
         {searchLoading ? (
-          <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)', fontSize: 14 }}>
+          <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-muted)', fontSize: 13 }}>
             {isRtl ? 'جاري البحث في قاعدة البيانات...' : 'Searching student records...'}
           </div>
         ) : searchResults.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 10 }}>
             {searchResults.map((s) => (
               <div
                 key={s.id}
                 style={{
                   border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: 16,
+                  borderRadius: 'var(--radius-sm)',
+                  padding: 12,
                   background: '#fff',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 10,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                  gap: 8,
+                  boxShadow: 'var(--shadow-xs)',
                   transition: 'var(--transition)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div
                     style={{
-                      width: 44,
-                      height: 44,
+                      width: 36,
+                      height: 36,
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, #10b981, #059669)',
                       color: '#fff',
@@ -369,23 +368,23 @@ export default function StaffDashboard({ onNavigate }) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 800,
-                      fontSize: 18
+                      fontSize: 15
                     }}
                   >
                     {s.firstName?.charAt(0)}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <strong style={{ fontSize: 15 }}>{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</strong>
-                      <span className="badge badge-primary" style={{ fontSize: 11 }}>{s.currentClass || (isRtl ? 'غير مسجل' : 'Unassigned')}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <strong style={{ fontSize: 13 }}>{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</strong>
+                      <span className="badge badge-primary" style={{ fontSize: 10.5 }}>{s.currentClass || (isRtl ? 'غير مسجل' : 'Unassigned')}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                       {s.studentNumber}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 6, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 4, fontSize: 11.5, display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--text-muted)' }}>{isRtl ? 'ولي الأمر:' : 'Guardian:'}</span>
                     <strong>{s.parentName || (isRtl ? 'غير محدد' : '—')}</strong>
@@ -402,7 +401,7 @@ export default function StaffDashboard({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
                   <button
                     onClick={() => onNavigate('student-details', { studentId: s.id })}
                     className="btn btn-primary btn-sm"
@@ -415,13 +414,13 @@ export default function StaffDashboard({ onNavigate }) {
             ))}
           </div>
         ) : searchQuery.trim() !== '' ? (
-          <div style={{ textAlign: 'center', padding: '24px', background: '#f8fafc', borderRadius: 8, color: 'var(--text-muted)' }}>
+          <div style={{ textAlign: 'center', padding: '18px', background: '#f8fafc', borderRadius: 6, color: 'var(--text-muted)', fontSize: 12.5 }}>
             {isRtl ? `لم يتم العثور على طالب يطابق: "${searchQuery}"` : `No students found matching "${searchQuery}"`}
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: 8, border: '1px dashed rgba(16, 185, 129, 0.3)' }}>
-            <span style={{ fontSize: 20 }}>💡</span>
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: 6, border: '1px dashed rgba(16, 185, 129, 0.3)' }}>
+            <span style={{ fontSize: 16 }}>💡</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               {isRtl
                 ? 'نصيحة لشؤون الطلاب: عندما يتصل ولي أمر أو يحضر للمدرسة، اكتب اسمه أو رقم هاتفه أو اسم ابنه مباشرة أعلاه لرؤية درجاته، حضوره، وطباعة إفادة رسمية فوراً.'
                 : 'Registrar Tip: When a parent calls or visits, search by their phone number or child name above to instantly inspect grades, attendance, and print statements.'}
@@ -465,94 +464,96 @@ export default function StaffDashboard({ onNavigate }) {
       {/* Staff Registrar Quick Action Hub */}
       <div className="panel">
         <div className="panel-header">
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+          <h3 className="panel-title">
             {isRtl ? 'المهام الأساسية لشؤون الطلاب (Registrar Operations)' : 'Registrar Operations & Tools'}
           </h3>
         </div>
-        <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-          <button
-            onClick={() => onNavigate('students')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', fontWeight: 700, fontSize: 15 }}>
-              <StudentsIcon />
-              <span>{isRtl ? 'سجل الطلاب وقبول جديد' : 'Student Directory & Add'}</span>
+        <div style={{ padding: 14 }}>
+          <div className="action-hub-grid">
+            <div
+              onClick={() => onNavigate('students')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--primary)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--primary)' }}>
+                <StudentsIcon />
+                <span>{isRtl ? 'سجل الطلاب وقبول جديد' : 'Student Directory & Add'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'إضافة وتعديل بيانات الطلاب الشخصية وتفاصيل أولياء الأمور' : 'Create, edit student demographics and parent details'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'إضافة وتعديل بيانات الطلاب الشخصية وتفاصيل أولياء الأمور' : 'Create, edit student demographics and parent details'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('enrollment')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--success)', fontWeight: 700, fontSize: 15 }}>
-              <EnrollmentIcon />
-              <span>{isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment'}</span>
+            <div
+              onClick={() => onNavigate('enrollment')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--success)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--success)' }}>
+                <EnrollmentIcon />
+                <span>{isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'توزيع الطلاب على الشعب الدراسية للسنة الحالية' : 'Assign students to active class sections'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'توزيع الطلاب على الشعب الدراسية للسنة الحالية' : 'Assign students to active class sections'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('attendance-reports')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--secondary)', fontWeight: 700, fontSize: 15 }}>
-              <AttendanceIcon />
-              <span>{isRtl ? 'تقارير الحضور والإنذارات' : 'Attendance Reports'}</span>
+            <div
+              onClick={() => onNavigate('attendance-reports')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--secondary)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--secondary)' }}>
+                <AttendanceIcon />
+                <span>{isRtl ? 'تقارير الحضور والإنذارات' : 'Attendance Reports'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'متابعة نسب الغياب واستخراج كشوف الحضور الشهرية' : 'Monitor absenteeism and export monthly attendance'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'متابعة نسب الغياب واستخراج كشوف الحضور الشهرية' : 'Monitor absenteeism and export monthly attendance'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('teacher-tracker')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0d9488', fontWeight: 700, fontSize: 15 }}>
-              <span>🕒</span>
-              <span>{isRtl ? 'سجل متابعة حضور المعلمين' : 'Teacher Presence Tracker'}</span>
+            <div
+              onClick={() => onNavigate('teacher-tracker')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid #0d9488' }}
+            >
+              <div className="action-hub-card-header" style={{ color: '#0d9488' }}>
+                <span>🕒</span>
+                <span>{isRtl ? 'سجل متابعة حضور المعلمين' : 'Teacher Presence Tracker'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'تتبع حضور وتأخير وغياب المعلمين وتسجيل الملاحظات' : 'Monitor teacher check-ins, punctuality, and leaves'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'تتبع حضور وتأخير وغياب المعلمين وتسجيل الملاحظات' : 'Monitor teacher check-ins, punctuality, and leaves'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('grade-reports')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', fontWeight: 700, fontSize: 15 }}>
-              <span>📊</span>
-              <span>{isRtl ? 'كشوف النتائج والشهادات الجاهزة' : 'Ready Grade Reports'}</span>
+            <div
+              onClick={() => onNavigate('grade-reports')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid #6366f1' }}
+            >
+              <div className="action-hub-card-header" style={{ color: '#6366f1' }}>
+                <span>📊</span>
+                <span>{isRtl ? 'كشوف النتائج والشهادات الجاهزة' : 'Ready Grade Reports'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'استعراض درجات الطلاب المرفوعة من المعلمين واستخراج الشهادات' : 'Review submitted student exam grades and transcripts'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'استعراض درجات الطلاب المرفوعة من المعلمين واستخراج الشهادات' : 'Review submitted student exam grades and transcripts'}
-            </span>
-          </button>
 
-          <button
-            onClick={() => onNavigate('reports')}
-            className="btn"
-            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--warning)', fontWeight: 700, fontSize: 15 }}>
-              <ReportsIcon />
-              <span>{isRtl ? 'مركز تقارير Excel الشامل' : 'Excel Reports Hub'}</span>
+            <div
+              onClick={() => onNavigate('reports')}
+              className="action-hub-card"
+              style={{ borderInlineStart: '4px solid var(--warning)' }}
+            >
+              <div className="action-hub-card-header" style={{ color: 'var(--warning)' }}>
+                <ReportsIcon />
+                <span>{isRtl ? 'مركز تقارير Excel الشامل' : 'Excel Reports Hub'}</span>
+              </div>
+              <p className="action-hub-card-desc">
+                {isRtl ? 'تصدير كشوف الدرجات، القوائم المدرسية، والإحصائيات' : 'Export grade sheets, rosters, and statistics to Excel'}
+              </p>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {isRtl ? 'تصدير كشوف الدرجات، القوائم المدرسية، والإحصائيات' : 'Export grade sheets, rosters, and statistics to Excel'}
-            </span>
-          </button>
+          </div>
         </div>
       </div>
 

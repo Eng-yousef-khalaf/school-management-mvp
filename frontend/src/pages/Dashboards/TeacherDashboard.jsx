@@ -51,46 +51,46 @@ export default function TeacherDashboard({ onNavigate }) {
   const totalAssignedStudents = safeClassesList.reduce((acc, c) => acc + (c._count?.enrollments || c.studentCount || 0), 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Teacher Welcome Role Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #0ea5e9, #4f46e5)',
         color: '#fff',
-        padding: '24px 28px',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: '0 10px 25px -5px rgba(14, 165, 233, 0.3)',
+        padding: '16px 20px',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 14px rgba(14, 165, 233, 0.25)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 16
+        gap: 12
       }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
             <span>👨‍🏫</span>
             <span>{isRtl ? 'بوابة المعلم المعتمدة' : 'Official Teacher Portal'}</span>
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
             {isRtl ? `أهلاً بك، أستاذ ${user?.fullName || ''}` : `Welcome back, Instructor ${user?.fullName || ''}`}
           </h2>
-          <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
+          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
             {isRtl
               ? 'مساحة العمل المخصصة لمتابعة صفوفك، رصد الحضور اليومي، وإدخال درجات وتقييمات الطلاب'
               : 'Your dedicated workspace for managing assigned classes, recording daily attendance, and submitting exam grades'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => onNavigate('attendance')}
-            className="btn"
-            style={{ background: '#fff', color: 'var(--primary)', fontWeight: 700 }}
+            className="btn btn-sm"
+            style={{ background: '#fff', color: 'var(--primary)', fontWeight: 800 }}
           >
             <AttendanceIcon /> {isRtl ? 'رصد الحضور اليوم' : 'Mark Today Attendance'}
           </button>
           <button
             onClick={() => onNavigate('grades')}
-            className="btn"
+            className="btn btn-sm"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
             <GradesIcon /> {isRtl ? 'رصد الدرجات' : 'Enter Grades'}
@@ -134,18 +134,18 @@ export default function TeacherDashboard({ onNavigate }) {
       <div className="panel">
         <div className="panel-header">
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+            <h3 className="panel-title">
               {isRtl ? 'صفوفك ومقرراتك الدراسية (My Teaching Sections)' : 'My Teaching Sections & Classes'}
             </h3>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            <p className="panel-subtitle">
               {isRtl ? 'اختر الصف لاتخاذ إجراء مباشر برصد الحضور أو إدخال درجات المادة' : 'Select a section to immediately record attendance or enter grades'}
             </p>
           </div>
         </div>
 
-        <div style={{ padding: 20 }}>
+        <div style={{ padding: 14 }}>
           {safeClassesList.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
               {safeClassesList.map((cls) => (
                 <div
                   key={cls.id}
@@ -153,19 +153,19 @@ export default function TeacherDashboard({ onNavigate }) {
                     background: 'var(--bg-main)',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--border-color)',
-                    padding: 18,
+                    padding: 14,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 14,
+                    gap: 10,
                     transition: 'var(--transition)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
                         {cls.name}
                       </h4>
-                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
                         {cls.grade} {cls.section ? `- ${cls.section}` : ''}
                       </span>
                     </div>
