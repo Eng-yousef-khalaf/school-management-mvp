@@ -21,6 +21,103 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [storageData, setStorageData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // overview | storage | branding
   
+  // School White-Label & Identity Form State
+  const [brandForm, setBrandForm] = useState({
+    schoolNameAr: config.schoolNameAr || 'مدرسة النور النموذجية',
+    schoolNameEn: config.schoolNameEn || 'Al-Noor Model School',
+    schoolSloganAr: config.schoolSloganAr || 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
+    schoolSloganEn: config.schoolSloganEn || 'Comprehensive Academic & School Operations Platform',
+    schoolCode: config.schoolCode || 'SCH-001',
+    logoUrl: config.logoUrl || '',
+    primaryColor: config.primaryColor || '#4f46e5',
+    primaryHover: config.primaryHover || '#4338ca',
+    allocatedStorageMb: config.allocatedStorageMb || 500,
+    supportEmail: config.supportEmail || 'support@school-management.dev',
+    supportPhone: config.supportPhone || '+966 50 000 0000',
+  });
+
+  // Sync brandForm if config changes
+  useEffect(() => {
+    setBrandForm({
+      schoolNameAr: config.schoolNameAr || '',
+      schoolNameEn: config.schoolNameEn || '',
+      schoolSloganAr: config.schoolSloganAr || '',
+      schoolSloganEn: config.schoolSloganEn || '',
+      schoolCode: config.schoolCode || 'SCH-001',
+      logoUrl: config.logoUrl || '',
+      primaryColor: config.primaryColor || '#4f46e5',
+      primaryHover: config.primaryHover || '#4338ca',
+      allocatedStorageMb: config.allocatedStorageMb || 500,
+      supportEmail: config.supportEmail || 'support@school-management.dev',
+      supportPhone: config.supportPhone || '+966 50 000 0000',
+    });
+  }, [config]);
+
+  // Curated Professional SaaS Theme Color Presets
+  const COLOR_PRESETS = [
+    { name: 'Indigo SaaS', primary: '#4f46e5', hover: '#4338ca' },
+    { name: 'Emerald Green', primary: '#059669', hover: '#047857' },
+    { name: 'Sapphire Blue', primary: '#2563eb', hover: '#1d4ed8' },
+    { name: 'Sky Cyan', primary: '#0284c7', hover: '#0369a1' },
+    { name: 'Royal Purple', primary: '#7c3aed', hover: '#6d28d9' },
+    { name: 'Ruby Crimson', primary: '#dc2626', hover: '#b91c1c' },
+    { name: 'Amber Gold', primary: '#d97706', hover: '#b45309' },
+    { name: 'Midnight Slate', primary: '#0f172a', hover: '#020617' },
+  ];
+
+  const handleLogoFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error(isRtl ? 'حجم الملف يتجاوز 4 ميجابايت' : 'File size exceeds 4MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const dataUrl = uploadEvent.target.result;
+      setBrandForm((prev) => ({ ...prev, logoUrl: dataUrl }));
+      toast.success(isRtl ? 'تم تحميل الشعار بنجاح للمعاينة!' : 'Logo uploaded for preview!');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveBranding = (e) => {
+    e?.preventDefault?.();
+    updateSchoolBranding({
+      schoolNameAr: brandForm.schoolNameAr.trim() || 'نظام إدارة المدرسة الذكي',
+      schoolNameEn: brandForm.schoolNameEn.trim() || 'Smart School Management System',
+      schoolSloganAr: brandForm.schoolSloganAr.trim() || '',
+      schoolSloganEn: brandForm.schoolSloganEn.trim() || '',
+      schoolCode: brandForm.schoolCode.trim() || 'SCH-001',
+      logoUrl: brandForm.logoUrl,
+      primaryColor: brandForm.primaryColor,
+      primaryHover: brandForm.primaryHover || brandForm.primaryColor,
+      allocatedStorageMb: Number(brandForm.allocatedStorageMb) || 500,
+      supportEmail: brandForm.supportEmail,
+      supportPhone: brandForm.supportPhone,
+    });
+    toast.success(isRtl ? 'تم حفظ وتعميم خصائص وألوان وشعار المدرسة على كافة أرجاء المنظومة بنجاح!' : 'School branding and colors updated & propagated system-wide!');
+  };
+
+  const handleResetBranding = () => {
+    const defaultObj = {
+      schoolNameAr: 'مدرسة النور النموذجية',
+      schoolNameEn: 'Al-Noor Model School',
+      schoolSloganAr: 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
+      schoolSloganEn: 'Comprehensive Academic & School Operations Platform',
+      schoolCode: 'SCH-001',
+      logoUrl: '',
+      primaryColor: '#4f46e5',
+      primaryHover: '#4338ca',
+      allocatedStorageMb: 500,
+      supportEmail: 'support@school-management.dev',
+      supportPhone: '+966 50 000 0000',
+    };
+    setBrandForm(defaultObj);
+    updateSchoolBranding(defaultObj);
+    toast.success(isRtl ? 'تمت استعادة إعدادات الهوية والشعار الافتراضية بنجاح' : 'Branding restored to defaults');
+  };
+
   // Handover Slip State
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
   const [handoverData, setHandoverData] = useState({
@@ -474,15 +571,393 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         </div>
       )}
 
-      {/* TAB 3: BRANDING WHITE-LABEL */}
+      {/* TAB 3: BRANDING WHITE-LABEL SUITE */}
       {activeTab === 'branding' && (
-        <div className="panel" style={{ padding: 22 }}>
-          <h3 className="panel-title" style={{ marginBottom: 14 }}>{isRtl ? 'تخصيص الهوية والشعار' : 'Instance Branding & Identity'}</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <SchoolLogo size={56} />
-            <div>
-              <h4 style={{ fontSize: 14, fontWeight: 700 }}>{config.schoolNameAr}</h4>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{config.schoolSloganAr}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 20 }}>
+          {/* Controls Column */}
+          <div className="panel" style={{ padding: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, borderBottom: '1px solid var(--border-color)', paddingBottom: 12 }}>
+              <div>
+                <h3 className="panel-title" style={{ fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>🎨</span>
+                  <span>{isRtl ? 'تخصيص هوية وألوان وشعار المدرسة' : 'School Branding & Identity Suite'}</span>
+                </h3>
+                <p className="panel-subtitle">
+                  {isRtl
+                    ? 'تحكم حصري لمهندس المنظومة لتحديد اسم المدرسة، الشعار المعتمد، ونظام الألوان المؤسسي.'
+                    : 'Exclusive developer controls for school name, custom logo, theme colors, and storage limits.'}
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveBranding} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {/* Section 1: School Names & Codes */}
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 10 }}>
+                  {isRtl ? '١. بيانات ومسمى المدرسة الأساسي:' : '1. School Details & Codes:'}
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label className="form-label">{isRtl ? 'اسم المدرسة (بالعربية):' : 'School Name (Arabic):'}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={brandForm.schoolNameAr}
+                      onChange={(e) => setBrandForm({ ...brandForm, schoolNameAr: e.target.value })}
+                      placeholder="مدرسة النور النموذجية"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">{isRtl ? 'اسم المدرسة (بالإنجليزية):' : 'School Name (English):'}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={brandForm.schoolNameEn}
+                      onChange={(e) => setBrandForm({ ...brandForm, schoolNameEn: e.target.value })}
+                      placeholder="Al-Noor Model School"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">{isRtl ? 'كود المنظومة (School Code):' : 'School Code:'}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={brandForm.schoolCode}
+                      onChange={(e) => setBrandForm({ ...brandForm, schoolCode: e.target.value })}
+                      placeholder="SCH-001"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">{isRtl ? 'سعة التخزين المخصصة (MB):' : 'Allocated Storage (MB):'}</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={brandForm.allocatedStorageMb}
+                      onChange={(e) => setBrandForm({ ...brandForm, allocatedStorageMb: e.target.value })}
+                      placeholder="500"
+                      min="50"
+                      max="50000"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
+                  <div>
+                    <label className="form-label">{isRtl ? 'الشعار اللفظي (عربي):' : 'Slogan (Arabic):'}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={brandForm.schoolSloganAr}
+                      onChange={(e) => setBrandForm({ ...brandForm, schoolSloganAr: e.target.value })}
+                      placeholder="المنصة الأكاديمية الشاملة"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">{isRtl ? 'الشعار اللفظي (إنجليزي):' : 'Slogan (English):'}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={brandForm.schoolSloganEn}
+                      onChange={(e) => setBrandForm({ ...brandForm, schoolSloganEn: e.target.value })}
+                      placeholder="Comprehensive Academic Platform"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Logo Uploader */}
+              <div style={{ background: 'var(--bg-main)', padding: 16, borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 8 }}>
+                  {isRtl ? '٢. شعار المدرسة المعتمد:' : '2. Official School Emblem / Logo:'}
+                </label>
+
+                <input
+                  type="file"
+                  ref={logoFileInputRef}
+                  onChange={handleLogoFileUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/svg+xml, image/webp"
+                  style={{ display: 'none' }}
+                />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '10px 0' }}>
+                  <div
+                    style={{
+                      width: 68,
+                      height: 68,
+                      borderRadius: 'var(--radius-md)',
+                      border: '2px dashed var(--border-color)',
+                      background: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 4,
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {brandForm.logoUrl ? (
+                      <img
+                        src={brandForm.logoUrl}
+                        alt="Logo Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <SchoolLogo size={52} />
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => logoFileInputRef.current?.click()}
+                        style={{ fontWeight: 700 }}
+                      >
+                        📁 {isRtl ? 'رفع صورة من جهازك' : 'Upload Local Image'}
+                      </button>
+
+                      {brandForm.logoUrl && (
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => setBrandForm({ ...brandForm, logoUrl: '' })}
+                        >
+                          ❌ {isRtl ? 'إلغاء الشعار المخصص' : 'Reset Logo'}
+                        </button>
+                      )}
+                    </div>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      {isRtl ? 'يدعم PNG, JPG, SVG شفاف بحد أقصى 4MB' : 'Supports PNG, JPG, SVG transparent (Max 4MB)'}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 10 }}>
+                  <label className="form-label" style={{ fontSize: 11.5 }}>
+                    {isRtl ? 'أو أدخل رابط الشعار المباشر (URL):' : 'Or direct Image URL:'}
+                  </label>
+                  <input
+                    type="url"
+                    className="form-input"
+                    style={{ fontSize: 12 }}
+                    placeholder="https://example.com/logo.png"
+                    value={brandForm.logoUrl.startsWith('data:') ? '' : brandForm.logoUrl}
+                    onChange={(e) => setBrandForm({ ...brandForm, logoUrl: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Section 3: Color Palette & Presets */}
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 8 }}>
+                  {isRtl ? '٣. نظام الألوان المؤسسي والهوية البصرية:' : '3. Brand Color Palette:'}
+                </label>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+                  {COLOR_PRESETS.map((p) => {
+                    const isSelected = brandForm.primaryColor.toLowerCase() === p.primary.toLowerCase();
+                    return (
+                      <button
+                        key={p.name}
+                        type="button"
+                        onClick={() => setBrandForm({ ...brandForm, primaryColor: p.primary, primaryHover: p.hover })}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '6px 10px',
+                          borderRadius: 'var(--radius-md)',
+                          border: isSelected ? '2px solid #0f172a' : '1px solid var(--border-color)',
+                          background: isSelected ? 'var(--bg-card)' : '#ffffff',
+                          cursor: 'pointer',
+                          boxShadow: isSelected ? '0 0 0 2px var(--primary)' : 'none',
+                          transition: 'var(--transition)',
+                        }}
+                      >
+                        <div style={{ width: 14, height: 14, borderRadius: '50%', background: p.primary, flexShrink: 0 }} />
+                        <span style={{ fontSize: 11, fontWeight: isSelected ? 800 : 600, color: 'var(--text-main)' }}>{p.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-main)', padding: 10, borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label className="form-label" style={{ margin: 0, fontSize: 12 }}>{isRtl ? 'اللون الأساسي:' : 'Primary Color:'}</label>
+                    <input
+                      type="color"
+                      value={brandForm.primaryColor}
+                      onChange={(e) => setBrandForm({ ...brandForm, primaryColor: e.target.value, primaryHover: e.target.value })}
+                      style={{ width: 36, height: 32, border: 'none', borderRadius: 4, cursor: 'pointer', background: 'transparent' }}
+                    />
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700 }}>{brandForm.primaryColor}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label className="form-label" style={{ margin: 0, fontSize: 12 }}>{isRtl ? 'لون التمرير (Hover):' : 'Hover Color:'}</label>
+                    <input
+                      type="color"
+                      value={brandForm.primaryHover}
+                      onChange={(e) => setBrandForm({ ...brandForm, primaryHover: e.target.value })}
+                      style={{ width: 36, height: 32, border: 'none', borderRadius: 4, cursor: 'pointer', background: 'transparent' }}
+                    />
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700 }}>{brandForm.primaryHover}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: 14 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleResetBranding}
+                >
+                  ↺ {isRtl ? 'استعادة الافتراضي' : 'Reset Defaults'}
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ fontWeight: 800, padding: '9px 20px', background: brandForm.primaryColor, borderColor: brandForm.primaryColor }}
+                >
+                  💾 {isRtl ? 'حفظ وتعميم الخصائص فوراً على المنظومة' : 'Save & Propagate School Identity'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Live Preview Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="panel" style={{ padding: 22 }}>
+              <h3 className="panel-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>👁️</span>
+                <span>{isRtl ? 'معاينة فورية للهوية والألوان' : 'Live Brand & UI Preview'}</span>
+              </h3>
+              <p className="panel-subtitle" style={{ marginBottom: 16 }}>
+                {isRtl ? 'هكذا ستظهر الهوية في شريط التنقل، الشهادات، والبطاقات المدرسية:' : 'Live simulation across header navigation and reports:'}
+              </p>
+
+              {/* Simulated Header */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: 'var(--shadow-sm)',
+                  marginBottom: 16,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 'var(--radius-md)',
+                      background: '#ffffff',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 2,
+                    }}
+                  >
+                    {brandForm.logoUrl ? (
+                      <img src={brandForm.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <SchoolLogo size={32} />
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>
+                      {brandForm.schoolNameAr || 'مدرسة النور النموذجية'}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                      {brandForm.schoolSloganAr || 'المنصة الأكاديمية الشاملة'}
+                    </div>
+                  </div>
+                </div>
+
+                <span
+                  style={{
+                    background: `${brandForm.primaryColor}18`,
+                    color: brandForm.primaryColor,
+                    padding: '3px 10px',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: 11,
+                    fontWeight: 800,
+                  }}
+                >
+                  {brandForm.schoolCode || 'SCH-001'}
+                </span>
+              </div>
+
+              {/* Simulated Action Components */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div style={{ background: 'var(--bg-main)', padding: 14, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                    {isRtl ? 'زر النظام الأساسي' : 'Primary Button'}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      width: '100%',
+                      background: brandForm.primaryColor,
+                      color: '#ffffff',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {isRtl ? 'تسجيل جديد' : 'Submit Form'}
+                  </button>
+                </div>
+
+                <div style={{ background: 'var(--bg-main)', padding: 14, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                    {isRtl ? 'شعار التقارير والشهادات' : 'Certificates Emblem'}
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${brandForm.primaryColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: brandForm.primaryColor, fontSize: 14 }}>
+                      🎓
+                    </div>
+                    <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-main)' }}>
+                      {isRtl ? 'شهادة معتمدة' : 'Official Certificate'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Developer Notice */}
+              <div
+                style={{
+                  background: 'rgba(79, 70, 229, 0.05)',
+                  border: '1px solid rgba(79, 70, 229, 0.2)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: 12,
+                  fontSize: 12,
+                  color: 'var(--text-main)',
+                  display: 'flex',
+                  gap: 8,
+                }}
+              >
+                <span>⚡</span>
+                <span style={{ lineHeight: 1.5 }}>
+                  {isRtl
+                    ? 'يتم تعميم هذه الخصائص تلقائياً على واجهات المعلم، المدير، شؤون الطلاب، وبوابة الدخول وكافة الشهادات والتقارير التنفيذية.'
+                    : 'Changes immediately apply across Student, Teacher, Admin portals, Login screen, and PDF/Print certificates.'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -493,24 +968,123 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         <Modal
           isOpen={isHandoverModalOpen}
           onClose={() => setIsHandoverModalOpen(false)}
-          title={isRtl ? 'بطاقة تسليم المنصة للمدير العام' : 'Delivery Handover Slip'}
+          title={isRtl ? '📋 بطاقة تسليم المنظومة الذكية لإدارة المدرسة' : 'School System Handover & Delivery Slip'}
+          size="lg"
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ background: '#f8fafc', padding: 14, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontSize: 12 }}>
-              <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>
-                {handoverData.schoolNameAr} ({handoverData.schoolCode})
-              </p>
-              <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)' }}>
-                {isRtl ? 'بيانات دخول المدير جاهزة للإرسال والمشاركة.' : 'Ready-to-share credentials slip for the school administrator.'}
-              </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {/* Institution Badge Header */}
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+                color: '#ffffff',
+                padding: '16px 20px',
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 'var(--radius-md)',
+                    background: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 4,
+                  }}
+                >
+                  {config.logoUrl ? (
+                    <img src={config.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <SchoolLogo size={36} />
+                  )}
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: '#f8fafc' }}>
+                    {config.schoolNameAr} ({config.schoolCode})
+                  </h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: 11.5, color: '#94a3b8' }}>
+                    {config.schoolNameEn} • {window.location.origin}
+                  </p>
+                </div>
+              </div>
+
+              <span style={{ background: '#10b981', color: '#ffffff', padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: 11, fontWeight: 800 }}>
+                READY TO OPERATE
+              </span>
             </div>
 
-            <button className="btn btn-primary" onClick={copyHandoverSlip}>
-              📋 {isRtl ? 'نسخ بطاقة التسليم كاملة' : 'Copy Slip to Clipboard'}
-            </button>
+            {/* Admin Credentials Card */}
+            <div className="panel" style={{ padding: 18, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>👤</span>
+                <span>{isRtl ? 'بيانات حساب مدير المدرسة (Super Admin):' : 'School Administrator Credentials:'}</span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, fontSize: 12.5 }}>
+                <div style={{ background: 'var(--bg-main)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 11 }}>{isRtl ? 'اسم المدير:' : 'Principal Name:'}</span>
+                  <strong style={{ color: 'var(--text-main)' }}>{handoverData.adminFullName}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-main)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 11 }}>{isRtl ? 'البريد الإلكتروني:' : 'Login Email:'}</span>
+                  <strong style={{ fontFamily: 'monospace', color: 'var(--primary)' }}>{handoverData.adminEmail}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-main)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 11 }}>{isRtl ? 'كلمة المرور الافتراضية:' : 'Default Password:'}</span>
+                  <strong style={{ fontFamily: 'monospace', color: 'var(--danger)', fontSize: 13 }}>{handoverData.adminPassword}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-main)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 11 }}>{isRtl ? 'رابط الدخول المباشر:' : 'Login URL:'}</span>
+                  <strong style={{ fontFamily: 'monospace', color: 'var(--text-main)', fontSize: 11 }}>{handoverData.domainUrl}</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* System Readiness Specs */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, fontSize: 11.5 }}>
+              <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>{isRtl ? 'محرك قاعدة البيانات' : 'DB Engine'}</span>
+                <strong style={{ color: 'var(--success)' }}>PostgreSQL</strong>
+              </div>
+
+              <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>{isRtl ? 'سعة التخزين المبدئية' : 'Storage Quota'}</span>
+                <strong style={{ color: 'var(--primary)' }}>{config.allocatedStorageMb || 500} MB</strong>
+              </div>
+
+              <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>{isRtl ? 'صلاحيات الحساب' : 'Role Type'}</span>
+                <strong style={{ color: 'var(--text-main)' }}>Full Control (ADMIN)</strong>
+              </div>
+            </div>
+
+            {/* Security Notice */}
+            <div style={{ background: 'var(--warning-light)', border: '1px solid var(--warning-border)', color: 'var(--warning-text)', padding: 12, borderRadius: 'var(--radius-md)', fontSize: 11.5, display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span>🔒</span>
+              <span>{isRtl ? 'ملاحظة أمان: يُنصح المدير بتغيير كلمة المرور فور أول تسجيل دخول من قائمة الإعدادات.' : 'Security advice: The principal is advised to change the default password upon first login.'}</span>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--border-color)', paddingTop: 14 }}>
+              <button className="btn btn-secondary" onClick={() => setIsHandoverModalOpen(false)}>
+                {isRtl ? 'إغلاق' : 'Close'}
+              </button>
+              <button className="btn btn-primary" onClick={copyHandoverSlip} style={{ fontWeight: 800 }}>
+                📋 {isRtl ? 'نسخ بطاقة التسليم كاملة' : 'Copy Full Slip'}
+              </button>
+            </div>
           </div>
         </Modal>
       )}
     </div>
   );
 }
+
