@@ -2,17 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
-import { CheckIcon, CloseIcon, AttendanceIcon, AlertCircleIcon } from '../../components/common/Icons';
+import { CheckIcon, CloseIcon, AttendanceIcon } from '../../components/common/Icons';
 
 export default function AttendanceSheet({ initialClassId }) {
   const toast = useToast();
   const { t, isRtl } = useLanguage();
+  const { isTeacher } = useAuth();
 
   const [classes, setClasses] = useState([]);
-  const [selectedClassId, setSelectedClassId] = useState(initialClassId || '');
+  const [selectedClassId, setSelectedClassId] = useState(initialClassId ? String(initialClassId) : '');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const [sheet, setSheet] = useState([]);
@@ -24,12 +26,16 @@ export default function AttendanceSheet({ initialClassId }) {
   const loadClasses = async () => {
     try {
       const cls = await api.get('/classes');
-      const safeClasses = Array.isArray(cls) ? cls : (cls?.items || []);
+      const safeClasses = Array.isArray(cls) ? cls : (cls?.items || cls?.classes || []);
       setClasses(safeClasses);
-      if (!selectedClassId && safeClasses.length > 0) {
-        setSelectedClassId(safeClasses[0].id);
+      if (safeClasses.length > 0) {
+        if (!selectedClassId || !safeClasses.some(c => String(c.id) === String(selectedClassId))) {
+          setSelectedClassId(String(safeClasses[0].id));
+        }
       }
-    } catch {}
+    } catch (err) {
+      console.error('Failed to load classes', err);
+    }
   };
 
   const loadAttendanceSheet = useCallback(async () => {
@@ -39,12 +45,27 @@ export default function AttendanceSheet({ initialClassId }) {
       setError('');
       const data = await api.get(`/attendance/sheet?classId=${selectedClassId}&date=${selectedDate}`);
       
-      // Ensure each student item has status preserved if previously recorded, or null for clean new days
-      const formattedSheet = (data.sheet || []).map(item => ({
-        ...item,
-        status: item.status || null,
-        note: item.note || ''
-      }));
+      const rawSheet = Array.isArray(data) ? data : (data.sheet || data.students || data.records || []);
+      
+      // Ensure every student item has complete student details (id, number, full name)
+      const formattedSheet = rawSheet.map((item, idx) => {
+        const studentObj = item.student || {};
+        const studentId = item.studentId || item.id || studentObj.id || (idx + 1);
+        const studentNumber = item.studentNumber || studentObj.studentNumber || `STU-${1000 + studentId}`;
+        const fullName = item.fullName || 
+          (studentObj.firstName ? `${studentObj.firstName} ${studentObj.middleName ? studentObj.middleName + ' ' : ''}${studentObj.lastName}` : '') ||
+          (item.firstName ? `${item.firstName} ${item.middleName ? item.middleName + ' ' : ''}${item.lastName}` : '') ||
+          item.studentName || item.name || `طالب ${studentNumber}`;
+
+        return {
+          ...item,
+          studentId,
+          studentNumber,
+          fullName: fullName.trim(),
+          status: item.status || null,
+          note: item.note || ''
+        };
+      });
 
       setSheet(formattedSheet);
       setClassInfo(data.class || null);
@@ -63,13 +84,12 @@ export default function AttendanceSheet({ initialClassId }) {
     if (selectedClassId) {
       loadAttendanceSheet();
     }
-  }, [loadAttendanceSheet]);
+  }, [selectedClassId, selectedDate, loadAttendanceSheet]);
 
   const handleStatusChange = (studentId, status) => {
     setSheet(prev =>
       prev.map(item => {
         if (item.studentId !== studentId) return item;
-        // If clicking the currently active status, toggle it back to unselected (null)
         const nextStatus = item.status === status ? null : status;
         return { ...item, status: nextStatus };
       })
@@ -84,26 +104,24 @@ export default function AttendanceSheet({ initialClassId }) {
     );
   };
 
-  // Quick Action: Mark all students as PRESENT
   const handleMarkAllPresent = () => {
     setSheet(prev =>
       prev.map(item => ({ ...item, status: 'PRESENT' }))
     );
-    toast.info(t('markAllPresentToast'));
+    toast.info(t('markAllPresentToast') || (isRtl ? 'تم تحديد جميع الطلاب: حاضر' : 'All students marked as Present'));
   };
 
-  // Quick Action: Clear all selections back to clean state
   const handleClearAllMarks = () => {
     setSheet(prev =>
       prev.map(item => ({ ...item, status: null }))
     );
-    toast.info(t('clearAllToast'));
+    toast.info(t('clearAllToast') || (isRtl ? 'تم إلغاء التحديد' : 'All marks cleared'));
   };
 
   const handleSaveAttendance = async () => {
     const unselected = sheet.filter(s => !s.status);
     if (unselected.length > 0) {
-      toast.warning(`${t('saveAttendanceWarning')} (${unselected.length})`);
+      toast.warning(`${t('saveAttendanceWarning') || (isRtl ? 'يوجد طلاب لم يتم رصد حضورهم' : 'Unrecorded students')} (${unselected.length})`);
       return;
     }
 
@@ -121,7 +139,7 @@ export default function AttendanceSheet({ initialClassId }) {
         records
       });
 
-      toast.success(t('saveAttendanceSuccess'));
+      toast.success(t('saveAttendanceSuccess') || (isRtl ? 'تم حفظ سجل الحضور والغياب بنجاح!' : 'Attendance saved successfully!'));
       loadAttendanceSheet();
     } catch (err) {
       toast.error(err.message || 'Failed to save attendance records');
@@ -152,36 +170,36 @@ export default function AttendanceSheet({ initialClassId }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Top Header & Day Status Banner */}
-      <div className="panel" style={{ padding: '20px 24px', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}>
+      <div className="panel" style={{ padding: '18px 22px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           
           {/* Controls: Date and Class */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
             <div>
-              <label className="form-label" style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, display: 'block' }}>
+              <label className="form-label">
                 📅 {t('selectDate')}
               </label>
               <input
                 type="date"
                 className="form-input"
-                style={{ width: 175, fontWeight: 600 }}
+                style={{ width: 170, fontWeight: 700 }}
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="form-label" style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, display: 'block' }}>
+              <label className="form-label">
                 🏫 {t('selectClass')}
               </label>
               <select
                 className="form-select"
-                style={{ width: 230, fontWeight: 600 }}
+                style={{ width: 220, fontWeight: 700 }}
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
               >
                 {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={String(c.id)}>
                     {c.name} {c.academicYear?.name ? `(${c.academicYear.name})` : ''}
                   </option>
                 ))}
@@ -195,29 +213,28 @@ export default function AttendanceSheet({ initialClassId }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: 12,
+                padding: '5px 12px',
+                borderRadius: 'var(--radius-full)',
+                fontSize: 11.5,
                 fontWeight: 700,
-                background: isPreviouslyRecorded ? '#f0fdf4' : '#eff6ff',
-                color: isPreviouslyRecorded ? '#166534' : '#1d4ed8',
-                border: isPreviouslyRecorded ? '1px solid #bbf7d0' : '1px solid #bfdbfe'
+                background: isPreviouslyRecorded ? 'var(--success-light)' : 'var(--primary-light)',
+                color: isPreviouslyRecorded ? 'var(--success-text)' : 'var(--primary-dark)',
+                border: `1px solid ${isPreviouslyRecorded ? 'var(--success-border)' : 'rgba(79, 70, 229, 0.2)'}`
               }}>
                 <span>{isPreviouslyRecorded ? '✓' : '✨'}</span>
-                <span>{isPreviouslyRecorded ? t('existingDaySheet') : t('newDayCleanSheet')}</span>
+                <span>{isPreviouslyRecorded ? (t('existingDaySheet') || (isRtl ? 'حضور مسجل مسبقاً' : 'Recorded')) : (t('newDayCleanSheet') || (isRtl ? 'رصد جديد لهذا اليوم' : 'New Sheet'))}</span>
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <button
               className="btn btn-secondary btn-sm"
               type="button"
               onClick={handleMarkAllPresent}
               disabled={sheet.length === 0}
               title={t('markAllPresent')}
-              style={{ fontWeight: 600 }}
             >
               <CheckIcon /> {t('markAllPresent')}
             </button>
@@ -226,9 +243,9 @@ export default function AttendanceSheet({ initialClassId }) {
               className="btn btn-secondary btn-sm"
               type="button"
               onClick={handleClearAllMarks}
-              disabled={sheet.length === 0 || (!isPreviouslyRecorded && unrecordedCount === sheet.length)}
+              disabled={sheet.length === 0}
               title={t('clearAllMarks')}
-              style={{ fontWeight: 600, color: 'var(--text-muted)' }}
+              style={{ color: 'var(--text-muted)' }}
             >
               <CloseIcon /> {t('clearAllMarks')}
             </button>
@@ -238,9 +255,9 @@ export default function AttendanceSheet({ initialClassId }) {
               type="button"
               onClick={handleSaveAttendance}
               disabled={saving || sheet.length === 0}
-              style={{ fontWeight: 700, padding: '8px 18px' }}
+              style={{ fontWeight: 800 }}
             >
-              {saving ? t('savingAttendance') : (
+              {saving ? (t('savingAttendance') || 'Saving...') : (
                 <>
                   <AttendanceIcon /> {t('saveAttendance')}
                 </>
@@ -255,42 +272,37 @@ export default function AttendanceSheet({ initialClassId }) {
       {/* Summary Stat Chips */}
       {sheet.length > 0 && (
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <div style={{ background: '#fff', padding: '10px 16px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
+          <div style={{ background: '#fff', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
             <div style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }}>{isRtl ? 'إجمالي الطلاب' : 'Total Students'}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2 }}>{summary.total}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, marginTop: 2 }}>{summary.total}</div>
           </div>
 
           {summary.unrecorded > 0 && (
-            <div style={{ background: '#fffbeb', padding: '10px 16px', borderRadius: 8, border: '1px solid #fde68a', fontSize: 13, flex: '1 1 auto', minWidth: 120 }}>
-              <div style={{ color: '#b45309', fontSize: 11, fontWeight: 700 }}>⏳ {t('unmarkedBadge')}</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#92400e', marginTop: 2 }}>{summary.unrecorded}</div>
+            <div style={{ background: 'var(--warning-light)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--warning-border)', fontSize: 13, flex: '1 1 auto', minWidth: 120 }}>
+              <div style={{ color: 'var(--warning-text)', fontSize: 11, fontWeight: 700 }}>⏳ {t('unmarkedBadge') || (isRtl ? 'بانتظار الرصد' : 'Unrecorded')}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--warning-text)', marginTop: 2 }}>{summary.unrecorded}</div>
             </div>
           )}
 
-          <div style={{ background: '#f0fdf4', padding: '10px 16px', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
-            <div style={{ color: '#15803d', fontSize: 11, fontWeight: 700 }}>✓ {t('present')}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#166534', marginTop: 2 }}>{summary.present}</div>
+          <div style={{ background: 'var(--success-light)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--success-border)', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
+            <div style={{ color: 'var(--success-text)', fontSize: 11, fontWeight: 700 }}>✓ {t('present')}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--success)', marginTop: 2 }}>{summary.present}</div>
           </div>
 
-          <div style={{ background: '#fef2f2', padding: '10px 16px', borderRadius: 8, border: '1px solid #fecaca', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
-            <div style={{ color: '#b91c1c', fontSize: 11, fontWeight: 700 }}>✗ {t('absent')}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#991b1b', marginTop: 2 }}>{summary.absent}</div>
+          <div style={{ background: 'var(--danger-light)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--danger-border)', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
+            <div style={{ color: 'var(--danger-text)', fontSize: 11, fontWeight: 700 }}>✗ {t('absent')}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--danger)', marginTop: 2 }}>{summary.absent}</div>
           </div>
 
-          <div style={{ background: '#fff7ed', padding: '10px 16px', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
-            <div style={{ color: '#c2410c', fontSize: 11, fontWeight: 700 }}>⏰ {t('late')}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#9a3412', marginTop: 2 }}>{summary.late}</div>
-          </div>
-
-          <div style={{ background: '#eff6ff', padding: '10px 16px', borderRadius: 8, border: '1px solid #bfdbfe', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
-            <div style={{ color: '#1d4ed8', fontSize: 11, fontWeight: 700 }}>📋 {t('excused')}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#1e40af', marginTop: 2 }}>{summary.excused}</div>
+          <div style={{ background: 'var(--warning-light)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--warning-border)', fontSize: 13, flex: '1 1 auto', minWidth: 110 }}>
+            <div style={{ color: 'var(--warning-text)', fontSize: 11, fontWeight: 700 }}>⏰ {t('late')}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--warning)', marginTop: 2 }}>{summary.late}</div>
           </div>
         </div>
       )}
 
       {/* Interactive Attendance Table */}
-      <div className="panel" style={{ overflow: 'hidden' }}>
+      <div className="panel">
         <div className="table-responsive">
           {loading ? (
             <PageLoader text={isRtl ? 'جاري تحميل قائمة طلاب الشعبة...' : 'Loading class attendance roster...'} />
@@ -303,11 +315,11 @@ export default function AttendanceSheet({ initialClassId }) {
             <table>
               <thead>
                 <tr>
-                  <th style={{ width: 60, textAlign: 'center' }}>#</th>
-                  <th style={{ width: 140 }}>{t('studentIdHeader')}</th>
+                  <th style={{ width: 50, textAlign: 'center' }}>#</th>
+                  <th style={{ width: 130 }}>{t('studentIdHeader')}</th>
                   <th>{t('studentNameHeader')}</th>
-                  <th style={{ textAlign: 'center', minWidth: 320 }}>{t('attendanceStatusHeader')}</th>
-                  <th style={{ minWidth: 220 }}>{t('remarksHeader')}</th>
+                  <th style={{ textAlign: 'center', minWidth: 300 }}>{t('attendanceStatusHeader')}</th>
+                  <th style={{ minWidth: 200 }}>{t('remarksHeader')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,10 +328,9 @@ export default function AttendanceSheet({ initialClassId }) {
 
                   return (
                     <tr
-                      key={row.studentId}
+                      key={row.studentId || index}
                       style={{
-                        background: !isMarked ? 'rgba(248, 250, 252, 0.6)' : 'transparent',
-                        transition: 'background 0.2s ease'
+                        background: !isMarked ? 'rgba(248, 250, 252, 0.7)' : 'transparent'
                       }}
                     >
                       <td style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
@@ -328,12 +339,12 @@ export default function AttendanceSheet({ initialClassId }) {
                       <td>
                         <span style={{
                           display: 'inline-block',
-                          padding: '3px 8px',
+                          padding: '2px 8px',
                           background: '#f1f5f9',
-                          borderRadius: 4,
-                          fontSize: 12,
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: 11.5,
                           fontWeight: 700,
-                          color: '#475569',
+                          color: 'var(--primary)',
                           fontFamily: 'monospace'
                         }}>
                           {row.studentNumber}
@@ -346,68 +357,50 @@ export default function AttendanceSheet({ initialClassId }) {
                             height: 32,
                             borderRadius: '50%',
                             background: isMarked ? 'var(--primary-light)' : '#e2e8f0',
-                            color: isMarked ? 'var(--primary)' : '#64748b',
+                            color: isMarked ? 'var(--primary-dark)' : '#64748b',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontWeight: 700,
-                            fontSize: 13
+                            fontWeight: 800,
+                            fontSize: 12
                           }}>
-                            {row.fullName ? row.fullName.trim()[0] : 'S'}
+                            {row.fullName ? row.fullName.trim().charAt(0) : 'S'}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: 14 }}>
+                            <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: 13.5 }}>
                               {row.fullName}
                             </div>
                             {!isMarked && (
-                              <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>
-                                ⚠️ {t('unmarkedPlaceholder')}
+                              <div style={{ fontSize: 10.5, color: '#d97706', fontWeight: 600 }}>
+                                ⚠️ {t('unmarkedPlaceholder') || (isRtl ? 'لم يتم رصد الحضور بعد' : 'Unrecorded')}
                               </div>
                             )}
                           </div>
                         </div>
                       </td>
                       <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'inline-flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: 6 }}>
                           {statusOptions.map((opt) => {
                             const isSelected = row.status === opt.key;
-
-                            let btnBg = '#f8fafc';
-                            let btnFg = '#64748b';
-                            let btnBorder = '1px solid #cbd5e1';
-                            let btnShadow = 'none';
-
-                            if (isSelected) {
-                              btnBg = opt.activeBg;
-                              btnFg = '#ffffff';
-                              btnBorder = `1px solid ${opt.activeBg}`;
-                              btnShadow = '0 2px 8px rgba(0,0,0,0.12)';
-                            }
-
                             return (
                               <button
                                 key={opt.key}
                                 type="button"
                                 onClick={() => handleStatusChange(row.studentId, opt.key)}
                                 style={{
-                                  padding: '6px 14px',
-                                  borderRadius: 6,
-                                  background: btnBg,
-                                  color: btnFg,
-                                  border: btnBorder,
-                                  boxShadow: btnShadow,
+                                  padding: '5px 12px',
                                   fontSize: 12,
-                                  fontWeight: isSelected ? 800 : 600,
+                                  fontWeight: 700,
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isSelected ? `2px solid ${opt.activeBg}` : '1px solid var(--border-color)',
+                                  background: isSelected ? opt.bg : '#ffffff',
+                                  color: isSelected ? opt.color : 'var(--text-muted)',
                                   cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 4
+                                  transition: 'var(--transition)',
+                                  boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
                                 }}
-                                title={`${opt.label} - ${row.fullName}`}
                               >
-                                {isSelected && <span>✓</span>}
-                                <span>{opt.label}</span>
+                                {opt.label}
                               </button>
                             );
                           })}
@@ -417,8 +410,8 @@ export default function AttendanceSheet({ initialClassId }) {
                         <input
                           type="text"
                           className="form-input"
-                          style={{ padding: '6px 10px', fontSize: 13 }}
-                          placeholder={t('attendanceNotePlaceholder')}
+                          style={{ padding: '6px 10px', fontSize: 12 }}
+                          placeholder={isRtl ? 'ملاحظة (تأخر، عذر مرضي...)' : 'Optional notes...'}
                           value={row.note || ''}
                           onChange={(e) => handleNoteChange(row.studentId, e.target.value)}
                         />

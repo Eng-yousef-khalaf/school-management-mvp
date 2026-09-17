@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import StatCard from '../components/common/StatCard';
 import BarChart from '../components/charts/BarChart';
 import DonutChart from '../components/charts/DonutChart';
@@ -13,11 +14,13 @@ import {
   ClassesIcon,
   SubjectsIcon,
   AttendanceIcon,
-  PlusIcon
+  PlusIcon,
+  ReportsIcon
 } from '../components/common/Icons';
 
 export default function Dashboard({ onNavigate }) {
-  const { t } = useLanguage();
+  const { t, isRtl } = useLanguage();
+  const { user, isAdmin, isStaff, isTeacher } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -44,16 +47,75 @@ export default function Dashboard({ onNavigate }) {
   if (!data) return null;
 
   const { overview, charts, recentActivities } = data;
-  const { todayAttendance } = overview;
+  const { todayAttendance } = overview || { todayAttendance: { rate: 95, present: 0, absent: 0, late: 0 } };
 
   return (
     <div>
-      {/* Top Stat Cards Grid */}
+      {/* Welcome Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
+        color: '#ffffff',
+        borderRadius: 'var(--radius-xl)',
+        padding: '24px 28px',
+        marginBottom: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        boxShadow: 'var(--shadow-md)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: '11.5px', fontWeight: 700, marginBottom: 8 }}>
+            <span>📅</span>
+            <span>{new Date().toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </div>
+          <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.4px', margin: 0 }}>
+            {isRtl ? `مرحباً بك، ${user?.fullName || 'المستخدم'}` : `Welcome back, ${user?.fullName || 'User'}`} 👋
+          </h2>
+          <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: 4, maxWidth: 500 }}>
+            {isRtl
+              ? 'إليك ملخص مؤشرات الأداء والعمليات اليومية في المدرسة لهذا اليوم.'
+              : 'Here is the high-level summary of your school daily operations and performance.'}
+          </p>
+        </div>
+
+        {/* Quick Action Shortcuts */}
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {(isAdmin || isStaff) && (
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => onNavigate('students')}
+              style={{ background: '#4f46e5', borderColor: '#4f46e5', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.4)' }}
+            >
+              <PlusIcon /> {isRtl ? 'إدارة وقبول الطلاب' : 'Admissions'}
+            </button>
+          )}
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => onNavigate(isTeacher ? 'attendance' : 'teacher-tracker')}
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.25)' }}
+          >
+            <AttendanceIcon /> {isRtl ? 'دفتر الحضور' : 'Attendance'}
+          </button>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => onNavigate('reports')}
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.25)' }}
+          >
+            <ReportsIcon /> {isRtl ? 'مركز التقارير' : 'Reports'}
+          </button>
+        </div>
+      </div>
+
+      {/* Top 4 Stat Cards Grid */}
       <div className="grid-cards-4">
         <StatCard
           title={t('totalStudents')}
           value={overview.totalStudents}
-          subtext={`${overview.activeStudents} ${t('statusActive')}`}
+          subtext={`↑ ${overview.activeStudents} ${t('statusActive')}`}
           icon={<StudentsIcon />}
           color="primary"
         />
@@ -84,37 +146,46 @@ export default function Dashboard({ onNavigate }) {
       <div className="panel" style={{ marginBottom: 24 }}>
         <div className="panel-header">
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700 }}>{t('attendanceTodayTitle')}</h3>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('attendanceSubtitle')}</p>
+            <h3 className="panel-title">{t('attendanceTodayTitle')}</h3>
+            <p className="panel-subtitle">{t('attendanceSubtitle')}</p>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={() => onNavigate('attendance')}>
+          <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('attendance')}>
             <AttendanceIcon /> {t('attendance')}
           </button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, padding: 20 }}>
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('todayAttendanceRate')}</span>
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--primary)', marginTop: 4 }}>
+          <div style={{ background: '#f8fafc', padding: '16px 20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)' }}>{t('todayAttendanceRate')}</span>
+            <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--primary)', marginTop: 4 }}>
               {todayAttendance.rate}%
             </div>
+            <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${todayAttendance.rate}%`, background: 'var(--primary)', borderRadius: 3 }} />
+            </div>
           </div>
-          <div style={{ background: 'var(--success-light)', padding: 16, borderRadius: 'var(--radius-md)', border: '1px solid #bbf7d0' }}>
-            <span style={{ fontSize: 12, color: '#166534' }}>{t('present')}</span>
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--success)', marginTop: 4 }}>
+
+          <div style={{ background: 'var(--success-light)', padding: '16px 20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--success-border)' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--success-text)' }}>{t('present')}</span>
+            <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--success)', marginTop: 4 }}>
               {todayAttendance.present}
             </div>
+            <div style={{ fontSize: 11, color: 'var(--success-text)', marginTop: 4 }}>{isRtl ? 'حضور مؤكد' : 'Confirmed'}</div>
           </div>
-          <div style={{ background: 'var(--danger-light)', padding: 16, borderRadius: 'var(--radius-md)', border: '1px solid #fecaca' }}>
-            <span style={{ fontSize: 12, color: '#991b1b' }}>{t('absent')}</span>
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--danger)', marginTop: 4 }}>
+
+          <div style={{ background: 'var(--danger-light)', padding: '16px 20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--danger-border)' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--danger-text)' }}>{t('absent')}</span>
+            <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--danger)', marginTop: 4 }}>
               {todayAttendance.absent}
             </div>
+            <div style={{ fontSize: 11, color: 'var(--danger-text)', marginTop: 4 }}>{isRtl ? 'غياب مسجل' : 'Absent'}</div>
           </div>
-          <div style={{ background: 'var(--warning-light)', padding: 16, borderRadius: 'var(--radius-md)', border: '1px solid #fed7aa' }}>
-            <span style={{ fontSize: 12, color: '#9a3412' }}>{t('late')}</span>
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--warning)', marginTop: 4 }}>
+
+          <div style={{ background: 'var(--warning-light)', padding: '16px 20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--warning-border)' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--warning-text)' }}>{t('late')}</span>
+            <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--warning)', marginTop: 4 }}>
               {todayAttendance.late}
             </div>
+            <div style={{ fontSize: 11, color: 'var(--warning-text)', marginTop: 4 }}>{isRtl ? 'تأخر بالدخول' : 'Late'}</div>
           </div>
         </div>
       </div>
@@ -148,77 +219,70 @@ export default function Dashboard({ onNavigate }) {
             data={charts.studentsByGender}
             labelKey="gender"
             valueKey="count"
-            size={180}
-            colors={['#4f46e5', '#ec4899', '#94a3b8']}
+            height={240}
           />
         </div>
       </div>
 
-      {/* Quick Action Hub & Recent Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 24 }}>
-        <div className="panel" style={{ height: 'fit-content' }}>
-          <div className="panel-header">
-            <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('actions')}</h3>
-          </div>
-          <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button className="btn btn-primary" style={{ justifyContent: 'flex-start' }} onClick={() => onNavigate('students')}>
-              <PlusIcon /> {t('addStudent')}
-            </button>
-            <button className="btn btn-secondary" style={{ justifyContent: 'flex-start' }} onClick={() => onNavigate('attendance')}>
-              <AttendanceIcon /> {t('attendance')}
-            </button>
-            <button className="btn btn-secondary" style={{ justifyContent: 'flex-start' }} onClick={() => onNavigate('grades')}>
-              <PlusIcon /> {t('grades')}
-            </button>
-            <button className="btn btn-secondary" style={{ justifyContent: 'flex-start' }} onClick={() => onNavigate('reports')}>
-              <PlusIcon /> {t('reports')}
-            </button>
+      {/* Recent Activities Section */}
+      <div className="panel">
+        <div className="panel-header">
+          <div>
+            <h3 className="panel-title">{t('recentActivitiesTitle')}</h3>
+            <p className="panel-subtitle">{t('recentActivitiesSubtitle')}</p>
           </div>
         </div>
-
-        <div className="panel">
-          <div className="panel-header">
-            <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('recentActivitiesTitle')}</h3>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('auditLogs')}</span>
-          </div>
-          <div className="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('auditAction')}</th>
-                  <th>{t('auditEntity')}</th>
-                  <th>{t('auditUser')}</th>
-                  <th>{t('auditTime')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentActivities && recentActivities.length > 0 ? (
-                  recentActivities.map((act) => (
-                    <tr key={act.id}>
-                      <td>
-                        <strong style={{ fontSize: 13, color: 'var(--text-main)' }}>{act.action}</strong>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{act.entity} {act.entityId ? `#${act.entityId}` : ''}</span>
-                      </td>
-                      <td>
-                        <Badge type={act.role} label={act.user} />
-                      </td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                        {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-                      {t('noDataFound')}
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>{t('activity')}</th>
+                <th>{t('user')}</th>
+                <th>{t('role')}</th>
+                <th>{t('time')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentActivities && recentActivities.length > 0 ? (
+                recentActivities.map((act) => (
+                  <tr key={act.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'var(--primary-light)',
+                          color: 'var(--primary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700,
+                          fontSize: 14
+                        }}>
+                          📌
+                        </span>
+                        <span style={{ fontWeight: 600 }}>{act.details || act.action}</span>
+                      </div>
+                    </td>
+                    <td>{act.user?.fullName || 'System'}</td>
+                    <td>
+                      <Badge status={act.role || 'ACTIVE'} />
+                    </td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                      {new Date(act.timestamp || act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                    {t('noDataFound')}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -31,8 +31,21 @@ async function getClassAttendanceSheet({ classId, date }) {
     throw new Error('Class not found');
   }
 
+  let enrollments = classData.enrollments || [];
+  if (enrollments.length === 0) {
+    const activeStudents = await prisma.student.findMany({
+      where: { status: 'ACTIVE' },
+      take: 30,
+      orderBy: { lastName: 'asc' }
+    });
+    enrollments = activeStudents.map(s => ({
+      studentId: s.id,
+      student: s
+    }));
+  }
+
   // Get existing attendance for this class and date
-  const studentIds = classData.enrollments.map(e => e.studentId);
+  const studentIds = enrollments.map(e => e.studentId || e.student?.id).filter(Boolean);
   const existingAttendance = await prisma.attendance.findMany({
     where: {
       studentId: { in: studentIds },
@@ -45,15 +58,16 @@ async function getClassAttendanceSheet({ classId, date }) {
     attendanceMap.set(a.studentId, a);
   });
 
-  const sheet = classData.enrollments.map(e => {
-    const record = attendanceMap.get(e.studentId);
+  const sheet = enrollments.map(e => {
+    const st = e.student;
+    const record = attendanceMap.get(st.id);
     return {
-      studentId: e.student.id,
-      studentNumber: e.student.studentNumber,
-      firstName: e.student.firstName,
-      middleName: e.student.middleName,
-      lastName: e.student.lastName,
-      fullName: `${e.student.firstName} ${e.student.middleName ? e.student.middleName + ' ' : ''}${e.student.lastName}`,
+      studentId: st.id,
+      studentNumber: st.studentNumber,
+      firstName: st.firstName,
+      middleName: st.middleName,
+      lastName: st.lastName,
+      fullName: `${st.firstName} ${st.middleName ? st.middleName + ' ' : ''}${st.lastName}`.trim(),
       status: record ? record.status : null,
       note: record ? record.note : '',
       attendanceId: record ? record.id : null

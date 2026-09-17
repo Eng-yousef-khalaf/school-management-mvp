@@ -20,7 +20,6 @@ export default function Login() {
   const [error, setError] = useState('');
   const [secretClickCount, setSecretClickCount] = useState(0);
 
-  // Check URL query parameters or hash on initial load (e.g. ?role=teacher or #teacher)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roleParam = urlParams.get('role')?.toUpperCase();
@@ -37,7 +36,6 @@ export default function Login() {
       handleDeveloperMasterLogin();
     }
 
-    // Discreet keyboard shortcut for Lead Developer (Ctrl + Shift + D)
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
         e.preventDefault();
@@ -72,19 +70,6 @@ export default function Login() {
     }
   };
 
-  const teacherAccounts = [
-    { name: 'أحمد خليل', subject: 'رياضيات', email: 'ahmed.khalil@school.local', classes: 'Grade 7 A, 8 A' },
-    { name: 'سارة منصور', subject: 'لغة إنجليزية', email: 'sara.mansour@school.local', classes: 'Grade 7 A, 7 B' },
-    { name: 'عمر فاروق', subject: 'لغة عربية', email: 'omar.farooq@school.local', classes: 'Grade 7 A, 8 A' },
-    { name: 'ليلى حسن', subject: 'علوم', email: 'layla.hassan@school.local', classes: 'Grade 7 B, 8 B' },
-    { name: 'طارق عزيز', subject: 'حاسوب', email: 'tareq.aziz@school.local', classes: 'Grade 8 A, 8 B' }
-  ];
-
-  const staffAccounts = [
-    { name: 'محمد', roleDesc: 'شؤون المعلمين والطلاب', email: 'staff@school.local' },
-    { name: 'خالد السعيد', roleDesc: 'موظف شؤون المعلمين والطلاب', email: 'khalid.staff@school.local' }
-  ];
-
   const selectRole = (role) => {
     setActiveRole(role);
     setError('');
@@ -100,11 +85,12 @@ export default function Login() {
     }
   };
 
-  const executeInstantLogin = async (targetEmail, targetPassword = 'ChangeMe123!') => {
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const user = await login(targetEmail, targetPassword);
+      const user = await login(email, password);
       toast.success(`${t('welcomeBack')}, ${user.fullName}!`);
     } catch (err) {
       setError(err.message || t('loginFailed'));
@@ -113,166 +99,163 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    executeInstantLogin(email, password);
+  const roleDetails = {
+    ADMIN: {
+      name: isRtl ? 'المدير العام' : 'Administrator',
+      icon: '👔',
+      color: 'var(--primary)',
+      desc: isRtl ? 'إشراف عام ورقابة وتقارير تنفيذية' : 'Executive governance & full oversight'
+    },
+    STAFF: {
+      name: isRtl ? 'شؤون الطلاب' : 'Staff & Admissions',
+      icon: '📋',
+      color: '#10b981',
+      desc: isRtl ? 'قبول الطلاب، الجداول، ورصد الرسوم' : 'Admissions, enrollment & tuition ledger'
+    },
+    TEACHER: {
+      name: isRtl ? 'المعلم' : 'Faculty Teacher',
+      icon: '👨‍🏫',
+      color: '#0ea5e9',
+      desc: isRtl ? 'دفتر الحضور، رصد الدرجات، والشعب' : 'Attendance roster & grade entry'
+    }
   };
 
-  const roleColor = activeRole === 'ADMIN' ? 'var(--primary)' : activeRole === 'STAFF' ? '#10b981' : '#0ea5e9';
-
   return (
-    <div className="login-page">
-      {/* Background Decorative Ambient Waves (Light-to-Dark Flow) */}
-      <div className="login-bg-waves">
-        {/* Top Wave */}
-        <svg className="wave-top" viewBox="0 0 1440 320" preserveAspectRatio="none">
-          <path fill="#6366f1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,117.3C960,107,1056,149,1152,165.3C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-
-        {/* Bottom Flow Wave 1 */}
-        <svg className="wave-bottom-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-          <path fill="#0ea5e9" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,117.3C672,117,768,171,864,186.7C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-
-        {/* Bottom Flow Wave 2 */}
-        <svg className="wave-bottom-2" viewBox="0 0 1440 320" preserveAspectRatio="none">
-          <path fill="#a855f7" d="M0,64L48,96C96,128,192,192,288,213.3C384,235,480,213,576,181.3C672,149,768,107,864,112C960,117,1056,171,1152,186.7C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-      </div>
-
-      <div className="login-card" style={{ maxWidth: '460px', width: '100%', position: 'relative' }}>
-        {/* Top Header: Language Switcher & Quick Title */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            fontSize: '11px',
-            fontWeight: 800,
-            color: 'var(--primary)',
-            background: 'var(--primary-light)',
-            border: '1px solid var(--border-color)',
-            padding: '2px 10px',
-            borderRadius: '9999px'
-          }}>
-            <span>🏫</span>
-            <span>{config.schoolCode || 'MOE-SCH-2026'}</span>
-          </div>
-          <LanguageSwitcher />
-        </div>
-
-        {/* Brand Header */}
-        <div className="login-brand" style={{ textAlign: 'center', marginBottom: 12 }}>
-          {/* Official Emblem Logo */}
-          <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
-            {config.logoUrl ? (
-              <img src={config.logoUrl} alt="School Logo" style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'contain' }} />
-            ) : (
-              <SchoolLogo size={52} />
-            )}
-          </div>
-
-          <h1 style={{ fontSize: '18px', fontWeight: 800, color: '#1e1b4b', margin: '2px 0' }}>
-            {isRtl ? config.schoolNameAr : config.schoolNameEn}
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', margin: '2px 0 0 0' }}>
-            {isRtl ? config.schoolSloganAr : config.schoolSloganEn}
-          </p>
-        </div>
-
-        {/* Dedicated Role Selection Portals with 1-Click Fast Actions */}
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)' }}>
-              {isRtl ? 'اختر البوابة للدخول المباشر:' : 'Select Portal for Instant Login:'}
+    <div className="login-split-layout">
+      {/* Form Section */}
+      <div className="login-form-side">
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          
+          {/* Top Bar: Code & Language Switcher */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '11.5px',
+              fontWeight: 800,
+              color: 'var(--primary)',
+              background: 'var(--primary-light)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid rgba(79, 70, 229, 0.15)'
+            }}>
+              <span>🏫</span>
+              <span>{config.schoolCode || 'MOE-SCH-2026'}</span>
             </div>
-            <span style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700 }}>⚡ {isRtl ? 'دخول فوري 0ms' : '0ms Instant'}</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
-            <button
-              type="button"
-              onClick={() => {
-                selectRole('ADMIN');
-              }}
-              onDoubleClick={() => executeInstantLogin('admin@school.local')}
-              style={{
-                padding: '6px 4px',
-                borderRadius: '8px',
-                border: activeRole === 'ADMIN' ? '2px solid var(--primary)' : '1px solid var(--border-color)',
-                background: activeRole === 'ADMIN' ? 'var(--primary-light)' : 'var(--bg-main)',
-                color: activeRole === 'ADMIN' ? 'var(--primary-dark)' : 'var(--text-main)',
-                fontWeight: activeRole === 'ADMIN' ? 700 : 500,
-                fontSize: '11.5px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 5,
-                transition: 'var(--transition)'
-              }}
-              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
-            >
-              <span style={{ fontSize: '15px' }}>👔</span>
-              <span>{isRtl ? 'المدير' : 'Admin'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                selectRole('STAFF');
-              }}
-              onDoubleClick={() => executeInstantLogin('staff@school.local')}
-              style={{
-                padding: '6px 4px',
-                borderRadius: '8px',
-                border: activeRole === 'STAFF' ? '2px solid #10b981' : '1px solid var(--border-color)',
-                background: activeRole === 'STAFF' ? 'var(--success-light)' : 'var(--bg-main)',
-                color: activeRole === 'STAFF' ? '#047857' : 'var(--text-main)',
-                fontWeight: activeRole === 'STAFF' ? 700 : 500,
-                fontSize: '11.5px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 5,
-                transition: 'var(--transition)'
-              }}
-              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
-            >
-              <span style={{ fontSize: '15px' }}>📋</span>
-              <span>{isRtl ? 'شؤون الطلاب' : 'Staff'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                selectRole('TEACHER');
-              }}
-              onDoubleClick={() => executeInstantLogin('ahmed.khalil@school.local')}
-              style={{
-                padding: '6px 4px',
-                borderRadius: '8px',
-                border: activeRole === 'TEACHER' ? '2px solid #0ea5e9' : '1px solid var(--border-color)',
-                background: activeRole === 'TEACHER' ? 'rgba(14, 165, 233, 0.1)' : 'var(--bg-main)',
-                color: activeRole === 'TEACHER' ? '#0369a1' : 'var(--text-main)',
-                fontWeight: activeRole === 'TEACHER' ? 700 : 500,
-                fontSize: '11.5px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 5,
-                transition: 'var(--transition)'
-              }}
-              title={isRtl ? 'انقر للاختيار أو انقر نقراً مزدوجاً للدخول الفوري' : 'Click to select or double-click to login immediately'}
-            >
-              <span style={{ fontSize: '15px' }}>👨‍🏫</span>
-              <span>{isRtl ? 'المعلمون' : 'Teachers'}</span>
-            </button>
+            <LanguageSwitcher />
           </div>
 
-          {/* Direct Public Parent Tuition Payment Hub Access */}
-          <div style={{ marginTop: '10px' }}>
+          {/* School Brand Header */}
+          <div style={{ marginBottom: 28, textAlign: 'start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+              {config.logoUrl ? (
+                <img src={config.logoUrl} alt="Logo" style={{ width: 48, height: 48, borderRadius: 12, objectFit: 'contain' }} />
+              ) : (
+                <SchoolLogo size={48} />
+              )}
+              <div>
+                <h1 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.4px', lineHeight: 1.2 }}>
+                  {isRtl ? config.schoolNameAr : config.schoolNameEn}
+                </h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: 2 }}>
+                  {isRtl ? config.schoolSloganAr : config.schoolSloganEn}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Clean Segmented Role Tabs */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 8 }}>
+              {isRtl ? 'اختر بوابة الدخول السريع:' : 'Select Portal:'}
+            </div>
+            <div className="login-segmented-tabs">
+              <button
+                type="button"
+                className={`login-segmented-tab ${activeRole === 'ADMIN' ? 'active' : ''}`}
+                onClick={() => selectRole('ADMIN')}
+              >
+                <span>👔</span>
+                <span>{isRtl ? 'المدير' : 'Admin'}</span>
+              </button>
+              <button
+                type="button"
+                className={`login-segmented-tab ${activeRole === 'STAFF' ? 'active' : ''}`}
+                onClick={() => selectRole('STAFF')}
+              >
+                <span>📋</span>
+                <span>{isRtl ? 'شؤون الطلاب' : 'Staff'}</span>
+              </button>
+              <button
+                type="button"
+                className={`login-segmented-tab ${activeRole === 'TEACHER' ? 'active' : ''}`}
+                onClick={() => selectRole('TEACHER')}
+              >
+                <span>👨‍🏫</span>
+                <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
+              </button>
+            </div>
+          </div>
+
+          {error && <ErrorAlert message={error} />}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label className="form-label">{t('emailLabel')}</label>
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@school.local"
+                required
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <label className="form-label" style={{ margin: 0 }}>{t('passwordLabel')}</label>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  Demo: ChangeMe123!
+                </span>
+              </div>
+              <input
+                type="password"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg"
+              style={{
+                width: '100%',
+                background: roleDetails[activeRole].color,
+                borderColor: roleDetails[activeRole].color,
+                boxShadow: `0 4px 14px ${roleDetails[activeRole].color}40`,
+                fontSize: '14px',
+                fontWeight: 800
+              }}
+              disabled={loading}
+            >
+              {loading ? (
+                <span>{t('signingIn')}...</span>
+              ) : (
+                <span>
+                  {t('signInBtn')} • {roleDetails[activeRole].name}
+                </span>
+              )}
+            </button>
+          </form>
+
+          {/* Parent Tuition Portal Shortcut */}
+          <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border-color)' }}>
             <a
               href="#pay"
               onClick={(e) => {
@@ -284,190 +267,128 @@ export default function Login() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'linear-gradient(135deg, #0284c7 0%, #1e40af 100%)',
-                color: '#ffffff',
-                padding: '8px 12px',
-                borderRadius: '8px',
+                padding: '12px 16px',
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md)',
                 textDecoration: 'none',
-                fontWeight: 800,
-                fontSize: '11.5px',
-                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.3)',
-                cursor: 'pointer'
+                color: 'var(--text-main)',
+                transition: 'var(--transition)'
               }}
+              className="panel"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '16px' }}>💳</span>
-                <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
-                  <div>{isRtl ? 'بوابة أولياء الأمور لتسديد الرسوم والإشعار' : 'Parent Tuition Payment Portal'}</div>
-                  <div style={{ fontSize: '9.5px', opacity: 0.9, fontWeight: 500 }}>
-                    {isRtl ? 'بنك فلسطين • جوال باي • بال باي (دخول فوري بدون تسجيل)' : 'Bank of Palestine • Jawwal Pay • PalPay'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 20 }}>💳</span>
+                <div>
+                  <div style={{ fontSize: '12.5px', fontWeight: 800, color: 'var(--primary)' }}>
+                    {isRtl ? 'بوابة أولياء الأمور وسداد الرسوم' : 'Parent Tuition Payment Portal'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {isRtl ? 'دخول مباشر بدون حساب للدفع والاستعلام' : 'Direct public access without login'}
                   </div>
                 </div>
               </div>
-              <span style={{ fontSize: '13px' }}>{isRtl ? '←' : '→'}</span>
+              <span style={{ color: 'var(--primary)', fontWeight: 800 }}>{isRtl ? '←' : '→'}</span>
             </a>
+          </div>
+
+          {/* Footer */}
+          <div
+            onClick={handleSecretFooterClick}
+            style={{
+              marginTop: 24,
+              textAlign: 'center',
+              fontSize: '11.5px',
+              color: 'var(--text-light)',
+              cursor: 'default',
+              userSelect: 'none'
+            }}
+            title={secretClickCount > 0 ? `Developer Access: ${secretClickCount}/5` : ''}
+          >
+            {isRtl ? `© 2026 ${config.schoolNameAr} — المنظومة الذكية الموحدة` : `© 2026 ${config.schoolNameEn} — Unified Smart ERP`}
+          </div>
+
+        </div>
+      </div>
+
+      {/* Hero Brand Showcase Panel */}
+      <div className="login-hero-side">
+        <div className="login-hero-bg-overlay" />
+
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            padding: '6px 14px',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#e0e7ff'
+          }}>
+            <span>✨</span>
+            <span>{isRtl ? 'الجيل القادم من أنظمة إدارة التعليم' : 'Next-Generation Smart Education ERP'}</span>
           </div>
         </div>
 
-        {/* Quick Teacher / Staff Account Chips */}
-        {activeRole === 'TEACHER' && (
-          <div style={{
-            background: 'rgba(14, 165, 233, 0.06)',
-            border: '1px solid rgba(14, 165, 233, 0.25)',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            marginBottom: '10px'
-          }}>
-            <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#0369a1', marginBottom: '5px' }}>
-              {isRtl ? 'اختر حساب المعلم المخصص:' : 'Select individual teacher account:'}
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              {teacherAccounts.map((tch, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setEmail(tch.email);
-                    setPassword('ChangeMe123!');
-                  }}
-                  onDoubleClick={() => executeInstantLogin(tch.email)}
-                  style={{
-                    background: email === tch.email ? '#0ea5e9' : '#ffffff',
-                    color: email === tch.email ? '#ffffff' : '#0f172a',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    boxShadow: email === tch.email ? '0 1px 4px rgba(14, 165, 233, 0.3)' : 'none'
-                  }}
-                  title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
-                >
-                  {tch.name} ({tch.subject})
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 520 }}>
+          <h2 style={{ fontSize: '36px', fontWeight: 900, lineHeight: 1.25, letterSpacing: '-0.8px', color: '#ffffff', marginBottom: 16 }}>
+            {isRtl ? 'بناء مستقبل تعليمي متكامل ومبسط' : 'Empowering Education Through Seamless Intelligence'}
+          </h2>
+          <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.6, marginBottom: 32 }}>
+            {isRtl
+              ? 'لوحة إدارة موحدة تجمع الكادر التعليمي، شؤون الطلاب، والإدارة العليا في بيئة رقمية سريعة وسهلة الاستخدام.'
+              : 'A modern, unified platform connecting leadership, faculty, and administration with frictionless workflows and actionable insights.'}
+          </p>
 
-        {activeRole === 'STAFF' && (
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.06)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            marginBottom: '10px'
-          }}>
-            <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#047857', marginBottom: '5px' }}>
-              {isRtl ? 'اختر حساب موظف شؤون الطلاب:' : 'Select staff member account:'}
+          {/* Quick Metrics highlight */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#38bdf8' }}>100%</div>
+              <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: 2 }}>
+                {isRtl ? 'أتمتة وحفظ السجلات' : 'Digital Records'}
+              </div>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              {staffAccounts.map((stf, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setEmail(stf.email);
-                    setPassword('ChangeMe123!');
-                  }}
-                  onDoubleClick={() => executeInstantLogin(stf.email)}
-                  style={{
-                    background: email === stf.email ? '#10b981' : '#ffffff',
-                    color: email === stf.email ? '#ffffff' : '#0f172a',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    boxShadow: email === stf.email ? '0 1px 4px rgba(16, 185, 129, 0.3)' : 'none'
-                  }}
-                  title={isRtl ? 'انقر للتحديد أو نقر مزدوج للدخول الفوري' : 'Click to select or double-click to login'}
-                >
-                  {stf.name} - {stf.roleDesc}
-                </button>
-              ))}
+
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#34d399' }}>0ms</div>
+              <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: 2 }}>
+                {isRtl ? 'استجابة فائقة السرعة' : 'Instant Response'}
+              </div>
+            </div>
+
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#a78bfa' }}>24/7</div>
+              <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: 2 }}>
+                {isRtl ? 'حماية ورقابة أمنية' : 'Security & Audit'}
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {error && <ErrorAlert message={error} />}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group" style={{ marginBottom: 8 }}>
-            <label className="form-label" style={{ fontSize: '12px', marginBottom: 2 }}>{t('emailLabel')}</label>
-            <input
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. admin@school.local"
-              style={{ padding: '7px 10px', fontSize: '13px' }}
-              required
-            />
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 12 }}>
-            <label className="form-label" style={{ fontSize: '12px', marginBottom: 2 }}>{t('passwordLabel')}</label>
-            <input
-              type="password"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              style={{ padding: '7px 10px', fontSize: '13px' }}
-              required
-            />
-            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: 2 }}>
-              {isRtl ? 'كلمة المرور التجريبية: ChangeMe123!' : 'Demo Password: ChangeMe123!'}
-            </div>
-          </div>
-
-          <div>
-            {/* Primary Instant Login Submit Button */}
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                fontSize: '14px',
-                fontWeight: 800,
-                background: roleColor,
-                borderColor: roleColor,
-                boxShadow: `0 3px 10px ${roleColor}35`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                borderRadius: '8px'
-              }}
-              disabled={loading}
-            >
-              <span>⚡</span>
-              <span>
-                {loading ? t('signingIn') : `${t('signInBtn')} (${activeRole === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : activeRole === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher')})`}
-              </span>
-            </button>
-          </div>
-        </form>
-
-        <div
-          onClick={handleSecretFooterClick}
-          style={{
-            marginTop: 12,
-            paddingTop: 8,
-            borderTop: '1px solid var(--border-color)',
-            textAlign: 'center',
-            fontSize: '11px',
-            color: 'var(--text-light)',
-            cursor: 'default',
-            userSelect: 'none'
-          }}
-          title={secretClickCount > 0 ? `Developer Access: ${secretClickCount}/5` : ''}
-        >
-          {isRtl ? `${config.schoolNameAr} — منظومة إدارة المدرسة الذكية` : `${config.schoolNameEn} — Smart School Management System`}
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12, fontSize: '12px', color: '#94a3b8' }}>
+          <span>🔒 {isRtl ? 'اتصال مشفر وآمن بمعايير المؤسسات' : 'Enterprise-grade encryption'}</span>
         </div>
       </div>
     </div>

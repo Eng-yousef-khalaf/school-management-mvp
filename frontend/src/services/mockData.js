@@ -886,7 +886,6 @@ export function handleMockRequest(path, options = {}) {
     };
   }
 
-  // 10. Attendance Sheet & Bulk
   if (cleanPath === '/attendance/sheet') {
     const classId = searchParams.get('classId') || String(initialData.classes[0]?.id || 1);
     const date = searchParams.get('date') || '';
@@ -894,7 +893,12 @@ export function handleMockRequest(path, options = {}) {
     const savedForDate = mockAttendanceStore[key] || null;
 
     const targetClass = initialData.classes.find(c => String(c.id) === String(classId)) || initialData.classes[0];
-    const enrolledStudents = initialData.students.filter(s => !s.classId || String(s.classId) === String(classId) || s.className === targetClass?.name);
+    const enrolledStudents = initialData.students.filter(s => 
+      String(s.classId) === String(classId) || 
+      s.className === targetClass?.name || 
+      s.currentClass === targetClass?.name ||
+      (targetClass?.name && s.className?.includes(targetClass.name.split(' ')[1] || ''))
+    );
     const studentsToUse = enrolledStudents.length > 0 ? enrolledStudents : initialData.students;
 
     return {
@@ -904,9 +908,12 @@ export function handleMockRequest(path, options = {}) {
         const saved = savedForDate ? savedForDate[s.id] : null;
         return {
           studentId: s.id,
-          studentNumber: s.studentNumber,
-          fullName: s.fullName,
-          status: saved ? saved.status : null, // Clean/null on new days!
+          studentNumber: s.studentNumber || s.code || `STD-${1000 + s.id}`,
+          fullName: s.fullName || `${s.firstName} ${s.lastName}`,
+          firstName: s.firstName,
+          lastName: s.lastName,
+          className: s.className || targetClass?.name,
+          status: saved ? saved.status : null,
           note: saved ? (saved.note || '') : '',
         };
       }),

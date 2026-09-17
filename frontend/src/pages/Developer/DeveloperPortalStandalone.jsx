@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
 import DeveloperFleetDashboard from './DeveloperFleetDashboard';
-import DailyMotivationalModal from '../../components/common/DailyMotivationalModal';
 
 export default function DeveloperPortalStandalone({ onExitToSchool }) {
   const { user, loginAsDeveloper, logout } = useAuth();
@@ -51,9 +50,8 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
     <div
       style={{
         minHeight: '100vh',
-        background: '#f8fafc',
-        color: '#0f172a',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+        background: 'var(--bg-main)',
+        color: 'var(--text-main)',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -61,105 +59,73 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
     >
       {/* Top Standalone Developer Bar */}
       <header
+        className="topbar"
         style={{
+          padding: '0 28px',
+          height: 64,
           background: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
-          padding: '16px 32px',
+          borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 16,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 30
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
+              width: 36,
+              height: 36,
+              borderRadius: 'var(--radius-md)',
               background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 20,
+              fontSize: 18,
               color: '#ffffff',
-              boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)',
+              boxShadow: '0 2px 8px rgba(79, 70, 229, 0.3)',
             }}
           >
             ⚡
           </div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>
-              {isRtl ? 'بوابة المطور ومهندس المنظومة المستقلة' : 'Standalone System Engineering Hub'}
+            <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+              {isRtl ? 'بوابة المطور ومهندس المنظومة' : 'Standalone Engineering Hub'}
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
               YOUSEF KHALAF • MASTER CONTROL & DATABASE TELEMETRY
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {isUnlocked && (
-            <>
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('open-daily-motivation'))}
-                style={{
-                  background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-                  color: '#92400e',
-                  border: '1px solid #fcd34d',
-                  padding: '8px 14px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                }}
-                title={isRtl ? 'عرض رسالة وطاقة المطور' : 'View Developer Motivation'}
-              >
-                <span>✨</span>
-                <span>{isRtl ? 'رسالة المهندس' : 'Dev Spark'}</span>
-              </button>
-
-              <div
-                style={{
-                  background: '#ecfdf5',
-                  color: '#047857',
-                  padding: '6px 14px',
-                  borderRadius: 99,
-                  fontSize: 12,
-                  fontWeight: 800,
-                  border: '1px solid #a7f3d0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <span>🟢</span>
-                <span>{isRtl ? 'جلسة المطور نشطة' : 'Developer Session Active'}</span>
-              </div>
-            </>
+            <div
+              style={{
+                background: 'var(--success-light)',
+                color: 'var(--success-text)',
+                padding: '4px 12px',
+                borderRadius: 'var(--radius-full)',
+                fontSize: 11.5,
+                fontWeight: 800,
+                border: '1px solid var(--success-border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span>🟢</span>
+              <span>{isRtl ? 'جلسة المطور نشطة' : 'Session Active'}</span>
+            </div>
           )}
 
           <button
             type="button"
+            className="btn btn-secondary btn-sm"
             onClick={handleExit}
-            style={{
-              background: '#f1f5f9',
-              color: '#334155',
-              border: '1px solid #cbd5e1',
-              padding: '9px 18px',
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
+            style={{ fontWeight: 700 }}
           >
             🏫 {isRtl ? 'الخروج لمنظومة المدرسة' : 'Exit to School App'}
           </button>
@@ -167,20 +133,12 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
           {isUnlocked && (
             <button
               type="button"
+              className="btn btn-danger btn-sm"
               onClick={() => {
                 logout();
                 toast.success(isRtl ? 'تم قفل جلسة المطور' : 'Developer session locked');
               }}
-              style={{
-                background: '#fee2e2',
-                color: '#b91c1c',
-                border: '1px solid #fecaca',
-                padding: '9px 16px',
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              style={{ fontWeight: 700 }}
             >
               🔒 {isRtl ? 'قفل الجلسة' : 'Lock'}
             </button>
@@ -189,120 +147,91 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
       </header>
 
       {/* Body: Gateway Login or Dashboard */}
-      <main style={{ flex: 1, padding: '28px 32px' }}>
+      <main style={{ flex: 1, padding: '24px 28px', maxWidth: 1560, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
         {!isUnlocked ? (
           <div
+            className="panel"
             style={{
-              maxWidth: 460,
+              maxWidth: 440,
               margin: '60px auto',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: 18,
-              padding: '40px 36px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
+              padding: '36px 32px',
               textAlign: 'center',
+              boxShadow: 'var(--shadow-xl)',
             }}
           >
             <div
               style={{
-                width: 68,
-                height: 68,
-                borderRadius: 18,
-                background: '#e0e7ff',
-                border: '1px solid #c7d2fe',
+                width: 60,
+                height: 60,
+                borderRadius: 'var(--radius-xl)',
+                background: 'var(--primary-light)',
+                border: '1px solid rgba(79, 70, 229, 0.2)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 34,
-                margin: '0 auto 20px',
+                fontSize: 28,
+                margin: '0 auto 16px',
+                color: 'var(--primary)',
               }}
             >
               🔐
             </div>
 
-            <h2 style={{ fontSize: 22, fontWeight: 900, marginBottom: 8, color: '#0f172a' }}>
-              {isRtl ? 'مصادقة المطور العام' : 'Developer Master Authentication'}
+            <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, color: 'var(--text-main)', letterSpacing: '-0.3px' }}>
+              {isRtl ? 'مصادقة المطور العام' : 'Developer Authentication'}
             </h2>
-            <p style={{ color: '#64748b', fontSize: 13, marginBottom: 26, lineHeight: 1.6 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: 12.5, marginBottom: 24, lineHeight: 1.5 }}>
               {isRtl
-                ? 'بوابة تحكم سرية ومستقلة مخصصة للمطور (يوسف) لفحص الخادم، تشخيص قاعدة البيانات، والصيانة المباشرة.'
-                : 'Isolated standalone gateway for platform engineering, database diagnostics, and direct maintenance.'}
+                ? 'بوابة تحكم هندسية مخصصة لفحص الخادم، تشخيص قاعدة البيانات، والصيانة المباشرة.'
+                : 'Standalone command gateway for platform engineering, database diagnostics, and direct maintenance.'}
             </p>
 
             {error && (
-              <div
-                style={{
-                  background: '#fef2f2',
-                  border: '1px solid #fecaca',
-                  color: '#b91c1c',
-                  padding: '12px 16px',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  marginBottom: 20,
-                  textAlign: isRtl ? 'right' : 'left',
-                }}
-              >
+              <div className="alert alert-danger" style={{ textAlign: isRtl ? 'right' : 'left' }}>
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleUnlock} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>
-                  {isRtl ? 'مفتاح المطور السري (Developer Master Key):' : 'Developer Master Key:'}
-                </label>
+            <form onSubmit={handleUnlock} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ textAlign: 'start' }}>
+                <label className="form-label">{isRtl ? 'مفتاح المطور السري (Master Key):' : 'Developer Master Key:'}</label>
                 <input
                   type="password"
+                  className="form-input"
                   value={masterKey}
                   onChange={(e) => setMasterKey(e.target.value)}
-                  placeholder="••••••••••••••••"
+                  placeholder="YOUSEF_MASTER_2026"
                   required
-                  style={{
-                    width: '100%',
-                    padding: '13px 16px',
-                    borderRadius: 8,
-                    background: '#f8fafc',
-                    border: '1.5px solid #cbd5e1',
-                    color: '#0f172a',
-                    fontSize: 15,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    fontFamily: 'monospace',
-                  }}
+                  autoFocus
                 />
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, fontWeight: 500 }}>
-                  {isRtl ? 'المفتاح الافتراضي للتطوير: YOUSEF_MASTER_2026' : 'Default Master Key: YOUSEF_MASTER_2026'}
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                  {isRtl ? 'المفتاح الافتراضي: YOUSEF_MASTER_2026' : 'Default Master Key: YOUSEF_MASTER_2026'}
                 </div>
               </div>
 
               <button
                 type="submit"
+                className="btn btn-primary btn-lg"
+                style={{ width: '100%', fontWeight: 800 }}
                 disabled={loading}
-                style={{
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '14px',
-                  borderRadius: 8,
-                  fontSize: 15,
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
-                  transition: 'opacity 0.2s',
-                }}
               >
-                {loading ? (isRtl ? 'جاري التحقق...' : 'Authenticating...') : (isRtl ? '🔓 فتح لوحة المطور' : '🔓 Unlock Developer Hub')}
+                {loading ? (isRtl ? 'جاري التحقق...' : 'Authenticating...') : `⚡ ${isRtl ? 'فتح لوحة التحكم الهندسية' : 'Unlock Engineering Hub'}`}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setMasterKey('YOUSEF_MASTER_2026')}
+                style={{ fontSize: 11.5 }}
+              >
+                ⚡ {isRtl ? 'تعبئة المفتاح السري تلقائياً' : 'Autofill Master Key'}
               </button>
             </form>
           </div>
         ) : (
-          <DeveloperFleetDashboard onNavigate={() => {}} />
+          <DeveloperFleetDashboard onNavigate={onExitToSchool} />
         )}
       </main>
-
-      {/* Daily Motivational & Welcoming Modal for Developer */}
-      <DailyMotivationalModal />
     </div>
   );
 }

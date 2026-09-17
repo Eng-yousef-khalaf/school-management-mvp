@@ -99,6 +99,7 @@ export async function request(path, options = {}) {
       return mockRes;
     }
 
+    const contentType = response.headers.get('content-type') || '';
     let result;
     if (contentType.includes('application/json')) {
       result = await response.json();

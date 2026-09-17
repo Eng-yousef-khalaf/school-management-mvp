@@ -91,7 +91,7 @@ export default function StudentList({ onViewStudent }) {
 
   const handleExport = async () => {
     try {
-      toast.info(isRtl ? 'جاري إنشاء وتصدير ملف Excel...' : 'Generating Excel export...');
+      toast.info(isRtl ? 'جاري تصدير ملف Excel...' : 'Generating Excel export...');
       const queryParams = new URLSearchParams({
         q: search.trim(),
         status: statusFilter,
@@ -122,80 +122,63 @@ export default function StudentList({ onViewStudent }) {
 
   return (
     <div>
-      {/* Admin Supervisory Note Banner */}
+      {/* Role Context Ribbon */}
       {isAdmin && (
         <div style={{
-          background: 'rgba(79, 70, 229, 0.08)',
-          border: '1px solid rgba(79, 70, 229, 0.25)',
-          padding: '12px 18px',
+          background: 'var(--primary-light)',
+          border: '1px solid rgba(79, 70, 229, 0.2)',
+          padding: '10px 16px',
           borderRadius: 'var(--radius-md)',
           marginBottom: 16,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 10
+          fontSize: '12.5px',
+          color: 'var(--primary-dark)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 20 }}>👔</span>
-            <div>
-              <strong style={{ color: 'var(--primary-dark)', fontSize: 13 }}>
-                {isRtl ? 'وضع الإشراف والرقابة الإدارية للمدير العام (Supervisory Oversight):' : 'Executive Supervisory Mode:'}
-              </strong>
-              <span style={{ color: 'var(--text-muted)', fontSize: 12, marginRight: 8, marginLeft: 8 }}>
-                {isRtl
-                  ? 'يتيح لك الاطلاع الكامل على سجلات الطلاب، الملفات الأكاديمية، وتصدير التقارير. (عمليات إدخال وقبول الطلاب مخصصة لموظف شؤون الطلاب).'
-                  : 'You have full access to inspect student records, transcripts, and export reports. (Data entry and admissions are managed by Staff).'}
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>👔</span>
+            <span>
+              <strong>{isRtl ? 'وضع الإشراف والرقابة:' : 'Executive Oversight:'}</strong>{' '}
+              {isRtl ? 'اطلاع وتصدير تقارير كافة سجلات وشهادات الطلاب.' : 'Full read-only inspection and export access.'}
+            </span>
           </div>
-          <span className="badge badge-primary" style={{ fontSize: 11, fontWeight: 700 }}>
-            {isRtl ? 'اطلاع وتقارير' : 'Inspection & Reports'}
-          </span>
+          <span className="badge badge-primary">{isRtl ? 'إشراف عام' : 'Supervisory'}</span>
         </div>
       )}
 
-      {/* Teacher Scoped Scope Banner */}
       {isTeacher && (
         <div style={{
-          background: 'rgba(14, 165, 233, 0.08)',
-          border: '1px solid rgba(14, 165, 233, 0.25)',
-          padding: '12px 18px',
+          background: 'var(--secondary-light)',
+          border: '1px solid rgba(14, 165, 233, 0.2)',
+          padding: '10px 16px',
           borderRadius: 'var(--radius-md)',
           marginBottom: 16,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 10
+          fontSize: '12.5px',
+          color: '#0369a1'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 20 }}>👨‍🏫</span>
-            <div>
-              <strong style={{ color: '#0284c7', fontSize: 13 }}>
-                {isRtl ? 'سجل طلاب الشعب والمقررات المسندة إليك:' : 'My Assigned Students Roster:'}
-              </strong>
-              <span style={{ color: 'var(--text-muted)', fontSize: 12, marginRight: 8, marginLeft: 8 }}>
-                {isRtl
-                  ? 'يتم عرض طلاب الصفوف والشعب التي تقوم بتدريسها فقط، ويمكنك معاينة ملفاتهم ومتابعة سجلاتهم الأكاديمية (طباعة الشهادات والإفادات الرسمية محصورة بشؤون الطلاب).'
-                  : 'Only students enrolled in your assigned classes and subjects are shown. You can view their profiles (official transcripts and certificates printing is restricted to Staff).'}
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>👨‍🏫</span>
+            <span>
+              <strong>{isRtl ? 'سجل الشعب المسندة:' : 'Assigned Students Roster:'}</strong>{' '}
+              {isRtl ? 'يتم عرض طلاب الصفوف والشعب التي تقوم بتدريسها فقط.' : 'Showing students enrolled in your assigned classes only.'}
+            </span>
           </div>
-          <span className="badge" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#0284c7', fontSize: 11, fontWeight: 700 }}>
-            {isRtl ? 'خاص بالمعلم' : 'Teacher Scoped'}
-          </span>
+          <span className="badge badge-secondary">{isRtl ? 'خاص بالمعلم' : 'Teacher Scoped'}</span>
         </div>
       )}
 
-      {/* Top Toolbar */}
+      {/* Clean Filters Toolbar */}
       <div className="panel" style={{ padding: '16px 20px', marginBottom: 20 }}>
         <div className="toolbar">
           <div className="search-box">
             <SearchIcon className="search-icon" />
             <input
               type="text"
-              placeholder={isRtl ? 'بحث بالرقم الأكاديمي، الاسم، الهاتف...' : 'Search by ID, Name, Phone...'}
+              placeholder={isRtl ? 'بحث بالاسم، الرقم الأكاديمي، الهاتف...' : 'Search by ID, Name, Phone...'}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -248,19 +231,20 @@ export default function StudentList({ onViewStudent }) {
             ))}
           </select>
 
-          <div style={{ display: 'flex', gap: 8, marginLeft: isRtl ? '0' : 'auto', marginRight: isRtl ? 'auto' : '0' }}>
+          <div style={{ display: 'flex', gap: 8, marginInlineStart: 'auto' }}>
             <button className="btn btn-secondary btn-sm" onClick={handleExport} title={t('exportExcel')}>
               <DownloadIcon /> {t('exportExcel')}
             </button>
+
             {canManageStudents && (
               <>
                 <button
                   className="btn btn-secondary btn-sm"
                   onClick={() => setIsBulkCertificatesOpen(true)}
-                  style={{ color: '#059669', borderColor: '#10b981', fontWeight: 600 }}
-                  title={isRtl ? 'طباعة الشهادات والإفادات المجمعة لكافة الطلاب' : 'Bulk Certificates'}
+                  style={{ color: '#059669', borderColor: '#a7f3d0' }}
+                  title={isRtl ? 'طباعة الشهادات المجمعة' : 'Bulk Certificates'}
                 >
-                  📜 {isRtl ? 'طباعة الشهادات المجمعة' : 'Bulk Certificates'}
+                  📜 {isRtl ? 'الشهادات المجمعة' : 'Bulk Certificates'}
                 </button>
                 <button
                   className="btn btn-secondary btn-sm"
@@ -319,23 +303,58 @@ export default function StudentList({ onViewStudent }) {
                 {students.map((s) => (
                   <tr key={s.id}>
                     <td>
-                      <strong style={{ color: 'var(--primary)', cursor: 'pointer' }} onClick={() => onViewStudent(s.id)}>
+                      <span
+                        style={{
+                          fontWeight: 800,
+                          color: 'var(--primary)',
+                          background: 'var(--primary-light)',
+                          padding: '3px 8px',
+                          borderRadius: 'var(--radius-sm)',
+                          cursor: 'pointer',
+                          fontSize: 12
+                        }}
+                        onClick={() => onViewStudent(s.id)}
+                      >
                         {s.studentNumber}
-                      </strong>
+                      </span>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 600 }}>
-                        {s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
+                          color: 'var(--primary-dark)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: 12
+                        }}>
+                          {s.firstName?.charAt(0) || 'S'}
+                        </div>
+                        <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                          {s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}
+                        </span>
+                      </div>
                     </td>
                     <td>
                       {s.gender === 'MALE' ? t('male') : s.gender === 'FEMALE' ? t('female') : '—'}
                     </td>
                     <td>
-                      <span style={{ fontWeight: 500 }}>{s.currentClass || '—'}</span>
+                      <span style={{
+                        background: '#f1f5f9',
+                        padding: '3px 8px',
+                        borderRadius: 'var(--radius-sm)',
+                        fontWeight: 600,
+                        fontSize: 12
+                      }}>
+                        {s.currentClass || '—'}
+                      </span>
                     </td>
                     <td>{s.parentName || '—'}</td>
-                    <td>{s.parentPhone || '—'}</td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{s.parentPhone || '—'}</td>
                     <td>
                       <Badge status={s.status} />
                     </td>
@@ -348,16 +367,6 @@ export default function StudentList({ onViewStudent }) {
                         >
                           <EyeIcon />
                         </button>
-                        {canManageStudents && (
-                          <button
-                            className="btn btn-secondary btn-icon"
-                            title={isRtl ? 'معاينة وطباعة بطاقة الطالب' : 'Print Student Card'}
-                            onClick={() => onViewStudent(s.id)}
-                            style={{ color: 'var(--primary)', fontSize: 13 }}
-                          >
-                            🖨️
-                          </button>
-                        )}
                         {canManageStudents && (
                           <>
                             <button
@@ -403,7 +412,7 @@ export default function StudentList({ onViewStudent }) {
         )}
       </div>
 
-      {/* Add / Edit Student Modal - Only for Staff */}
+      {/* Add / Edit Student Modal */}
       {canManageStudents && isAddModalOpen && (
         <AddEditStudentModal
           isOpen={isAddModalOpen}
@@ -414,7 +423,7 @@ export default function StudentList({ onViewStudent }) {
         />
       )}
 
-      {/* Import Students Modal - Only for Staff */}
+      {/* Import Students Modal */}
       {canManageStudents && isImportModalOpen && (
         <ImportStudentsModal
           isOpen={isImportModalOpen}
@@ -423,7 +432,7 @@ export default function StudentList({ onViewStudent }) {
         />
       )}
 
-      {/* Confirm Deactivate Dialog - Only for Staff */}
+      {/* Confirm Deactivate Dialog */}
       {canManageStudents && deactivatingStudent && (
         <ConfirmDialog
           isOpen={Boolean(deactivatingStudent)}
@@ -431,15 +440,15 @@ export default function StudentList({ onViewStudent }) {
           onConfirm={handleDeactivate}
           title={isRtl ? 'تعطيل سجل الطالب' : 'Deactivate Student'}
           message={isRtl
-            ? `هل أنت متأكد من تعطيل حساب الطالب ${deactivatingStudent.firstName} ${deactivatingStudent.lastName} (${deactivatingStudent.studentNumber})؟ سيتم تحويل حالته إلى غير نشط.`
-            : `Are you sure you want to deactivate ${deactivatingStudent.firstName} ${deactivatingStudent.lastName} (${deactivatingStudent.studentNumber})? This student will be set to INACTIVE.`}
+            ? `هل أنت متأكد من تعطيل حساب الطالب ${deactivatingStudent.firstName} ${deactivatingStudent.lastName} (${deactivatingStudent.studentNumber})؟`
+            : `Are you sure you want to deactivate ${deactivatingStudent.firstName} ${deactivatingStudent.lastName} (${deactivatingStudent.studentNumber})?`}
           confirmText={isRtl ? 'تعطيل' : 'Deactivate'}
           isDanger={true}
           loading={deactivatingLoading}
         />
       )}
 
-      {/* Bulk Certificates Generation & Printing Modal - For Staff */}
+      {/* Bulk Certificates Modal */}
       {canManageStudents && (
         <BulkCertificatesModal
           isOpen={isBulkCertificatesOpen}

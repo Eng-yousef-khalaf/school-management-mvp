@@ -22,7 +22,7 @@ import {
 import SchoolLogo from '../common/SchoolLogo';
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
-  const { user, logout, isAdmin, isStaff, isTeacher, isDeveloper } = useAuth();
+  const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
   const { unreadCount } = useNotifications();
@@ -32,148 +32,134 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
 
   if (isTeacher) {
     navItems = [
-      { id: 'dashboard', label: isRtl ? 'لوحة المعلم' : 'Teacher Dashboard', icon: <DashboardIcon />, visible: true },
-      { id: 'classes', label: isRtl ? 'صفوفي وموادي' : 'My Classes & Subjects', icon: <ClassesIcon />, visible: true },
-      { id: 'students', label: isRtl ? 'سجل طلابي' : 'My Students Roster', icon: <StudentsIcon />, visible: true },
-      { id: 'attendance', label: isRtl ? 'دفتر الحضور' : 'Class Attendance', icon: <AttendanceIcon />, visible: true },
-      { id: 'grades', label: isRtl ? 'رصد الدرجات' : 'Grades Entry', icon: <GradesIcon />, visible: true },
-      { id: 'grade-reports', label: isRtl ? 'كشف الدرجات' : 'Grade Reports', icon: <ReportsIcon />, visible: true },
-      { id: 'settings', label: isRtl ? 'حسابي وكلمة المرور' : 'My Profile & Security', icon: <SettingsIcon />, visible: true }
+      { id: 'dashboard', label: isRtl ? 'لوحة المعلم' : 'Teacher Dashboard', icon: <DashboardIcon />, section: 'main' },
+      { id: 'classes', label: isRtl ? 'صفوفي وموادي' : 'My Classes & Subjects', icon: <ClassesIcon />, section: 'daily' },
+      { id: 'students', label: isRtl ? 'سجل طلابي' : 'My Students Roster', icon: <StudentsIcon />, section: 'daily' },
+      { id: 'attendance', label: isRtl ? 'دفتر الحضور' : 'Class Attendance', icon: <AttendanceIcon />, section: 'daily' },
+      { id: 'grades', label: isRtl ? 'رصد الدرجات' : 'Grades Entry', icon: <GradesIcon />, section: 'daily' },
+      { id: 'grade-reports', label: isRtl ? 'كشف الدرجات' : 'Grade Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   } else if (user?.role === 'STAFF') {
     navItems = [
-      { id: 'dashboard', label: isRtl ? 'لوحة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Dashboard', icon: <DashboardIcon />, visible: true },
-      { id: 'teachers', label: isRtl ? 'الهيئة التعليمية وتعيين الشعب' : 'Teachers & Class Allocation', icon: <TeachersIcon />, visible: true },
-      { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Student Admissions & Import', icon: <StudentsIcon />, visible: true },
-      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, visible: true },
-      { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, visible: true },
-      { id: 'teacher-tracker', label: isRtl ? 'مكتب تسجيل دوام المعلمين' : 'Teacher Check-In Desk', icon: <AttendanceIcon />, visible: true },
-      { id: 'grade-reports', label: isRtl ? 'كشوف ونتائج الطلاب' : 'Grade Reports & Results', icon: <ReportsIcon />, visible: true },
-      { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
-      { id: 'academic-years', label: isRtl ? 'السنوات الدراسية' : 'Academic Years', icon: <AcademicYearIcon />, visible: true },
-      { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور والغياب' : 'Attendance Reports', icon: <ReportsIcon />, visible: true },
-      { id: 'fees', label: isRtl ? 'الرسوم والأقساط والمقبوضات' : 'Tuition & Fees Accounting', icon: <span style={{ fontSize: 18 }}>💰</span>, visible: true },
-      { id: 'reports', label: isRtl ? 'مركز التقارير الشامل' : 'Reports Hub', icon: <ReportsIcon />, visible: true },
-      { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, visible: true }
+      { id: 'dashboard', label: isRtl ? 'لوحة شؤون الطلاب' : 'Staff Dashboard', icon: <DashboardIcon />, section: 'main' },
+      { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Student Admissions', icon: <StudentsIcon />, section: 'academic' },
+      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, section: 'academic' },
+      { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, section: 'academic' },
+      { id: 'teachers', label: isRtl ? 'الهيئة التعليمية' : 'Teachers Allocation', icon: <TeachersIcon />, section: 'academic' },
+      { id: 'teacher-tracker', label: isRtl ? 'دوام المعلمين' : 'Teacher Check-In', icon: <AttendanceIcon />, section: 'daily' },
+      { id: 'fees', label: isRtl ? 'الرسوم والأقساط' : 'Tuition & Fees', icon: <span style={{ fontSize: 16 }}>💰</span>, section: 'daily', badge: unreadCount },
+      { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, section: 'daily' },
+      { id: 'grade-reports', label: isRtl ? 'كشوف ونتائج الطلاب' : 'Grade Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور' : 'Attendance Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'reports', label: isRtl ? 'مركز التقارير الشامل' : 'Reports Hub', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   } else {
-    // ADMIN (Executive & Governance Scope)
+    // ADMIN
     navItems = [
-      { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
-      { id: 'developer-hub', label: isRtl ? 'لوحة تحكم مهندس المنظومة ⚡' : 'Developer Engineering Hub ⚡', icon: <span style={{ fontSize: 18 }}>⚡</span>, visible: Boolean(user?.isDeveloper) },
-      { id: 'fees', label: isRtl ? 'الرسوم المالية وحسابات الطلاب' : 'Tuition & Fees Ledger', icon: <span style={{ fontSize: 18 }}>💰</span>, visible: true },
-      { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
-      { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
-      { id: 'teachers', label: isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty & Staff Directory', icon: <TeachersIcon />, visible: true },
-      { id: 'teacher-tracker', label: isRtl ? 'تقارير ونسب دوام المعلمين' : 'Teacher Attendance Overview', icon: <AttendanceIcon />, visible: true },
-      { id: 'classes', label: isRtl ? 'الصفوف والشعب والمعدلات' : 'Classes & Section Averages', icon: <ClassesIcon />, visible: true },
-      { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
-      { id: 'academic-years', label: isRtl ? 'السنوات والتقويم الدراسي' : 'Academic Years & Terms', icon: <AcademicYearIcon />, visible: true },
-      { id: 'reports', label: isRtl ? 'مركز التقارير والتصدير' : 'Executive Reports Hub', icon: <ReportsIcon />, visible: true },
-      { id: 'settings', label: isRtl ? 'إعدادات النظام والأمان' : 'System Security Settings', icon: <SettingsIcon />, visible: true }
+      { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Dashboard', icon: <DashboardIcon />, section: 'main' },
+      { id: 'developer-hub', label: isRtl ? 'لوحة المطور ⚡' : 'Developer Hub ⚡', icon: <span style={{ fontSize: 16 }}>⚡</span>, section: 'main', visible: Boolean(user?.isDeveloper) },
+      { id: 'fees', label: isRtl ? 'الرسوم وحسابات الطلاب' : 'Tuition & Fees', icon: <span style={{ fontSize: 16 }}>💰</span>, section: 'management' },
+      { id: 'users', label: isRtl ? 'المستخدمين والصلاحيات' : 'User Accounts', icon: <UsersIcon />, section: 'management' },
+      { id: 'teachers', label: isRtl ? 'الهيئة التعليمية' : 'Faculty Directory', icon: <TeachersIcon />, section: 'management' },
+      { id: 'teacher-tracker', label: isRtl ? 'دوام المعلمين' : 'Teacher Attendance', icon: <AttendanceIcon />, section: 'management' },
+      { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, section: 'management' },
+      { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, section: 'management' },
+      { id: 'academic-years', label: isRtl ? 'السنوات والتقويم' : 'Academic Years', icon: <AcademicYearIcon />, section: 'system' },
+      { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والأمان' : 'Security Audit Trail', icon: <AuditLogsIcon />, section: 'system' },
+      { id: 'reports', label: isRtl ? 'مركز التقارير' : 'Executive Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'settings', label: isRtl ? 'إعدادات النظام' : 'System Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   }
 
-  const roleColor = user?.isDeveloper ? '#6366f1' : user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const roleColor = user?.isDeveloper ? '#818cf8' : user?.role === 'ADMIN' ? '#6366f1' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const roleName = user?.isDeveloper ? (isRtl ? 'المطور العام' : 'Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : user?.role === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher');
   const schoolName = isRtl ? config.schoolNameAr : config.schoolNameEn;
 
   return (
-    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
-          {config.logoUrl ? (
-            <img src={config.logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'contain' }} />
-          ) : (
-            <SchoolLogo size={40} />
-          )}
-          <div className="sidebar-brand" style={{ maxWidth: 155 }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={schoolName}>
-              {schoolName}
-            </h2>
-            <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
-              {user?.isDeveloper ? (isRtl ? '👑 المطور العام (Master)' : '👑 Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Students Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
-            </span>
-          </div>
-        </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
 
-        {/* Mobile Close Button */}
-        <button
-          className="mobile-sidebar-close-btn"
-          onClick={onClose}
-          title={isRtl ? 'إغلاق القائمة' : 'Close Sidebar'}
-          aria-label="Close Sidebar"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="sidebar-nav">
-        <div className="nav-section-title">
-          {isRtl ? `مهام ${user?.isDeveloper ? 'المطور العام' : user?.role === 'ADMIN' ? 'الإدارة والرقابة' : user?.role === 'STAFF' ? 'شؤون المعلمين والطلاب' : 'المعلم'}` : `${user?.role} Navigation`}
-        </div>
-        {navItems
-          .filter((item) => item.visible)
-          .map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${currentPage === item.id || (currentPage.startsWith(item.id) && item.id !== 'dashboard' && item.id !== 'developer-fleet') ? 'active' : ''}`}
-              style={item.id === 'developer-fleet' ? { borderLeft: isRtl ? 'none' : '3px solid #6366f1', borderRight: isRtl ? '3px solid #6366f1' : 'none', background: 'rgba(99, 102, 241, 0.08)' } : {}}
-              onClick={() => {
-                onNavigate(item.id);
-                if (onClose) onClose();
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                {item.icon}
-                <span style={item.id === 'developer-fleet' ? { color: '#a5b4fc', fontWeight: 700 } : {}}>{item.label}</span>
-              </div>
-              {user?.role === 'STAFF' && item.id === 'fees' && unreadCount > 0 && (
-                <span
-                  style={{
-                    background: '#ea580c',
-                    color: '#ffffff',
-                    fontSize: 11,
-                    fontWeight: 900,
-                    padding: '2px 8px',
-                    borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(234, 88, 12, 0.5)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  title={isRtl ? `${unreadCount} إشعارات حوالات بانتظار الاعتماد` : `${unreadCount} Pending Transfers`}
-                >
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-          ))}
-      </div>
-
-      {/* Prominent High-Visibility Footer & Logout Block */}
-      <div className="sidebar-footer">
-        <div className="user-profile-badge">
-          <div className="user-avatar" style={{ background: roleColor }}>
-            {user?.fullName?.charAt(0) || 'U'}
-          </div>
-          <div className="user-details">
-            <div className="user-name" title={user?.fullName}>{user?.fullName || 'User'}</div>
-            <div className="user-role-tag" style={{ color: roleColor }}>
-              {user?.isDeveloper ? 'SUPER ADMIN' : user?.role === 'ADMIN' ? t('roleAdmin') : user?.role === 'STAFF' ? t('roleStaff') : t('roleTeacher')}
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        {/* Brand Header */}
+        <div className="sidebar-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+            {config.logoUrl ? (
+              <img src={config.logoUrl} alt="Logo" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'contain' }} />
+            ) : (
+              <SchoolLogo size={36} />
+            )}
+            <div className="sidebar-brand" style={{ overflow: 'hidden' }}>
+              <h2 title={schoolName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {schoolName}
+              </h2>
+              <span style={{ color: roleColor, fontWeight: 700 }}>
+                {roleName}
+              </span>
             </div>
           </div>
+
+          <button className="mobile-sidebar-close-btn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
         </div>
 
-        {/* Prominent Red Logout Button */}
-        <button
-          className="btn-prominent-logout"
-          onClick={logout}
-          title={isRtl ? 'تسجيل الخروج من الحساب والعودة لشاشة الدخول' : 'Sign out of your account'}
-        >
-          <LogoutIcon style={{ width: 18, height: 18 }} />
-          <span>{isRtl ? 'تسجيل الخروج' : 'Log Out'}</span>
-        </button>
-      </div>
-    </aside>
+        {/* Navigation Items */}
+        <div className="sidebar-nav">
+          {navItems
+            .filter((item) => item.visible !== false)
+            .map((item) => {
+              const isActive = currentPage === item.id || (currentPage.startsWith(item.id) && item.id !== 'dashboard');
+              return (
+                <button
+                  key={item.id}
+                  className={`nav-item ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    if (onClose) onClose();
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, overflow: 'hidden' }}>
+                    {item.icon}
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                  </div>
+                  {item.badge && item.badge > 0 ? (
+                    <span style={{
+                      background: '#ea580c',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: 10
+                    }}>
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+        </div>
+
+        {/* User Badge & Logout */}
+        <div className="sidebar-footer">
+          <div className="user-profile-badge">
+            <div className="user-avatar" style={{ background: roleColor }}>
+              {user?.fullName?.charAt(0) || 'U'}
+            </div>
+            <div className="user-details">
+              <div className="user-name" title={user?.fullName}>{user?.fullName || 'User'}</div>
+              <div className="user-role-tag">{roleName}</div>
+            </div>
+          </div>
+
+          <button className="btn-prominent-logout" onClick={logout}>
+            <LogoutIcon />
+            <span>{t('logout')}</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
