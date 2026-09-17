@@ -1,5 +1,6 @@
 import { handleMockRequest } from './mockData';
 
+// Render backend URL (optional fallback)
 const LIVE_RENDER_API = 'https://school-management-uzlu.onrender.com/api';
 const configuredApiUrl = import.meta.env.VITE_API_URL || '';
 const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
@@ -7,30 +8,64 @@ const isHttps = typeof window !== 'undefined' && window.location.protocol === 'h
 // Default to live Render backend on production HTTPS, or configured URL, or localhost in dev
 const API_BASE_URL = configuredApiUrl || (isHttps ? LIVE_RENDER_API : 'http://localhost:4000/api');
 
-// Fast network timeout threshold (1200ms) to eliminate UI freezes on sleeping backends
-const NETWORK_TIMEOUT_MS = 1200;
-const BACKEND_RETRY_COOLDOWN_MS = 15000;
+// Fast network timeout threshold (500ms) to ensure the UI never hangs or freezes
+const NETWORK_TIMEOUT_MS = 500;
+const BACKEND_RETRY_COOLDOWN_MS = 300000; // 5 minutes cooldown after a failed connection
 
 // Track backend availability
 let backendStatus = {
-  isAvailable: null, // null = untested, true = online, false = offline/sleeping
+  isAvailable: false, // Start false for instant 0ms first render without waiting on sleeping cloud instances
   lastChecked: 0,
   lastFailure: 0,
+  isProbing: false
 };
 
-// In-memory query cache for instant (0ms) reads and smooth navigation
+// In-memory query cache for instant (0ms) reads and ultra-smooth navigation
 const queryCache = new Map();
-const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute
+const DEFAULT_CACHE_TTL_MS = 300000; // 5 minutes
 
 export function clearApiCache() {
   queryCache.clear();
 }
 
 /**
- * Intelligent Request Handler:
+ * Background silent probe to check if a live backend is active and awake
+ */
+async function probeBackendInBackground() {
+  if (backendStatus.isProbing || !API_BASE_URL) return;
+  if (Date.now() - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) return;
+
+  backendStatus.isProbing = true;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600);
+    const res = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      backendStatus.isAvailable = true;
+      backendStatus.lastChecked = Date.now();
+    } else {
+      backendStatus.isAvailable = false;
+      backendStatus.lastFailure = Date.now();
+    }
+  } catch {
+    backendStatus.isAvailable = false;
+    backendStatus.lastFailure = Date.now();
+  } finally {
+    backendStatus.isProbing = false;
+  }
+}
+
+// Kick off silent background probe on browser startup
+if (typeof window !== 'undefined' && (configuredApiUrl || !isHttps)) {
+  probeBackendInBackground();
+}
+
+/**
+ * High-Performance Intelligent Request Handler:
  * - 0ms response for cached GET queries
- * - Fast 1200ms timeout race with AbortController
- * - Instant fallback to Mock Engine when server is sleeping/offline
+ * - Instant (0ms) fallback to rich Mock Engine when server is sleeping/offline
+ * - Non-blocking background health check
  * - Automatic cache invalidation on mutations (POST/PUT/DELETE)
  */
 export async function request(path, options = {}) {
@@ -38,7 +73,7 @@ export async function request(path, options = {}) {
   const isGet = method === 'GET';
   const cacheKey = `${method}:${path}`;
 
-  // 1. Check in-memory cache for GET requests
+  // 1. Check in-memory cache for GET requests (0ms response)
   if (isGet && !options.noCache) {
     const cached = queryCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < (options.cacheTTL || DEFAULT_CACHE_TTL_MS)) {
@@ -51,8 +86,18 @@ export async function request(path, options = {}) {
     queryCache.clear();
   }
 
-  // 3. Fast-path: If backend recently failed within cooldown, immediately use mock engine (0ms)
   const now = Date.now();
+
+  // 3. Fast-path: If backend is known offline or unverified on web without custom VITE_API_URL, serve mock instantly (0ms)
+  if (!backendStatus.isAvailable && !configuredApiUrl) {
+    const mockRes = handleMockRequest(path, options);
+    if (isGet) {
+      queryCache.set(cacheKey, { data: mockRes, timestamp: now });
+    }
+    return mockRes;
+  }
+
+  // If backend recently failed within cooldown, immediately use mock engine (0ms)
   if (backendStatus.isAvailable === false && now - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) {
     const mockRes = handleMockRequest(path, options);
     if (isGet) {
@@ -75,7 +120,7 @@ export async function request(path, options = {}) {
 
   const url = `${API_BASE_URL}${path}`;
 
-  // 4. Setup AbortController for strict timeout
+  // 4. Setup AbortController with fast timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options.timeout || NETWORK_TIMEOUT_MS);
 
@@ -91,7 +136,7 @@ export async function request(path, options = {}) {
     backendStatus.lastChecked = Date.now();
 
     if (!response.ok) {
-      // If server returns 401, 403, 404 or 5xx, gracefully fallback to rich local Mock Engine without interrupting user session
+      // Graceful fallback to rich local Mock Engine
       const mockRes = handleMockRequest(path, options);
       if (isGet) {
         queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
