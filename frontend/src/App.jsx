@@ -39,7 +39,7 @@ import FeeManagement from './pages/Fees/FeeManagement';
 import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
 
 export default function App() {
-  const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole } = useAuth();
+  const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole, logout } = useAuth();
   const { t, isRtl } = useLanguage();
 
   const [isDeveloperPortal, setIsDeveloperPortal] = useState(() => {
@@ -86,6 +86,22 @@ export default function App() {
       const search = window.location.search.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       const path = window.location.pathname.toLowerCase();
+
+      // Check if user requested explicit login or logout via URL
+      if (
+        path.includes('login') ||
+        path.includes('logout') ||
+        hash.includes('login') ||
+        hash.includes('logout') ||
+        search.includes('logout') ||
+        search.includes('portal=login')
+      ) {
+        if (user) {
+          logout();
+        }
+        return;
+      }
+
       const isDev =
         path.includes('developer-hub') ||
         path.includes('dev-hub') ||
@@ -114,8 +130,9 @@ export default function App() {
       const hashParam = window.location.hash.replace('#/', '').replace('#', '').toUpperCase();
       const targetRole = roleParam || (['ADMIN', 'STAFF', 'TEACHER'].includes(hashParam) ? hashParam : null);
 
+      // Only switch role if user is ALREADY authenticated! Never auto-login unauthenticated visitors.
       if (targetRole && ['ADMIN', 'STAFF', 'TEACHER'].includes(targetRole)) {
-        if (user?.role !== targetRole) {
+        if (user && user.role !== targetRole) {
           switchPortalRole(targetRole).then(() => {
             setCurrentPage('dashboard');
           }).catch(console.error);
@@ -130,7 +147,7 @@ export default function App() {
       window.removeEventListener('popstate', handleUrlRoute);
       window.removeEventListener('hashchange', handleUrlRoute);
     };
-  }, [user, switchPortalRole]);
+  }, [user, switchPortalRole, logout]);
 
   // If in standalone parent payment portal route, render parent portal
   if (isParentPortal) {
@@ -155,7 +172,6 @@ export default function App() {
           window.location.search = '';
           window.history.pushState({}, '', '/');
           setIsDeveloperPortal(false);
-          switchPortalRole('ADMIN');
         }}
       />
     );

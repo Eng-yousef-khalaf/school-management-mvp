@@ -32,16 +32,27 @@ export function AuthProvider({ children }) {
 
     try {
       const profile = await api.get('/auth/profile', { timeout: 1000 });
-      if (profile && profile.role) {
+      if (profile && profile.role && profile.id) {
         setUser(profile);
         localStorage.setItem('user', JSON.stringify(profile));
+      } else {
+        setUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     } catch {
       const saved = localStorage.getItem('user');
       if (saved) {
-        setUser(JSON.parse(saved));
+        try {
+          setUser(JSON.parse(saved));
+        } catch {
+          setUser(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
       } else {
         setUser(null);
+        localStorage.removeItem('token');
       }
     } finally {
       setLoading(false);

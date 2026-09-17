@@ -631,8 +631,16 @@ export function handleMockRequest(path, options = {}) {
 
   // 2. Auth: Profile
   if (cleanPath === '/auth/profile') {
-    const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : initialData.users[0];
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    if (token && saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
   // 3. Developer Master Auth
