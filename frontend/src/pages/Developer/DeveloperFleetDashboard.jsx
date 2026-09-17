@@ -282,22 +282,161 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     const slipText = `======================================================
 🏫 بطاقة تسليم المنظومة الذكية لإدارة المدرسة
 ======================================================
-المدرسة: ${handoverData.schoolNameAr} (${handoverData.schoolNameEn})
-كود المنظومة: ${handoverData.schoolCode}
+المدرسة: ${brandForm.schoolNameAr || config.schoolNameAr} (${brandForm.schoolNameEn || config.schoolNameEn})
+كود المنظومة: ${brandForm.schoolCode || config.schoolCode}
 رابط الدخول: ${handoverData.domainUrl}
 
 👤 بيانات حساب مدير المدرسة (Super Admin):
 ------------------------------------------------------
 • اسم المدير: ${handoverData.adminFullName}
 • البريد الإلكتروني: ${handoverData.adminEmail}
-• كلمة المرور: ${handoverData.adminPassword}
+• كلمة المرور الافتراضية: ${handoverData.adminPassword}
 • الصلاحية: إدارة كاملة ورقابة مؤسسية (ADMIN)
 ------------------------------------------------------
 🔒 يُرجى تغيير كلمة المرور عند أول تسجيل دخول لضمان الأمان.
 ======================================================`;
 
     navigator.clipboard.writeText(slipText);
-    toast.success(isRtl ? 'تم نسخ بطاقة التسليم بالكامل!' : 'Delivery Slip copied to clipboard!');
+    toast.success(isRtl ? 'تم نسخ بيانات بطاقة التسليم بالكامل!' : 'Delivery Slip copied to clipboard!');
+  };
+
+  const handleDownloadHandoverSlip = () => {
+    const content = `================================================================================
+🏫 بطاقة تسليم المنظومة الأكاديمية الذكية لإدارة المدرسة
+   SMART SCHOOL MANAGEMENT SYSTEM - OFFICIAL HANDOVER CERTIFICATE
+================================================================================
+
+📌 ١. بيانات المؤسسة التعليمية (Institution Information):
+--------------------------------------------------------------------------------
+• اسم المدرسة بالعربية: ${brandForm.schoolNameAr || config.schoolNameAr}
+• School Name (EN): ${brandForm.schoolNameEn || config.schoolNameEn}
+• كود المنظومة (School Code): ${brandForm.schoolCode || config.schoolCode}
+• رابط الدخول المباشر للمنظومة: ${window.location.origin}
+• تاريخ إصدار البطاقة: ${new Date().toLocaleDateString('ar-EG')} (${new Date().toLocaleDateString('en-US')})
+
+📌 ٢. بيانات حساب مدير المدرسة العام (Super Administrator Account):
+--------------------------------------------------------------------------------
+• الاسم الكامل: ${handoverData.adminFullName}
+• البريد الإلكتروني لتسجيل الدخول: ${handoverData.adminEmail}
+• كلمة المرور الافتراضية: ${handoverData.adminPassword}
+• مستوى الصلاحية: إدارة كاملة ورقابة مؤسسية (ADMIN - Super Admin)
+
+📌 ٣. المواصفات الفنية للبيئة التشغيلية (System & DB Specs):
+--------------------------------------------------------------------------------
+• محرك قاعدة البيانات: PostgreSQL (Dedicated & Isolated Database)
+• سعة التخزين المخصصة: ${brandForm.allocatedStorageMb || config.allocatedStorageMb || 500} MB
+• حالة الجاهزية: تم فحص وتكامل الجداول بنجاح (All Systems Operational)
+
+📌 ٤. تعليمات الأمان والدعم الفني:
+--------------------------------------------------------------------------------
+⚠️ يُرجى من مدير المدرسة تغيير كلمة المرور فور أول تسجيل دخول من قائمة الإعدادات.
+📞 الدعم الفني وتحديثات المنظومة: م. يوسف خلف (Yousef Khalaf)
+📧 البريد التقني: ${config.supportEmail || 'support@school-management.dev'}
+
+================================================================================
+⚡ المنظومة الأكاديمية الذكية لإدارة المدارس - مهندس ومطور المنظومة © 2026
+================================================================================`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `بطاقة_تسليم_منظومة_${brandForm.schoolCode || config.schoolCode || 'SCH'}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(isRtl ? 'تم تنزيل بطاقة التسليم بنجاح!' : 'Handover slip downloaded successfully!');
+  };
+
+  const handlePrintHandoverSlip = () => {
+    const printWindow = window.open('', '_blank', 'width=850,height=900');
+    if (!printWindow) {
+      toast.error(isRtl ? 'يرجى السماح بالنوافذ المنبثقة للطباعة' : 'Please allow popups to print');
+      return;
+    }
+    const schoolLogoHtml = (brandForm.logoUrl || config.logoUrl)
+      ? `<img src="${brandForm.logoUrl || config.logoUrl}" style="height: 60px; max-width: 140px; object-fit: contain;" />`
+      : `<div style="font-size: 36px;">🏫</div>`;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="utf-8">
+        <title>بطاقة تسليم المنظومة - ${brandForm.schoolNameAr || config.schoolNameAr}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+          body { font-family: 'Cairo', sans-serif; padding: 40px; color: #0f172a; background: #ffffff; }
+          .certificate-card { border: 3px double #4f46e5; border-radius: 16px; padding: 32px; position: relative; background: #f8fafc; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px; }
+          .section-title { font-size: 15px; font-weight: 800; color: #1e1b4b; margin: 18px 0 10px; border-right: 4px solid #4f46e5; padding-right: 10px; }
+          .table-creds { width: 100%; border-collapse: collapse; margin-bottom: 16px; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
+          .table-creds td { padding: 10px 14px; border: 1px solid #e2e8f0; font-size: 13px; }
+          .table-creds td.label { font-weight: 700; background: #f1f5f9; width: 30%; color: #475569; }
+          .table-creds td.val { font-weight: 800; color: #0f172a; font-family: monospace; font-size: 14px; }
+          .footer-sign { display: flex; justify-content: space-between; margin-top: 36px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 13px; }
+          @media print { body { padding: 0; } .certificate-card { border-color: #000; } }
+        </style>
+      </head>
+      <body>
+        <div class="certificate-card">
+          <div class="header">
+            <div>
+              <h1 style="margin: 0; font-size: 22px; color: #1e1b4b; font-weight: 900;">بطاقة تسليم المنظومة الأكاديمية الذكية</h1>
+              <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">وثيقة اعتماد تسليم حساب الإدارة العامة والمواصفات الفنية للمدرسة</p>
+            </div>
+            ${schoolLogoHtml}
+          </div>
+
+          <div class="section-title">١. بيانات المؤسسة التعليمية</div>
+          <table class="table-creds">
+            <tr><td class="label">اسم المدرسة:</td><td class="val" style="font-family: 'Cairo'">${brandForm.schoolNameAr || config.schoolNameAr}</td></tr>
+            <tr><td class="label">كود المنظومة (School Code):</td><td class="val" style="color: #4f46e5">${brandForm.schoolCode || config.schoolCode}</td></tr>
+            <tr><td class="label">رابط الدخول المباشر:</td><td class="val">${window.location.origin}</td></tr>
+            <tr><td class="label">تاريخ التسليم والاعتماد:</td><td class="val">${new Date().toLocaleDateString('ar-EG')}</td></tr>
+          </table>
+
+          <div class="section-title">٢. بيانات حساب مدير المدرسة (Super Admin)</div>
+          <table class="table-creds">
+            <tr><td class="label">اسم المدير المعتمد:</td><td class="val" style="font-family: 'Cairo'">${handoverData.adminFullName}</td></tr>
+            <tr><td class="label">البريد الإلكتروني:</td><td class="val" style="color: #2563eb">${handoverData.adminEmail}</td></tr>
+            <tr><td class="label">كلمة المرور المؤقتة:</td><td class="val" style="color: #dc2626">${handoverData.adminPassword}</td></tr>
+            <tr><td class="label">مستوى الصلاحية:</td><td class="val" style="color: #059669">إدارة عامة وتحكم كامل (ADMIN)</td></tr>
+          </table>
+
+          <div class="section-title">٣. المواصفات الفنية والخادم</div>
+          <table class="table-creds">
+            <tr><td class="label">محرك قاعدة البيانات:</td><td class="val">PostgreSQL Dedicated DB</td></tr>
+            <tr><td class="label">سعة التخزين الأولية:</td><td class="val">${brandForm.allocatedStorageMb || config.allocatedStorageMb || 500} MB</td></tr>
+            <tr><td class="label">حالة النظام:</td><td class="val" style="color: #059669">جاهز للعمل الميداني (All Operational)</td></tr>
+          </table>
+
+          <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; font-size: 12px; color: #92400e; margin-top: 14px;">
+            🔒 <strong>تنبيه أمان:</strong> يُرجى من إدارة المدرسة تغيير كلمة المرور عند أول تسجيل دخول من صفحة الإعدادات، والاحتفاظ بهذه البطاقة في مكان آمن.
+          </div>
+
+          <div class="footer-sign">
+            <div>
+              <strong>توقيع واعتماد مهندس المنظومة:</strong><br><br>
+              <span>م. يوسف خلف (Yousef Khalaf)</span><br>
+              <span style="font-size: 11px; color: #64748b;">مهندس ومطور النظام الأكاديمي الذكي</span>
+            </div>
+            <div style="text-align: left;">
+              <strong>استلام إدارة المدرسة:</strong><br><br>
+              <span>${handoverData.adminFullName}</span><br>
+              <span style="font-size: 11px; color: #64748b;">الختم والتوقيع الرسمي</span>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 400);
   };
 
   if (loading) {
@@ -317,7 +456,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         style={{
           background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
           borderRadius: 'var(--radius-xl)',
-          padding: '24px 28px',
+          padding: '20px 24px',
           color: '#ffffff',
           boxShadow: 'var(--shadow-md)',
           position: 'relative',
@@ -327,34 +466,34 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
       >
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 18 }}>⚡</span>
-              <span style={{ background: 'rgba(99, 102, 241, 0.25)', color: '#c7d2fe', padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: 11, fontWeight: 800 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 16 }}>⚡</span>
+              <span style={{ background: 'rgba(99, 102, 241, 0.25)', color: '#c7d2fe', padding: '2px 8px', borderRadius: 'var(--radius-full)', fontSize: 10.5, fontWeight: 800 }}>
                 STANDALONE INSTANCE
               </span>
-              <span style={{ background: 'rgba(16, 185, 129, 0.25)', color: '#6ee7b7', padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: 11, fontWeight: 800 }}>
+              <span style={{ background: 'rgba(16, 185, 129, 0.25)', color: '#6ee7b7', padding: '2px 8px', borderRadius: 'var(--radius-full)', fontSize: 10.5, fontWeight: 800 }}>
                 ● Database: Connected
               </span>
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 900, margin: '0 0 4px 0', letterSpacing: '-0.4px', color: '#f8fafc' }}>
+            <h1 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 2px 0', letterSpacing: '-0.3px', color: '#f8fafc' }}>
               {isRtl ? 'لوحة تحكم مهندس ومطور المنظومة' : 'System Engineering & Telemetry Hub'}
             </h1>
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: 12.5, maxWidth: 620, lineHeight: 1.5 }}>
+            <p style={{ margin: 0, color: '#94a3b8', fontSize: 12, maxWidth: 640, lineHeight: 1.4 }}>
               {isRtl
-                ? 'المركز التشغيلي الحصري لفحص حالة الخادم وقاعدة البيانات، استهلاك الجداول، أدوات الصيانة، وتوليد بطاقة تسليم المدير.'
-                : 'Dedicated command center for system diagnostics, live database telemetry, storage quota breakdown, and school handover.'}
+                ? 'المركز التشغيلي الحصري لفحص حالة الخادم وقاعدة البيانات، تخصيص الهوية، وتوليد بطاقة تسليم الإدارة.'
+                : 'Dedicated command center for system diagnostics, live database telemetry, school branding, and handover slips.'}
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button
               className="btn btn-success btn-sm"
-              style={{ fontWeight: 800 }}
+              style={{ fontWeight: 800, padding: '7px 14px' }}
               onClick={() => {
                 setHandoverData({
-                  schoolNameAr: config.schoolNameAr,
-                  schoolNameEn: config.schoolNameEn,
-                  schoolCode: config.schoolCode,
+                  schoolNameAr: brandForm.schoolNameAr || config.schoolNameAr,
+                  schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
+                  schoolCode: brandForm.schoolCode || config.schoolCode,
                   domainUrl: window.location.origin,
                   adminFullName: 'أ. محمود حسن (المدير العام)',
                   adminEmail: 'admin@school.local',
@@ -369,7 +508,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
             <button
               className="btn btn-primary btn-sm"
-              style={{ fontWeight: 800 }}
+              style={{ fontWeight: 800, padding: '7px 14px' }}
               onClick={handleDeveloperSuperAdminAccess}
             >
               <span>👑</span>
@@ -573,7 +712,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
       {/* TAB 3: BRANDING WHITE-LABEL SUITE */}
       {activeTab === 'branding' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 20, alignItems: 'start' }}>
           {/* Controls Column */}
           <div className="panel" style={{ padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, borderBottom: '1px solid var(--border-color)', paddingBottom: 12 }}>
@@ -596,7 +735,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 <label style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 10 }}>
                   {isRtl ? '١. بيانات ومسمى المدرسة الأساسي:' : '1. School Details & Codes:'}
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                   <div>
                     <label className="form-label">{isRtl ? 'اسم المدرسة (بالعربية):' : 'School Name (Arabic):'}</label>
                     <input
@@ -646,7 +785,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginTop: 10 }}>
                   <div>
                     <label className="form-label">{isRtl ? 'الشعار اللفظي (عربي):' : 'Slogan (Arabic):'}</label>
                     <input
@@ -760,7 +899,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   {isRtl ? '٣. نظام الألوان المؤسسي والهوية البصرية:' : '3. Brand Color Palette:'}
                 </label>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8, marginBottom: 12 }}>
                   {COLOR_PRESETS.map((p) => {
                     const isSelected = brandForm.primaryColor.toLowerCase() === p.primary.toLowerCase();
                     return (
@@ -788,7 +927,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   })}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-main)', padding: 10, borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-main)', padding: 10, borderRadius: 'var(--radius-md)', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <label className="form-label" style={{ margin: 0, fontSize: 12 }}>{isRtl ? 'اللون الأساسي:' : 'Primary Color:'}</label>
                     <input
@@ -814,7 +953,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: 14, flexWrap: 'wrap', gap: 10 }}>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -982,6 +1121,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 12,
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -997,18 +1138,18 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                     padding: 4,
                   }}
                 >
-                  {config.logoUrl ? (
-                    <img src={config.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  {brandForm.logoUrl || config.logoUrl ? (
+                    <img src={brandForm.logoUrl || config.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   ) : (
                     <SchoolLogo size={36} />
                   )}
                 </div>
                 <div>
                   <h4 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: '#f8fafc' }}>
-                    {config.schoolNameAr} ({config.schoolCode})
+                    {brandForm.schoolNameAr || config.schoolNameAr} ({brandForm.schoolCode || config.schoolCode})
                   </h4>
                   <p style={{ margin: '2px 0 0 0', fontSize: 11.5, color: '#94a3b8' }}>
-                    {config.schoolNameEn} • {window.location.origin}
+                    {brandForm.schoolNameEn || config.schoolNameEn} • {window.location.origin}
                   </p>
                 </div>
               </div>
@@ -1025,7 +1166,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 <span>{isRtl ? 'بيانات حساب مدير المدرسة (Super Admin):' : 'School Administrator Credentials:'}</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, fontSize: 12.5 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, fontSize: 12.5 }}>
                 <div style={{ background: 'var(--bg-main)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
                   <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 11 }}>{isRtl ? 'اسم المدير:' : 'Principal Name:'}</span>
                   <strong style={{ color: 'var(--text-main)' }}>{handoverData.adminFullName}</strong>
@@ -1049,7 +1190,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             </div>
 
             {/* System Readiness Specs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, fontSize: 11.5 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, fontSize: 11.5 }}>
               <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>{isRtl ? 'محرك قاعدة البيانات' : 'DB Engine'}</span>
                 <strong style={{ color: 'var(--success)' }}>PostgreSQL</strong>
@@ -1057,7 +1198,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
               <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>{isRtl ? 'سعة التخزين المبدئية' : 'Storage Quota'}</span>
-                <strong style={{ color: 'var(--primary)' }}>{config.allocatedStorageMb || 500} MB</strong>
+                <strong style={{ color: 'var(--primary)' }}>{brandForm.allocatedStorageMb || config.allocatedStorageMb || 500} MB</strong>
               </div>
 
               <div style={{ padding: '10px 12px', background: 'var(--bg-main)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
@@ -1073,13 +1214,22 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             </div>
 
             {/* Modal Actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--border-color)', paddingTop: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: 14, flexWrap: 'wrap', gap: 10 }}>
               <button className="btn btn-secondary" onClick={() => setIsHandoverModalOpen(false)}>
                 {isRtl ? 'إغلاق' : 'Close'}
               </button>
-              <button className="btn btn-primary" onClick={copyHandoverSlip} style={{ fontWeight: 800 }}>
-                📋 {isRtl ? 'نسخ بطاقة التسليم كاملة' : 'Copy Full Slip'}
-              </button>
+
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button className="btn btn-secondary" onClick={handlePrintHandoverSlip} style={{ fontWeight: 700 }}>
+                  🖨️ {isRtl ? 'طباعة / حفظ كـ PDF' : 'Print / Save PDF'}
+                </button>
+                <button className="btn btn-secondary" onClick={handleDownloadHandoverSlip} style={{ fontWeight: 700 }}>
+                  📥 {isRtl ? 'تنزيل كملف نصي (.txt)' : 'Download .txt'}
+                </button>
+                <button className="btn btn-primary" onClick={copyHandoverSlip} style={{ fontWeight: 800 }}>
+                  📋 {isRtl ? 'نسخ النص' : 'Copy Text'}
+                </button>
+              </div>
             </div>
           </div>
         </Modal>

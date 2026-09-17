@@ -54,9 +54,11 @@ export default function DeveloperPortalStandalone({ onExitToSchool }) {
         color: 'var(--text-main)',
         display: 'flex',
         flexDirection: 'column',
+        overflowX: 'hidden',
       }}
       dir={isRtl ? 'rtl' : 'ltr'}
     >
+
       {/* Top Standalone Developer Bar */}
       <header
         className="topbar"
