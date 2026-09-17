@@ -47,13 +47,26 @@ export function SchoolConfigProvider({ children }) {
     };
   });
 
-  // Dynamically inject the school's primary color into CSS root variables
+  // Dynamically inject the school's primary color into CSS root variables and listen for multi-tab updates
   useEffect(() => {
     if (config.primaryColor) {
       document.documentElement.style.setProperty('--primary', config.primaryColor);
       document.documentElement.style.setProperty('--primary-hover', config.primaryHover || config.primaryColor);
       document.documentElement.style.setProperty('--primary-light', `${config.primaryColor}15`);
     }
+
+    const handleStorageChange = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setConfig(prev => ({ ...prev, ...parsed }));
+        }
+      } catch {}
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [config.primaryColor, config.primaryHover]);
 
   // Update branding helper and persist to localStorage
@@ -62,6 +75,7 @@ export function SchoolConfigProvider({ children }) {
       const updated = { ...prev, ...newValues };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
       } catch (err) {
         console.error('Failed to persist school config to localStorage', err);
       }

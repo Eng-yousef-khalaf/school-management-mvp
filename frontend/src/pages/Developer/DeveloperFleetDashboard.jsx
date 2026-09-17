@@ -1046,19 +1046,22 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div style={{ background: 'var(--bg-main)', padding: 14, borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                   <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
-                    {isRtl ? 'زر النظام الأساسي' : 'Primary Button'}
+                    {isRtl ? 'معاينة شكل ولون الأزرار:' : 'Button Style Preview:'}
                   </span>
                   <button
                     type="button"
-                    className="btn"
+                    className="btn btn-sm"
+                    onClick={() => toast.info(isRtl ? '🎨 هذه معاينة حية توضح شكل ولون الأزرار الأساسية في المنظومة وفق الهوية المختارة' : 'Live preview of the system primary button style')}
                     style={{
                       width: '100%',
                       background: brandForm.primaryColor,
+                      borderColor: brandForm.primaryColor,
                       color: '#ffffff',
                       fontWeight: 800,
+                      cursor: 'pointer'
                     }}
                   >
-                    {isRtl ? 'تسجيل جديد' : 'Submit Form'}
+                    {isRtl ? 'زر أساسي (معاينة حية)' : 'Primary Button (Preview)'}
                   </button>
                 </div>
 
