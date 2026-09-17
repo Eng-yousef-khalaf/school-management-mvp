@@ -4,26 +4,20 @@ import api from '../services/api';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  // Use sessionStorage so that opening the app in a new tab/link always presents the Login Screen first
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('user');
-      return saved ? JSON.parse(saved) : null;
+      const sessionUser = sessionStorage.getItem('user');
+      return sessionUser ? JSON.parse(sessionUser) : null;
     } catch {
       return null;
     }
   });
 
-  // Never block UI if user is already cached in localStorage
-  const [loading, setLoading] = useState(() => {
-    try {
-      return !localStorage.getItem('user') && Boolean(localStorage.getItem('token'));
-    } catch {
-      return false;
-    }
-  });
+  const [loading, setLoading] = useState(false);
 
   const fetchProfile = useCallback(async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       setUser(null);
       setLoading(false);
@@ -34,25 +28,28 @@ export function AuthProvider({ children }) {
       const profile = await api.get('/auth/profile', { timeout: 1000 });
       if (profile && profile.role && profile.id) {
         setUser(profile);
+        sessionStorage.setItem('user', JSON.stringify(profile));
         localStorage.setItem('user', JSON.stringify(profile));
       } else {
         setUser(null);
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
     } catch {
-      const saved = localStorage.getItem('user');
+      const saved = sessionStorage.getItem('user');
       if (saved) {
         try {
           setUser(JSON.parse(saved));
         } catch {
           setUser(null);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('user');
         }
       } else {
         setUser(null);
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
       }
     } finally {
       setLoading(false);
@@ -116,6 +113,8 @@ export function AuthProvider({ children }) {
       // Race API request with fast timeout (700ms)
       const data = await api.post('/auth/login', { email, password }, { timeout: 700 });
       if (data && data.user) {
+        sessionStorage.setItem('token', data.token || 'demo-token');
+        sessionStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token || 'demo-token');
         localStorage.setItem('user', JSON.stringify(data.user));
         sessionStorage.removeItem(`school_welcome_seen_${data.user.id}`);
@@ -130,6 +129,8 @@ export function AuthProvider({ children }) {
     }
 
     // Direct Instant Demo Authentication Fallback
+    sessionStorage.setItem('token', 'demo-token-preview-2026');
+    sessionStorage.setItem('user', JSON.stringify(fallbackUser));
     localStorage.setItem('token', 'demo-token-preview-2026');
     localStorage.setItem('user', JSON.stringify(fallbackUser));
     api.clearCache();
@@ -148,6 +149,8 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
 
     // Instantaneous 0ms switch without blocking UI
+    sessionStorage.setItem('token', 'demo-token-preview-2026');
+    sessionStorage.setItem('user', JSON.stringify(switchedUser));
     localStorage.setItem('token', 'demo-token-preview-2026');
     localStorage.setItem('user', JSON.stringify(switchedUser));
     api.clearCache();
@@ -163,8 +166,10 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.post('/developer/master-auth', { masterKey }, { timeout: 700 }).catch(() => null);
       if (data?.token && data?.user) {
-        localStorage.setItem('token', data.token);
         const devUser = { ...data.user, isDeveloper: true, fullName: 'Yousef Khalaf (Lead Developer)' };
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(devUser));
+        localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(devUser));
         sessionStorage.removeItem(`school_welcome_seen_${devUser.id}`);
         sessionStorage.removeItem(`school_welcome_seen_${devUser.email}`);
@@ -184,6 +189,8 @@ export function AuthProvider({ children }) {
       teacherId: null,
       active: true,
     };
+    sessionStorage.setItem('token', 'demo-developer-token');
+    sessionStorage.setItem('user', JSON.stringify(devUser));
     localStorage.setItem('token', 'demo-developer-token');
     localStorage.setItem('user', JSON.stringify(devUser));
     sessionStorage.removeItem(`school_welcome_seen_${devUser.id}`);
@@ -195,9 +202,11 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.clear();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    sessionStorage.clear();
     api.clearCache();
     setUser(null);
   };

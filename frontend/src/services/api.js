@@ -106,7 +106,7 @@ export async function request(path, options = {}) {
     return mockRes;
   }
 
-  const token = localStorage.getItem('token');
+  const token = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('token') : null) || (typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null);
   const headers = { ...(options.headers || {}) };
 
   if (token) {
