@@ -268,7 +268,7 @@ export default function PaymentReceiptModal({ isOpen, onClose, payment, student 
                 </span>
               </div>
               <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: '2px 0' }}>
-                {config.schoolNameAr || 'مدرسة النور النموذجية الخاصة'}
+                {config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'}
               </h2>
               <div style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>
                 {isRtl ? 'قسم شؤون الطلاب والتسجيل والمقبوضات (Staff)' : 'Student Affairs & Registration Department'}
@@ -436,7 +436,7 @@ export default function PaymentReceiptModal({ isOpen, onClose, payment, student 
               transform: 'rotate(-6deg)',
               opacity: 0.9
             }}>
-              <span>★ مدرسة النور ★</span>
+              <span>★ مدرسة جذور ★</span>
               <span style={{ fontSize: 11, fontWeight: 900, margin: '1px 0' }}>مـعـتـمـد</span>
               <span style={{ fontSize: 7.5 }}>PAID & VERIFIED</span>
             </div>

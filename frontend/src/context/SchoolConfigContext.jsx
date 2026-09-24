@@ -11,19 +11,19 @@ export function SchoolConfigProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          schoolCode: parsed.schoolCode || import.meta.env.VITE_SCHOOL_CODE || 'SCH-MASTER',
-          schoolNameAr: parsed.schoolNameAr || import.meta.env.VITE_SCHOOL_NAME_AR || 'نظام إدارة المدرسة الذكي',
-          schoolNameEn: parsed.schoolNameEn || import.meta.env.VITE_SCHOOL_NAME_EN || 'Smart School Management System',
-          schoolSloganAr: parsed.schoolSloganAr || import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
-          schoolSloganEn: parsed.schoolSloganEn || import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Comprehensive Academic & School Operations Platform',
-          logoUrl: parsed.logoUrl !== undefined ? parsed.logoUrl : (import.meta.env.VITE_SCHOOL_LOGO_URL || ''),
-          primaryColor: parsed.primaryColor || import.meta.env.VITE_PRIMARY_COLOR || '#4f46e5',
-          primaryHover: parsed.primaryHover || import.meta.env.VITE_PRIMARY_HOVER || '#4338ca',
+          schoolCode: parsed.schoolCode || import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
+          schoolNameAr: (parsed.schoolNameAr && !parsed.schoolNameAr.includes('النور')) ? parsed.schoolNameAr : (import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة'),
+          schoolNameEn: (parsed.schoolNameEn && !parsed.schoolNameEn.includes('Al-Noor')) ? parsed.schoolNameEn : (import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School'),
+          schoolSloganAr: parsed.schoolSloganAr || import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
+          schoolSloganEn: parsed.schoolSloganEn || import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
+          logoUrl: parsed.logoUrl !== undefined ? parsed.logoUrl : (import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png'),
+          primaryColor: parsed.primaryColor || import.meta.env.VITE_PRIMARY_COLOR || '#166534',
+          primaryHover: parsed.primaryHover || import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
           instanceType: parsed.instanceType || import.meta.env.VITE_INSTANCE_TYPE || 'MASTER',
           supabaseProject: parsed.supabaseProject || import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
           allocatedStorageMb: parseInt(parsed.allocatedStorageMb || import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-          supportEmail: parsed.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || 'support@school-management.dev',
-          supportPhone: parsed.supportPhone || import.meta.env.VITE_SUPPORT_PHONE || '+966 50 000 0000',
+          supportEmail: parsed.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
+          supportPhone: parsed.supportPhone || import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
         };
       }
     } catch (e) {
@@ -31,19 +31,19 @@ export function SchoolConfigProvider({ children }) {
     }
 
     return {
-      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-MASTER',
-      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'نظام إدارة المدرسة الذكي',
-      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Smart School Management System',
-      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
-      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Comprehensive Academic & School Operations Platform',
-      logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '',
-      primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#4f46e5',
-      primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#4338ca',
+      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
+      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
+      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School',
+      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
+      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
+      logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png',
+      primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#166534',
+      primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
       instanceType: import.meta.env.VITE_INSTANCE_TYPE || 'MASTER', // MASTER | DEDICATED_SCHOOL
       supabaseProject: import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'support@school-management.dev',
-      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+966 50 000 0000',
+      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
+      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
     };
   });
 
@@ -89,19 +89,19 @@ export function SchoolConfigProvider({ children }) {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {}
     setConfig({
-      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-MASTER',
-      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'نظام إدارة المدرسة الذكي',
-      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Smart School Management System',
-      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
-      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Comprehensive Academic & School Operations Platform',
-      logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '',
-      primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#4f46e5',
-      primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#4338ca',
+      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
+      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
+      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School',
+      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
+      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
+      logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png',
+      primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#166534',
+      primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
       instanceType: import.meta.env.VITE_INSTANCE_TYPE || 'MASTER',
       supabaseProject: import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'support@school-management.dev',
-      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+966 50 000 0000',
+      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
+      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
     });
   };
 

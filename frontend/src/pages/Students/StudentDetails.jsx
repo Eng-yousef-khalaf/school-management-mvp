@@ -661,13 +661,12 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
       <div
         className={`panel official-parent-statement ${activeTab === 'statement' ? '' : 'only-print'}`}
         style={{
-          padding: '30px 36px',
+          padding: '24px 30px',
           background: '#ffffff',
           border: '2px solid #0f172a',
           borderRadius: '12px',
           marginTop: 16,
-          maxWidth: '880px',
-          minHeight: '920px',
+          maxWidth: '860px',
           marginInline: 'auto',
           boxSizing: 'border-box',
           display: 'flex',
@@ -679,16 +678,16 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
       >
         <div>
           {/* Printable Header with MoE, School Logo, and Enlarged Clean UNICEF Logo */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2.5px solid #0f172a', paddingBottom: 16, marginBottom: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2.5px solid #0f172a', paddingBottom: 14, marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <PalestineFlagIcon />
                 <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
               </div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 4 }}>
-                {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 4 }}>
+                {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
+              <div style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                 {isRtl ? 'قسم شؤون الطلاب والتسجيل والامتحانات' : 'Registrar & Student Affairs Department'}
               </div>
             </div>
@@ -697,10 +696,10 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
               <SchoolLogo size={64} />
             </div>
 
-            <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 6 }}>
+            <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 4 }}>
               {/* Enlarged Clean UNICEF Logo */}
-              <UnicefLogo height={48} />
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', marginTop: 2 }}>
+              <UnicefLogo height={42} />
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', marginTop: 2 }}>
                 {isRtl ? 'إفادة درجات ومستوى أداء طالب' : 'Official Student Academic Statement'}
               </div>
               <div style={{ fontSize: 11, color: '#64748b' }}>
@@ -710,40 +709,40 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           </div>
 
           {/* Student & Parent Info Box */}
-          <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '14px 18px', marginBottom: 18 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px 16px', fontSize: 13 }}>
+          <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '12px 16px', marginBottom: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px 14px', fontSize: 12.5 }}>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'اسم الطالب الرباعي:' : 'Student Full Name:'}</span>
-                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: 14, marginTop: 2 }}>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'اسم الطالب الرباعي:' : 'Student Full Name:'}</span>
+                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: 13.5, marginTop: 2 }}>
                   {student.firstName} {student.middleName ? student.middleName + ' ' : ''}{student.lastName}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'الرقم الأكاديمي:' : 'Student ID No:'}</span>
-                <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#4f46e5', fontSize: 14, marginTop: 2 }}>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'الرقم الأكاديمي:' : 'Student ID No:'}</span>
+                <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#166534', fontSize: 13.5, marginTop: 2 }}>
                   {student.studentNumber}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'الصف والشعبة:' : 'Class & Section:'}</span>
-                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: 14, marginTop: 2 }}>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'الصف والشعبة:' : 'Class & Section:'}</span>
+                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: 13.5, marginTop: 2 }}>
                   {student.currentClass || (isRtl ? 'مسجل' : 'Enrolled')}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'السنة الدراسية:' : 'Academic Calendar:'}</span>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'السنة الدراسية:' : 'Academic Calendar:'}</span>
                 <div style={{ fontWeight: 700, color: '#334155', marginTop: 2 }}>
                   {student.academicYear || '2026/2027'}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'اسم ولي الأمر:' : 'Guardian Name:'}</span>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'اسم ولي الأمر:' : 'Guardian Name:'}</span>
                 <div style={{ fontWeight: 700, color: '#334155', marginTop: 2 }}>
                   {student.parentName || (isRtl ? 'غير محدد' : 'Not specified')}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#64748b', fontSize: 11.5 }}>{isRtl ? 'هاتف ولي الأمر:' : 'Guardian Phone:'}</span>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{isRtl ? 'هاتف ولي الأمر:' : 'Guardian Phone:'}</span>
                 <div style={{ fontWeight: 700, color: '#334155', marginTop: 2 }}>
                   {student.parentPhone || '—'}
                 </div>
@@ -752,21 +751,21 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           </div>
 
           {/* Grades Summary Table */}
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, marginBottom: 8, color: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>{isRtl ? 'كشف الدرجات والتقييمات للمقررات الدراسية:' : 'Course Assessment & Transcript Results:'}</span>
               <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{isRtl ? 'الدرجة العظمى (100)' : 'Max Grade (100)'}</span>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, border: '1.5px solid #cbd5e1' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, border: '1.5px solid #cbd5e1' }}>
               <thead>
                 <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #94a3b8', color: '#0f172a' }}>
-                  <th style={{ padding: '8px 10px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'الأنشطة (20)' : 'Activities (20)'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نصفي (30)' : 'Midterm (30)'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نهائي (50)' : 'Final (50)'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'المجموع (100)' : 'Total (100)'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '11%' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
+                  <th style={{ padding: '6px 10px', textAlign: isRtl ? 'right' : 'left', border: '1px solid #cbd5e1' }}>{isRtl ? 'المادة الدراسية' : 'Subject'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'الأنشطة (20)' : 'Activities (20)'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نصفي (30)' : 'Midterm (30)'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '13%' }}>{isRtl ? 'نهائي (50)' : 'Final (50)'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'المجموع (100)' : 'Total (100)'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '14%' }}>{isRtl ? 'التقدير' : 'Grade'}</th>
+                  <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #cbd5e1', width: '11%' }}>{isRtl ? 'النتيجة' : 'Status'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -779,31 +778,31 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
                     const gr = getLetterGrade(tot);
                     return (
                       <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                        <td style={{ padding: '7px 10px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                          {s.subjectName} <span style={{ color: '#64748b', fontSize: 11 }}>({s.subjectCode})</span>
+                        <td style={{ padding: '6px 10px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                          {s.subjectName} <span style={{ color: '#64748b', fontSize: 10.5 }}>({s.subjectCode})</span>
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
-                          {act} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 20</span>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {act} <span style={{ color: '#94a3b8', fontSize: 9.5 }}>/ 20</span>
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
-                          {mid} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 30</span>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {mid} <span style={{ color: '#94a3b8', fontSize: 9.5 }}>/ 30</span>
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
-                          {fin} <span style={{ color: '#94a3b8', fontSize: 10 }}>/ 50</span>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                          {fin} <span style={{ color: '#94a3b8', fontSize: 9.5 }}>/ 50</span>
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 900, color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, color: '#0f172a', border: '1px solid #cbd5e1' }}>
                           {tot}%
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 800, color: gr.color, border: '1px solid #cbd5e1' }}>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 800, color: gr.color, border: '1px solid #cbd5e1' }}>
                           {gr.grade} ({isRtl ? gr.textAr : gr.textEn})
                         </td>
-                        <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                        <td style={{ padding: '6px', textAlign: 'center', fontWeight: 700, border: '1px solid #cbd5e1' }}>
                           <span style={{
                             background: tot >= 50 ? '#dcfce7' : '#fee2e2',
                             color: tot >= 50 ? '#15803d' : '#b91c1c',
-                            padding: '2px 8px',
+                            padding: '2px 6px',
                             borderRadius: '4px',
-                            fontSize: 11
+                            fontSize: 10.5
                           }}>
                             {tot >= 50 ? (isRtl ? 'ناجح' : 'Passed') : (isRtl ? 'راسب' : 'Failed')}
                           </span>
@@ -813,7 +812,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="7" style={{ padding: '16px', textAlign: 'center', color: '#64748b' }}>
+                    <td colSpan="7" style={{ padding: '14px', textAlign: 'center', color: '#64748b' }}>
                       {isRtl ? 'لا توجد درجات مرصودة حتى الآن' : 'No grades recorded yet'}
                     </td>
                   </tr>
@@ -823,16 +822,16 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           </div>
 
           {/* Overall Results & Attendance Statement */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 20 }}>
-            <div style={{ border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '12px 16px', background: gpaInfo?.bg || '#f8fafc' }}>
-              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569' }}>{isRtl ? 'المعدل التراكمي الإجمالي والتقدير:' : 'Cumulative GPA:'}</div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: gpaInfo ? gpaInfo.color : '#0f172a', marginTop: 3 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{ border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '10px 14px', background: gpaInfo?.bg || '#f8fafc' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#475569' }}>{isRtl ? 'المعدل التراكمي الإجمالي والتقدير:' : 'Cumulative GPA:'}</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: gpaInfo ? gpaInfo.color : '#0f172a', marginTop: 2 }}>
                 {overallAverage !== null ? `${overallAverage}% - ${isRtl ? gpaInfo.textAr : gpaInfo.textEn}` : '—'}
               </div>
             </div>
-            <div style={{ border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '12px 16px', background: attendanceSummary.percentage >= 85 ? '#f0fdf4' : '#fffbeb' }}>
-              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569' }}>{isRtl ? 'نسبة المواظبة والحضور المدرسي:' : 'Attendance Standing:'}</div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: attendanceSummary.percentage >= 85 ? '#059669' : '#d97706', marginTop: 3 }}>
+            <div style={{ border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '10px 14px', background: attendanceSummary.percentage >= 85 ? '#f0fdf4' : '#fffbeb' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#475569' }}>{isRtl ? 'نسبة المواظبة والحضور المدرسي:' : 'Attendance Standing:'}</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: attendanceSummary.percentage >= 85 ? '#059669' : '#d97706', marginTop: 2 }}>
                 {attendanceSummary.percentage}% ({attendanceSummary.present} {isRtl ? 'يوم حضور من' : 'days out of'} {attendanceSummary.totalDays})
               </div>
             </div>
@@ -841,21 +840,21 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
 
         {/* Bottom Section: Official Signatures, Seal & Page Footnote */}
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, textAlign: 'center', borderTop: '2px dashed #cbd5e1', paddingTop: 18, marginBottom: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, textAlign: 'center', borderTop: '2px dashed #cbd5e1', paddingTop: 14, marginBottom: 10 }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 28 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 22 }}>
                 {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
-                  {isRtl ? 'إدارة التسجيل' : 'Registrar Office'}
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                  {isRtl ? 'إدارة التسجيل والامتحانات' : 'Registrar Office'}
                 </div>
               </div>
               <div style={{ borderBottom: '1.5px solid #94a3b8', width: '75%', margin: '0 auto' }}></div>
             </div>
 
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 28 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 22 }}>
                 {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
                   {isRtl ? 'إدارة المدرسة' : 'School Principal'}
                 </div>
               </div>
@@ -863,44 +862,44 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             </div>
 
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
                 {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Stamp'}
               </div>
               <div style={{
-                width: 62,
-                height: 62,
-                border: '2.5px dashed #4f46e5',
+                width: 58,
+                height: 58,
+                border: '2px dashed #166534',
                 borderRadius: '50%',
                 margin: '0 auto',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#4f46e5',
-                fontSize: 9,
+                color: '#166534',
+                fontSize: 8,
                 fontWeight: 800,
-                background: '#faf5ff'
+                background: '#f0fdf4'
               }}>
-                <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
-                <span style={{ fontSize: 7.5 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+                <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
               </div>
             </div>
           </div>
 
           {/* Verification Bar */}
           <div style={{
-            fontSize: 10,
+            fontSize: 9.5,
             color: '#64748b',
             borderTop: '1px solid #e2e8f0',
-            paddingTop: 8,
+            paddingTop: 6,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
             <span>
               {isRtl
-                ? `وثيقة إفادة رسمية صادرة إلكترونياً ومعتمدة من ${config?.schoolNameAr || 'إدارة المدرسة'}`
-                : `Official Statement issued electronically by ${config?.schoolNameEn || 'School Administration'}`}
+                ? `وثيقة إفادة رسمية صادرة إلكترونياً ومعتمدة من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'}`
+                : `Official Statement issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'}`}
             </span>
             <span style={{ fontWeight: 700 }}>
               {isRtl ? 'صفحة 1 من 1' : 'Page 1 of 1'}

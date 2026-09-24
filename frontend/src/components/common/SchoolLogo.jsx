@@ -10,7 +10,7 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
     // Graceful fallback if rendered outside SchoolConfigProvider
   }
 
-  const effectiveLogoUrl = customLogo || configLogoUrl;
+  const effectiveLogoUrl = customLogo || configLogoUrl || '/school-logo.png';
   const [imgError, setImgError] = useState(false);
 
   // If a custom logo exists and hasn't errored out, render the custom image
@@ -22,7 +22,10 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
           display: 'inline-flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          background: 'transparent',
+          padding: 0,
+          border: 'none'
         }}
       >
         <img
@@ -33,10 +36,12 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
             width: size,
             height: size,
             objectFit: 'contain',
-            borderRadius: Math.max(6, Math.floor(size * 0.15)),
-            filter: 'contrast(1.2) saturate(1.2) brightness(0.98)',
+            borderRadius: '50%',
+            filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25))',
             imageRendering: '-webkit-optimize-contrast',
-            background: 'transparent'
+            background: 'transparent',
+            border: 'none',
+            outline: 'none'
           }}
         />
         {showText && (
@@ -45,7 +50,7 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
               دولة فلسطين / وزارة التربية والتعليم
             </div>
             <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-              المنظومة الأكاديمية الذكية
+              مدرسة جذور النموذجية الخاصة
             </div>
           </div>
         )}

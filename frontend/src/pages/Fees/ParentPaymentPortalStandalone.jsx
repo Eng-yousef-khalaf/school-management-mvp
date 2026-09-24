@@ -219,7 +219,7 @@ export default function ParentPaymentPortalStandalone({ onExitToSchool }) {
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.font = 'bold 26px sans-serif';
-      ctx.fillText('مدرسة النور النموذجية - قطاع غزة', width / 2, 85);
+      ctx.fillText('مدرسة جذور النموذجية الخاصة - قطاع غزة', width / 2, 85);
 
       ctx.font = 'bold 16px sans-serif';
       ctx.fillStyle = '#bae6fd';
@@ -282,7 +282,7 @@ export default function ParentPaymentPortalStandalone({ onExitToSchool }) {
 
       ctx.font = 'bold 13.5px sans-serif';
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText('قسم شؤون الطلاب والتسجيل - مدرسة النور النموذجية | هاتف: 0594787703', width / 2, 830);
+      ctx.fillText('قسم شؤون الطلاب والتسجيل - مدرسة جذور النموذجية الخاصة | هاتف: 0594787703', width / 2, 830);
 
       // Verified stamp box
       ctx.strokeStyle = '#10b981';
@@ -390,7 +390,7 @@ export default function ParentPaymentPortalStandalone({ onExitToSchool }) {
             <SchoolLogo size={36} />
             <div>
               <div style={{ fontWeight: 800, fontSize: 15, color: '#ffffff' }}>
-                {isRtl ? 'مدرسة النور النموذجية - قطاع غزة' : 'Al-Noor Model School - Gaza'}
+                {isRtl ? 'مدرسة جذور النموذجية الخاصة - قطاع غزة' : 'Judhoor Model Private School - Gaza'}
               </div>
               <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                 <PalestineFlagIcon width={16} height={11} />
@@ -1203,8 +1203,8 @@ export default function ParentPaymentPortalStandalone({ onExitToSchool }) {
         {/* Footer Note */}
         <div style={{ textAlign: 'center', fontSize: 11.5, color: '#64748b', marginTop: 6 }}>
           {isRtl
-            ? 'نظام إدارة وتحصيل الرسوم المدرسية الإلكتروني - مدرسة النور النموذجية - قطاع غزة 🇵🇸'
-            : 'Al-Noor Model School Management & Fee Collection - Gaza 🇵🇸'}
+            ? 'نظام إدارة وتحصيل الرسوم المدرسية الإلكتروني - مدرسة جذور النموذجية الخاصة - قطاع غزة 🇵🇸'
+            : 'Judhoor Model Private School Management & Fee Collection - Gaza 🇵🇸'}
         </div>
 
       </div>

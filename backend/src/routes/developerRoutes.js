@@ -126,7 +126,7 @@ const getSystemStatsHandler = async (req, res) => {
 
     const currentSchool = {
       code: process.env.SCHOOL_CODE || 'SCH-001',
-      nameAr: process.env.SCHOOL_NAME_AR || 'مدرسة النور النموذجية',
+      nameAr: process.env.SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
       nameEn: process.env.SCHOOL_NAME_EN || 'Al-Noor Model School',
       databaseType: process.env.DATABASE_URL?.startsWith('file:')
         ? 'SQLite (Local Dedicated DB)'
@@ -389,7 +389,7 @@ router.get('/export-backup', async (req, res) => {
     const backupData = {
       exportMetadata: {
         schoolCode: process.env.SCHOOL_CODE || 'SCH-001',
-        schoolNameAr: process.env.SCHOOL_NAME_AR || 'مدرسة النور النموذجية',
+        schoolNameAr: process.env.SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
         schoolNameEn: process.env.SCHOOL_NAME_EN || 'Al-Noor Model School',
         exportedAt: new Date().toISOString(),
         version: 'v2.0.0 (Standalone Instance)',

@@ -216,31 +216,132 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
 
           {/* Dropdown Box */}
           {isNotifDropdownOpen && (
-            <div className="dropdown-menu" style={{ width: 300, right: isRtl ? 'auto' : 0, left: isRtl ? 0 : 'auto', padding: 0, overflow: 'hidden' }}>
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-                <span style={{ fontSize: 13, fontWeight: 800 }}>{isRtl ? 'الإشعارات والتنبيهات' : 'Notifications'}</span>
-                {unreadCount > 0 && <span className="badge badge-danger">{unreadCount} {isRtl ? 'جديد' : 'new'}</span>}
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 10px)',
+                width: 350,
+                right: isRtl ? 'auto' : 0,
+                left: isRtl ? 0 : 'auto',
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: 14,
+                boxShadow: '0 20px 35px -5px rgba(15, 23, 42, 0.3), 0 10px 15px -5px rgba(15, 23, 42, 0.15)',
+                zIndex: 10000,
+                overflow: 'hidden',
+                animation: 'slideInPopup 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                direction: isRtl ? 'rtl' : 'ltr'
+              }}
+            >
+              {/* Solid High-Contrast Header */}
+              <div
+                style={{
+                  padding: '14px 18px',
+                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #334155'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>🔔</span>
+                  <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: '-0.2px' }}>
+                    {isRtl ? 'مركز الإشعارات والتنبيهات' : 'Notifications Center'}
+                  </span>
+                </div>
+                {unreadCount > 0 ? (
+                  <span
+                    style={{
+                      background: '#ef4444',
+                      color: '#ffffff',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      padding: '3px 8px',
+                      borderRadius: 12,
+                      boxShadow: '0 2px 6px rgba(239, 68, 68, 0.5)'
+                    }}
+                  >
+                    {unreadCount} {isRtl ? 'جديد' : 'new'}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>
+                    {isRtl ? 'مُحدّث' : 'Up to date'}
+                  </span>
+                )}
               </div>
-              <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+
+              {/* Notification Content List */}
+              <div style={{ maxHeight: 290, overflowY: 'auto', background: '#ffffff' }}>
                 {pendingNotices && pendingNotices.length > 0 ? (
                   pendingNotices.map((n, i) => (
                     <div
                       key={i}
-                      style={{ padding: '10px 14px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', fontSize: 12 }}
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #f1f5f9',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s ease',
+                        background: '#ffffff'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f8fafc')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#ffffff')}
                       onClick={() => {
                         if (showPopupForNotice) showPopupForNotice(n);
                         setIsNotifDropdownOpen(false);
                       }}
                     >
-                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{n.title || (isRtl ? 'إشعار تحويل جديد' : 'New Notice')}</div>
-                      <div style={{ color: 'var(--text-muted)', marginTop: 2 }}>{n.message || n.studentName}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 800, fontSize: 13, color: '#0f172a' }}>
+                          💳 {n.title || (isRtl ? 'إشعار تحويل مالي' : 'Payment Transfer Notice')}
+                        </span>
+                        <span style={{ fontSize: 10, color: '#059669', background: '#ecfdf5', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+                          {isRtl ? 'تحويل بنكي' : 'Transfer'}
+                        </span>
+                      </div>
+                      <div style={{ color: '#334155', fontSize: 12, lineHeight: 1.5, fontWeight: 600 }}>
+                        {n.studentName ? (isRtl ? `طالب: ${n.studentName}` : `Student: ${n.studentName}`) : (n.message || '')}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 11, color: '#64748b' }}>
+                        <span>💰 {n.amount ? `${n.amount} شيكل` : (n.notes || '')}</span>
+                        <span style={{ color: '#2563eb', fontWeight: 700 }}>{isRtl ? 'مراجعة واعتَماد ←' : 'Review →'}</span>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
-                    {isRtl ? 'لا توجد إشعارات جديدة حالياً' : 'No new notifications'}
+                  <div style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff' }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>🔕</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: '#0f172a', marginBottom: 4 }}>
+                      {isRtl ? 'لا توجد إشعارات جديدة حالياً' : 'No new notifications'}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#64748b' }}>
+                      {isRtl ? 'أنت على اطلاع دائم بكافة التنبيهات والأقساط' : 'You are completely caught up!'}
+                    </div>
                   </div>
                 )}
+              </div>
+
+              {/* Solid Footer */}
+              <div
+                style={{
+                  padding: '10px 16px',
+                  background: '#f8fafc',
+                  borderTop: '1px solid #e2e8f0',
+                  textAlign: 'center'
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    fontWeight: 800,
+                    color: '#2563eb',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setIsNotifDropdownOpen(false)}
+                >
+                  {isRtl ? 'إغلاق القائمة' : 'Close Menu'}
+                </span>
               </div>
             </div>
           )}

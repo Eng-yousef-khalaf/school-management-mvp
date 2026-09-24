@@ -38,5 +38,9 @@ Thumbs.db
 .idea/
 .vercel/
 
-# Temporary / Scratch
+# Temporary / Scratch & Archives
 scratch/
+*.rar
+*.zip
+*.7z
+*.tar.gz

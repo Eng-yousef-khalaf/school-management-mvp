@@ -28,6 +28,14 @@ export function clearApiCache() {
   queryCache.clear();
 }
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', () => queryCache.clear());
+  window.addEventListener('students_updated', () => queryCache.clear());
+  window.addEventListener('classes_updated', () => queryCache.clear());
+  window.addEventListener('teachers_updated', () => queryCache.clear());
+  window.addEventListener('grades_updated', () => queryCache.clear());
+}
+
 /**
  * Background silent probe to check if a live backend is active and awake
  */

@@ -12,7 +12,7 @@ import { PlusIcon, EyeIcon, EditIcon } from '../../components/common/Icons';
 export default function ClassList({ onViewClass }) {
   const { isStaff, isAdmin } = useAuth();
   const { isRtl } = useLanguage();
-  const { selectedYearId, isArchiveView, selectedYear, activeYear } = useAcademicYear();
+  const { selectedYearId, isArchiveView, selectedYear, activeYear, allYears } = useAcademicYear();
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -187,7 +187,7 @@ export default function ClassList({ onViewClass }) {
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           schoolClass={editingClass}
-          academicYears={academicYears}
+          academicYears={allYears || (activeYear ? [activeYear] : [])}
           onSaved={loadData}
         />
       )}

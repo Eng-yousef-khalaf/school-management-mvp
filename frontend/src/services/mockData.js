@@ -253,7 +253,7 @@ const initialData = {
       fullName: 'أحمد خليل',
       specialty: 'Mathematics',
       specialization: 'Mathematics',
-      phone: '+970 59 111 2222',
+      phone: '+970 59 111 2201',
       email: 'ahmed.khalil@school.local',
       status: 'ACTIVE',
       active: true,
@@ -279,7 +279,7 @@ const initialData = {
       fullName: 'سارة منصور',
       specialty: 'English Language',
       specialization: 'English Language',
-      phone: '+970 59 222 3333',
+      phone: '+970 59 222 3302',
       email: 'sara.mansour@school.local',
       status: 'ACTIVE',
       active: true,
@@ -305,7 +305,7 @@ const initialData = {
       fullName: 'عمر فاروق',
       specialty: 'Arabic Language',
       specialization: 'Arabic Language',
-      phone: '+970 59 333 4444',
+      phone: '+970 59 333 4403',
       email: 'omar.farooq@school.local',
       status: 'ACTIVE',
       active: true,
@@ -331,7 +331,7 @@ const initialData = {
       fullName: 'ليلى حسن',
       specialty: 'General Science',
       specialization: 'General Science',
-      phone: '+970 59 444 5555',
+      phone: '+970 59 444 5504',
       email: 'layla.hassan@school.local',
       status: 'ACTIVE',
       active: true,
@@ -340,9 +340,8 @@ const initialData = {
       subjects: ['General Science'],
       classesCount: 2,
       subjectsCount: 1,
-      attendanceStatus: 'LATE',
-      checkIn: '08:05 AM',
-      note: 'ازدحام مروري',
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:45 AM',
       isPending: false,
       assignments: [
         { id: 7, className: 'Grade 7 B', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'General Science', subjectCode: 'SCI' },
@@ -358,7 +357,7 @@ const initialData = {
       fullName: 'طارق عزيز',
       specialty: 'Computer Science',
       specialization: 'Computer Science',
-      phone: '+970 59 555 6666',
+      phone: '+970 59 555 6605',
       email: 'tareq.aziz@school.local',
       status: 'ACTIVE',
       active: true,
@@ -375,8 +374,141 @@ const initialData = {
         { id: 10, className: 'Grade 8 B', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'Computer Science', subjectCode: 'ICT' }
       ]
     },
+    {
+      id: 6,
+      employeeNo: 'TCH-006',
+      code: 'TCH-006',
+      firstName: 'هدى',
+      lastName: 'النعيمي',
+      fullName: 'هدى النعيمي',
+      specialty: 'Social Studies',
+      specialization: 'Social Studies',
+      phone: '+970 59 666 7706',
+      email: 'huda.nuaimi@school.local',
+      status: 'ACTIVE',
+      active: true,
+      user: { email: 'huda.nuaimi@school.local', role: 'TEACHER' },
+      classes: ['Grade 7 A', 'Grade 7 B'],
+      subjects: ['Social Studies'],
+      classesCount: 2,
+      subjectsCount: 1,
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:30 AM',
+      isPending: false,
+      assignments: [
+        { id: 11, className: 'Grade 7 A', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Social Studies', subjectCode: 'SOC' },
+        { id: 12, className: 'Grade 7 B', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Social Studies', subjectCode: 'SOC' }
+      ]
+    },
+    {
+      id: 7,
+      employeeNo: 'TCH-007',
+      code: 'TCH-007',
+      firstName: 'زيد',
+      lastName: 'البدر',
+      fullName: 'زيد البدر',
+      specialty: 'Mathematics',
+      specialization: 'Mathematics',
+      phone: '+970 59 777 8807',
+      email: 'zaid.badr@school.local',
+      status: 'ACTIVE',
+      active: true,
+      user: { email: 'zaid.badr@school.local', role: 'TEACHER' },
+      classes: ['Grade 7 B', 'Grade 8 B'],
+      subjects: ['Mathematics'],
+      classesCount: 2,
+      subjectsCount: 1,
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:44 AM',
+      isPending: false,
+      assignments: [
+        { id: 13, className: 'Grade 7 B', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Mathematics', subjectCode: 'MATH' },
+        { id: 14, className: 'Grade 8 B', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'Mathematics', subjectCode: 'MATH' }
+      ]
+    },
+    {
+      id: 8,
+      employeeNo: 'TCH-008',
+      code: 'TCH-008',
+      firstName: 'فاطمة',
+      lastName: 'الزهراء',
+      fullName: 'فاطمة الزهراء',
+      specialty: 'General Science',
+      specialization: 'General Science',
+      phone: '+970 59 888 9908',
+      email: 'fatima.zahra@school.local',
+      status: 'ACTIVE',
+      active: true,
+      user: { email: 'fatima.zahra@school.local', role: 'TEACHER' },
+      classes: ['Grade 7 A', 'Grade 8 A'],
+      subjects: ['General Science'],
+      classesCount: 2,
+      subjectsCount: 1,
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:36 AM',
+      isPending: false,
+      assignments: [
+        { id: 15, className: 'Grade 7 A', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'General Science', subjectCode: 'SCI' },
+        { id: 16, className: 'Grade 8 A', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'General Science', subjectCode: 'SCI' }
+      ]
+    },
+    {
+      id: 9,
+      employeeNo: 'TCH-009',
+      code: 'TCH-009',
+      firstName: 'محمود',
+      lastName: 'درويش',
+      fullName: 'محمود درويش',
+      specialty: 'Arabic Language',
+      specialization: 'Arabic Language',
+      phone: '+970 59 999 1109',
+      email: 'mahmoud.d@school.local',
+      status: 'ACTIVE',
+      active: true,
+      user: { email: 'mahmoud.d@school.local', role: 'TEACHER' },
+      classes: ['Grade 7 B', 'Grade 8 B'],
+      subjects: ['Arabic Language'],
+      classesCount: 2,
+      subjectsCount: 1,
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:32 AM',
+      isPending: false,
+      assignments: [
+        { id: 17, className: 'Grade 7 B', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Arabic Language', subjectCode: 'AR' },
+        { id: 18, className: 'Grade 8 B', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'Arabic Language', subjectCode: 'AR' }
+      ]
+    },
+    {
+      id: 10,
+      employeeNo: 'TCH-010',
+      code: 'TCH-010',
+      firstName: 'نور الهدى',
+      lastName: 'قاسم',
+      fullName: 'نور الهدى قاسم',
+      specialty: 'Islamic Education',
+      specialization: 'Islamic Education',
+      phone: '+970 59 101 2210',
+      email: 'noor.huda@school.local',
+      status: 'ACTIVE',
+      active: true,
+      user: { email: 'noor.huda@school.local', role: 'TEACHER' },
+      classes: ['Grade 7 A', 'Grade 7 B', 'Grade 8 A', 'Grade 8 B'],
+      subjects: ['Islamic Education'],
+      classesCount: 4,
+      subjectsCount: 1,
+      attendanceStatus: 'PRESENT',
+      checkIn: '07:35 AM',
+      isPending: false,
+      assignments: [
+        { id: 19, className: 'Grade 7 A', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Islamic Education', subjectCode: 'ISL' },
+        { id: 20, className: 'Grade 7 B', grade: 'Grade 7', academicYear: '2026/2027', subjectName: 'Islamic Education', subjectCode: 'ISL' },
+        { id: 21, className: 'Grade 8 A', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'Islamic Education', subjectCode: 'ISL' },
+        { id: 22, className: 'Grade 8 B', grade: 'Grade 8', academicYear: '2026/2027', subjectName: 'Islamic Education', subjectCode: 'ISL' }
+      ]
+    },
   ],
   students: [
+    // --- Grade 7 A (6 students) ---
     {
       id: 1,
       studentNumber: 'STD-1001',
@@ -390,6 +522,7 @@ const initialData = {
       status: 'ACTIVE',
       currentClass: 'Grade 7 A',
       className: 'Grade 7 A',
+      classId: 1,
       academicYear: '2026/2027',
       parentName: 'محمود الزهار',
       parentPhone: '+970 59 900 1101',
@@ -410,6 +543,7 @@ const initialData = {
       status: 'ACTIVE',
       currentClass: 'Grade 7 A',
       className: 'Grade 7 A',
+      classId: 1,
       academicYear: '2026/2027',
       parentName: 'يوسف النجار',
       parentPhone: '+970 59 900 1102',
@@ -430,6 +564,7 @@ const initialData = {
       status: 'ACTIVE',
       currentClass: 'Grade 7 A',
       className: 'Grade 7 A',
+      classId: 1,
       academicYear: '2026/2027',
       parentName: 'خالد التميمي',
       parentPhone: '+970 59 900 1103',
@@ -441,17 +576,18 @@ const initialData = {
       id: 4,
       studentNumber: 'STD-1004',
       code: 'STD-1004',
-      firstName: 'نور الدين',
-      middleName: 'سامي',
-      lastName: 'عودة',
-      fullName: 'نور الدين سامي عودة',
-      gender: 'MALE',
-      dateOfBirth: '2012-11-05',
+      firstName: 'جنى',
+      middleName: 'رامي',
+      lastName: 'شاهين',
+      fullName: 'جنى رامي شاهين',
+      gender: 'FEMALE',
+      dateOfBirth: '2012-04-18',
       status: 'ACTIVE',
-      currentClass: 'Grade 7 B',
-      className: 'Grade 7 B',
+      currentClass: 'Grade 7 A',
+      className: 'Grade 7 A',
+      classId: 1,
       academicYear: '2026/2027',
-      parentName: 'سامي عودة',
+      parentName: 'رامي شاهين',
       parentPhone: '+970 59 900 1104',
       contactPhone: '+970 59 900 1104',
       address: 'غزة - تل الهوا',
@@ -461,6 +597,71 @@ const initialData = {
       id: 5,
       studentNumber: 'STD-1005',
       code: 'STD-1005',
+      firstName: 'عبد الرحمن',
+      middleName: 'وليد',
+      lastName: 'العشي',
+      fullName: 'عبد الرحمن وليد العشي',
+      gender: 'MALE',
+      dateOfBirth: '2012-09-12',
+      status: 'ACTIVE',
+      currentClass: 'Grade 7 A',
+      className: 'Grade 7 A',
+      classId: 1,
+      academicYear: '2026/2027',
+      parentName: 'وليد العشي',
+      parentPhone: '+970 59 900 1105',
+      contactPhone: '+970 59 900 1105',
+      address: 'غزة - الرمال الجنوبي',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 6,
+      studentNumber: 'STD-1006',
+      code: 'STD-1006',
+      firstName: 'رزان',
+      middleName: 'كمال',
+      lastName: 'المصري',
+      fullName: 'رزان كمال المصري',
+      gender: 'FEMALE',
+      dateOfBirth: '2012-01-30',
+      status: 'ACTIVE',
+      currentClass: 'Grade 7 A',
+      className: 'Grade 7 A',
+      classId: 1,
+      academicYear: '2026/2027',
+      parentName: 'كمال المصري',
+      parentPhone: '+970 59 900 1106',
+      contactPhone: '+970 59 900 1106',
+      address: 'غزة - شارع الثلاثيني',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+
+    // --- Grade 7 B (6 students) ---
+    {
+      id: 7,
+      studentNumber: 'STD-1007',
+      code: 'STD-1007',
+      firstName: 'نور الدين',
+      middleName: 'سامي',
+      lastName: 'عودة',
+      fullName: 'نور الدين سامي عودة',
+      gender: 'MALE',
+      dateOfBirth: '2012-11-05',
+      status: 'ACTIVE',
+      currentClass: 'Grade 7 B',
+      className: 'Grade 7 B',
+      classId: 2,
+      academicYear: '2026/2027',
+      parentName: 'سامي عودة',
+      parentPhone: '+970 59 900 1107',
+      contactPhone: '+970 59 900 1107',
+      address: 'غزة - تل الهوا',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 8,
+      studentNumber: 'STD-1008',
+      code: 'STD-1008',
       firstName: 'فاطمة',
       middleName: 'إبراهيم',
       lastName: 'رضوان',
@@ -470,88 +671,30 @@ const initialData = {
       status: 'ACTIVE',
       currentClass: 'Grade 7 B',
       className: 'Grade 7 B',
+      classId: 2,
       academicYear: '2026/2027',
       parentName: 'إبراهيم رضوان',
-      parentPhone: '+970 59 900 1105',
-      contactPhone: '+970 59 900 1105',
-      address: 'غزة - شارع الوحدة',
-      createdAt: '2026-09-01T08:00:00.000Z',
-    },
-    {
-      id: 6,
-      studentNumber: 'STD-1006',
-      code: 'STD-1006',
-      firstName: 'كريم',
-      middleName: 'عبد الله',
-      lastName: 'شاهين',
-      fullName: 'كريم عبد الله شاهين',
-      gender: 'MALE',
-      dateOfBirth: '2011-04-12',
-      status: 'ACTIVE',
-      currentClass: 'Grade 8 A',
-      className: 'Grade 8 A',
-      academicYear: '2026/2027',
-      parentName: 'عبد الله شاهين',
-      parentPhone: '+970 59 900 1106',
-      contactPhone: '+970 59 900 1106',
-      address: 'غزة - الشيخ عجلين',
-      createdAt: '2026-09-01T08:00:00.000Z',
-    },
-    {
-      id: 7,
-      studentNumber: 'STD-1007',
-      code: 'STD-1007',
-      firstName: 'سارة',
-      middleName: 'طارق',
-      lastName: 'المصري',
-      fullName: 'سارة طارق المصري',
-      gender: 'FEMALE',
-      dateOfBirth: '2011-09-30',
-      status: 'ACTIVE',
-      currentClass: 'Grade 8 A',
-      className: 'Grade 8 A',
-      academicYear: '2026/2027',
-      parentName: 'طارق المصري',
-      parentPhone: '+970 59 900 1107',
-      contactPhone: '+970 59 900 1107',
-      address: 'غزة - شارع الثلاثيني',
-      createdAt: '2026-09-01T08:00:00.000Z',
-    },
-    {
-      id: 8,
-      studentNumber: 'STD-1008',
-      code: 'STD-1008',
-      firstName: 'بلال',
-      middleName: 'حسن',
-      lastName: 'القدوة',
-      fullName: 'بلال حسن القدوة',
-      gender: 'MALE',
-      dateOfBirth: '2011-01-15',
-      status: 'ACTIVE',
-      currentClass: 'Grade 8 B',
-      className: 'Grade 8 B',
-      academicYear: '2026/2027',
-      parentName: 'حسن القدوة',
       parentPhone: '+970 59 900 1108',
       contactPhone: '+970 59 900 1108',
-      address: 'غزة - حي اليرموك',
+      address: 'غزة - شارع الوحدة',
       createdAt: '2026-09-01T08:00:00.000Z',
     },
     {
       id: 9,
       studentNumber: 'STD-1009',
       code: 'STD-1009',
-      firstName: 'رنا',
-      middleName: 'ماجد',
-      lastName: 'أبو ستة',
-      fullName: 'رنا ماجد أبو ستة',
-      gender: 'FEMALE',
-      dateOfBirth: '2011-12-08',
+      firstName: 'يوسف',
+      middleName: 'تامر',
+      lastName: 'الدلو',
+      fullName: 'يوسف تامر الدلو',
+      gender: 'MALE',
+      dateOfBirth: '2012-02-14',
       status: 'ACTIVE',
-      currentClass: 'Grade 8 B',
-      className: 'Grade 8 B',
+      currentClass: 'Grade 7 B',
+      className: 'Grade 7 B',
+      classId: 2,
       academicYear: '2026/2027',
-      parentName: 'ماجد أبو ستة',
+      parentName: 'تامر الدلو',
       parentPhone: '+970 59 900 1109',
       contactPhone: '+970 59 900 1109',
       address: 'غزة - الصبرة',
@@ -561,29 +704,331 @@ const initialData = {
       id: 10,
       studentNumber: 'STD-1010',
       code: 'STD-1010',
-      firstName: 'يحيى',
-      middleName: 'مروان',
-      lastName: 'حامد',
-      fullName: 'يحيى مروان حامد',
-      gender: 'MALE',
-      dateOfBirth: '2012-06-25',
+      firstName: 'شهد',
+      middleName: 'عماد',
+      lastName: 'حلس',
+      fullName: 'شهد عماد حلس',
+      gender: 'FEMALE',
+      dateOfBirth: '2012-10-08',
       status: 'ACTIVE',
-      currentClass: 'Grade 7 A',
-      className: 'Grade 7 A',
+      currentClass: 'Grade 7 B',
+      className: 'Grade 7 B',
+      classId: 2,
       academicYear: '2026/2027',
-      parentName: 'مروان حامد',
+      parentName: 'عماد حلس',
       parentPhone: '+970 59 900 1110',
       contactPhone: '+970 59 900 1110',
       address: 'غزة - الشجاعية',
       createdAt: '2026-09-01T08:00:00.000Z',
     },
+    {
+      id: 11,
+      studentNumber: 'STD-1011',
+      code: 'STD-1011',
+      firstName: 'براء',
+      middleName: 'مروان',
+      lastName: 'صيام',
+      fullName: 'براء مروان صيام',
+      gender: 'MALE',
+      dateOfBirth: '2012-06-25',
+      status: 'ACTIVE',
+      currentClass: 'Grade 7 B',
+      className: 'Grade 7 B',
+      classId: 2,
+      academicYear: '2026/2027',
+      parentName: 'مروان صيام',
+      parentPhone: '+970 59 900 1111',
+      contactPhone: '+970 59 900 1111',
+      address: 'غزة - حي الزيتون',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 12,
+      studentNumber: 'STD-1012',
+      code: 'STD-1012',
+      firstName: 'لين',
+      middleName: 'حاتم',
+      lastName: 'القدوة',
+      fullName: 'لين حاتم القدوة',
+      gender: 'FEMALE',
+      dateOfBirth: '2012-12-15',
+      status: 'ACTIVE',
+      currentClass: 'Grade 7 B',
+      className: 'Grade 7 B',
+      classId: 2,
+      academicYear: '2026/2027',
+      parentName: 'حاتم القدوة',
+      parentPhone: '+970 59 900 1112',
+      contactPhone: '+970 59 900 1112',
+      address: 'غزة - حي اليرموك',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+
+    // --- Grade 8 A (6 students) ---
+    {
+      id: 13,
+      studentNumber: 'STD-1013',
+      code: 'STD-1013',
+      firstName: 'كريم',
+      middleName: 'عبد الله',
+      lastName: 'شاهين',
+      fullName: 'كريم عبد الله شاهين',
+      gender: 'MALE',
+      dateOfBirth: '2011-04-12',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'عبد الله شاهين',
+      parentPhone: '+970 59 900 1113',
+      contactPhone: '+970 59 900 1113',
+      address: 'غزة - الشيخ عجلين',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 14,
+      studentNumber: 'STD-1014',
+      code: 'STD-1014',
+      firstName: 'سارة',
+      middleName: 'طارق',
+      lastName: 'المصري',
+      fullName: 'سارة طارق المصري',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-09-30',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'طارق المصري',
+      parentPhone: '+970 59 900 1114',
+      contactPhone: '+970 59 900 1114',
+      address: 'غزة - شارع الثلاثيني',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 15,
+      studentNumber: 'STD-1015',
+      code: 'STD-1015',
+      firstName: 'عمر',
+      middleName: 'إياد',
+      lastName: 'البورنو',
+      fullName: 'عمر إياد البورنو',
+      gender: 'MALE',
+      dateOfBirth: '2011-03-20',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'إياد البورنو',
+      parentPhone: '+970 59 900 1115',
+      contactPhone: '+970 59 900 1115',
+      address: 'غزة - الميناء',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 16,
+      studentNumber: 'STD-1016',
+      code: 'STD-1016',
+      firstName: 'لانا',
+      middleName: 'زياد',
+      lastName: 'حامد',
+      fullName: 'لانا زياد حامد',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-07-14',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'زياد حامد',
+      parentPhone: '+970 59 900 1116',
+      contactPhone: '+970 59 900 1116',
+      address: 'غزة - الشجاعية',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 17,
+      studentNumber: 'STD-1017',
+      code: 'STD-1017',
+      firstName: 'مهند',
+      middleName: 'مازن',
+      lastName: 'السرساوي',
+      fullName: 'مهند مازن السرساوي',
+      gender: 'MALE',
+      dateOfBirth: '2011-11-28',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'مازن السرساوي',
+      parentPhone: '+970 59 900 1117',
+      contactPhone: '+970 59 900 1117',
+      address: 'غزة - الدرج',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 18,
+      studentNumber: 'STD-1018',
+      code: 'STD-1018',
+      firstName: 'تالا',
+      middleName: 'حسام',
+      lastName: 'أبو خضرة',
+      fullName: 'تالا حسام أبو خضرة',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-05-02',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 A',
+      className: 'Grade 8 A',
+      classId: 3,
+      academicYear: '2026/2027',
+      parentName: 'حسام أبو خضرة',
+      parentPhone: '+970 59 900 1118',
+      contactPhone: '+970 59 900 1118',
+      address: 'غزة - الرمال',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+
+    // --- Grade 8 B (6 students) ---
+    {
+      id: 19,
+      studentNumber: 'STD-1019',
+      code: 'STD-1019',
+      firstName: 'بلال',
+      middleName: 'حسن',
+      lastName: 'القدوة',
+      fullName: 'بلال حسن القدوة',
+      gender: 'MALE',
+      dateOfBirth: '2011-01-15',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'حسن القدوة',
+      parentPhone: '+970 59 900 1119',
+      contactPhone: '+970 59 900 1119',
+      address: 'غزة - حي اليرموك',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 20,
+      studentNumber: 'STD-1020',
+      code: 'STD-1020',
+      firstName: 'رنا',
+      middleName: 'ماجد',
+      lastName: 'أبو ستة',
+      fullName: 'رنا ماجد أبو ستة',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-12-08',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'ماجد أبو ستة',
+      parentPhone: '+970 59 900 1120',
+      contactPhone: '+970 59 900 1120',
+      address: 'غزة - الصبرة',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 21,
+      studentNumber: 'STD-1021',
+      code: 'STD-1021',
+      firstName: 'طارق',
+      middleName: 'باسم',
+      lastName: 'المشهراوي',
+      fullName: 'طارق باسم المشهراوي',
+      gender: 'MALE',
+      dateOfBirth: '2011-06-17',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'باسم المشهراوي',
+      parentPhone: '+970 59 900 1121',
+      contactPhone: '+970 59 900 1121',
+      address: 'غزة - النصر',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 22,
+      studentNumber: 'STD-1022',
+      code: 'STD-1022',
+      firstName: 'سلمى',
+      middleName: 'نضال',
+      lastName: 'الهباش',
+      fullName: 'سلمى نضال الهباش',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-08-04',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'نضال الهباش',
+      parentPhone: '+970 59 900 1122',
+      contactPhone: '+970 59 900 1122',
+      address: 'غزة - التفاح',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 23,
+      studentNumber: 'STD-1023',
+      code: 'STD-1023',
+      firstName: 'وسيم',
+      middleName: 'عادل',
+      lastName: 'عياد',
+      fullName: 'وسيم عادل عياد',
+      gender: 'MALE',
+      dateOfBirth: '2011-10-11',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'عادل عياد',
+      parentPhone: '+970 59 900 1123',
+      contactPhone: '+970 59 900 1123',
+      address: 'غزة - تل الهوا',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
+    {
+      id: 24,
+      studentNumber: 'STD-1024',
+      code: 'STD-1024',
+      firstName: 'داليا',
+      middleName: 'وائل',
+      lastName: 'الغلاييني',
+      fullName: 'داليا وائل الغلاييني',
+      gender: 'FEMALE',
+      dateOfBirth: '2011-02-27',
+      status: 'ACTIVE',
+      currentClass: 'Grade 8 B',
+      className: 'Grade 8 B',
+      classId: 4,
+      academicYear: '2026/2027',
+      parentName: 'وائل الغلاييني',
+      parentPhone: '+970 59 900 1124',
+      contactPhone: '+970 59 900 1124',
+      address: 'غزة - الرمال الشمالي',
+      createdAt: '2026-09-01T08:00:00.000Z',
+    },
   ],
   users: [
-    { id: 1, email: 'admin@school.local', fullName: 'يوسف (المدير العام)', role: 'ADMIN', active: true, createdAt: '2026-09-01T08:00:00.000Z' },
+    { id: 1, email: 'admin@school.local', fullName: 'أ. عبد الرحمن خليل (المدير العام)', role: 'ADMIN', active: true, createdAt: '2026-09-01T08:00:00.000Z' },
     { id: 2, email: 'staff@school.local', fullName: 'محمد (شؤون الطلاب)', role: 'STAFF', active: true, createdAt: '2026-09-01T08:00:00.000Z' },
-    { id: 3, email: 'khalid.staff@school.local', fullName: 'خالد السعيد', role: 'STAFF', active: true, createdAt: '2026-09-01T08:00:00.000Z' },
-    { id: 4, email: 'ahmed.khalil@school.local', fullName: 'أحمد خليل', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'أحمد', lastName: 'خليل', employeeNo: 'TCH-001' } },
-    { id: 5, email: 'sara.mansour@school.local', fullName: 'سارة منصور', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'سارة', lastName: 'منصور', employeeNo: 'TCH-002' } },
+    { id: 3, email: 'khalid.staff@school.local', fullName: 'خالد السعيد (شؤون الطلاب)', role: 'STAFF', active: true, createdAt: '2026-09-01T08:00:00.000Z' },
+    { id: 4, email: 'ahmed.khalil@school.local', fullName: 'أحمد خليل (معلم رياضيات)', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'أحمد', lastName: 'خليل', employeeNo: 'TCH-001' } },
+    { id: 5, email: 'sara.mansour@school.local', fullName: 'سارة منصور (معلمة إنجليزي)', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'سارة', lastName: 'منصور', employeeNo: 'TCH-002' } },
+    { id: 6, email: 'omar.farooq@school.local', fullName: 'عمر فاروق (معلم لغة عربية)', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'عمر', lastName: 'فاروق', employeeNo: 'TCH-003' } },
+    { id: 7, email: 'layla.hassan@school.local', fullName: 'ليلى حسن (معلمة علوم)', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'ليلى', lastName: 'حسن', employeeNo: 'TCH-004' } },
+    { id: 8, email: 'tareq.aziz@school.local', fullName: 'طارق عزيز (معلم حاسوب وتكنولوجيا)', role: 'TEACHER', active: true, createdAt: '2026-09-01T08:00:00.000Z', teacher: { firstName: 'طارق', lastName: 'عزيز', employeeNo: 'TCH-005' } },
   ],
   auditLogs: [
     { id: 1, action: 'LOGIN_SUCCESS', entity: 'User', entityId: '1', details: 'تسجيل دخول المدير العام بنجاح', timestamp: new Date().toISOString(), createdAt: new Date().toISOString(), role: 'ADMIN', user: { fullName: 'يوسف (المدير العام)', role: 'ADMIN' }, ipAddress: '127.0.0.1', metadata: 'Auth Token Issued' },
@@ -592,6 +1037,104 @@ const initialData = {
     { id: 4, action: 'STUDENT_ENROLL', entity: 'Enrollment', entityId: '1', details: 'قبول وتسكين طالب جديد: أنس محمود الزهار', timestamp: new Date(Date.now() - 86400000).toISOString(), createdAt: new Date(Date.now() - 86400000).toISOString(), role: 'STAFF', user: { fullName: 'محمد (شؤون الطلاب)', role: 'STAFF' }, ipAddress: '127.0.0.1', metadata: 'Enrolled to Grade 7 A' },
   ],
 };
+
+export function getMockStudents() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_students_store') : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return initialData.students;
+}
+
+export function saveMockStudents(students) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_students_store', JSON.stringify(students));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('students_updated', { detail: students }));
+    }
+  } catch {}
+  initialData.students = students;
+}
+
+export function getMockClasses() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_classes_store') : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return initialData.classes;
+}
+
+export function saveMockClasses(classes) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_classes_store', JSON.stringify(classes));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('classes_updated', { detail: classes }));
+    }
+  } catch {}
+  initialData.classes = classes;
+}
+
+export function getMockTeachers() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_teachers_store') : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return initialData.teachers;
+}
+
+export function saveMockTeachers(teachers) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_teachers_store', JSON.stringify(teachers));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('teachers_updated', { detail: teachers }));
+    }
+  } catch {}
+  initialData.teachers = teachers;
+}
+
+export function getMockGrades() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('school_mock_grades_store') : null;
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return {};
+}
+
+export function saveMockGrades(grades) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_mock_grades_store', JSON.stringify(grades));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('grades_updated', { detail: grades }));
+    }
+  } catch {}
+}
+
+try {
+  if (typeof window !== 'undefined') {
+    const storedSt = getMockStudents();
+    if (storedSt && storedSt.length > 0) initialData.students = storedSt;
+    const storedCl = getMockClasses();
+    if (storedCl && storedCl.length > 0) initialData.classes = storedCl;
+    const storedTch = getMockTeachers();
+    if (storedTch && storedTch.length > 0) initialData.teachers = storedTch;
+  }
+} catch {}
+
 
 export function handleMockRequest(path, options = {}) {
   const method = (options.method || 'GET').toUpperCase();
@@ -756,14 +1299,73 @@ export function handleMockRequest(path, options = {}) {
 
   // 6. Classes (Returns Array for list and object for details)
   if (cleanPath === '/classes') {
-    return initialData.classes;
+    const classes = getMockClasses();
+    if (method === 'POST') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const maxId = classes.reduce((max, c) => Math.max(max, Number(c.id) || 0), 0);
+      const newId = maxId + 1;
+      const activeYear = initialData.academicYears.find(y => y.id === Number(body.academicYearId)) || initialData.academicYears.find(y => y.active) || initialData.academicYears[0];
+      const newClass = {
+        id: newId,
+        name: body.name || `Grade ${body.grade || '7'} ${body.section || 'A'}`.trim(),
+        grade: String(body.grade || '7'),
+        gradeLevel: `Grade ${body.grade || '7'}`,
+        section: body.section || 'A',
+        capacity: Number(body.capacity) || 30,
+        studentCount: 0,
+        estimatedAverage: 85,
+        attendanceRate: 98,
+        academicYearId: activeYear ? activeYear.id : 1,
+        academicYear: activeYear ? { id: activeYear.id, name: activeYear.name } : { id: 1, name: '2026/2027' },
+        teachers: [],
+        _count: { enrollments: 0 }
+      };
+      const updated = [newClass, ...classes];
+      saveMockClasses(updated);
+      return newClass;
+    }
+    const yearId = searchParams.get('academicYearId');
+    let classList = classes;
+    if (yearId) {
+      classList = classList.filter(c => String(c.academicYearId) === String(yearId));
+    }
+    const students = getMockStudents();
+    return classList.map(c => {
+      const count = students.filter(s => String(s.classId) === String(c.id) || s.currentClass === c.name || s.className === c.name).length;
+      return {
+        ...c,
+        studentCount: count,
+        _count: { ...(c._count || {}), enrollments: count }
+      };
+    });
   }
   if (cleanPath.startsWith('/classes/')) {
     const id = parseInt(cleanPath.split('/')[2], 10) || 1;
-    const cls = initialData.classes.find((c) => c.id === id) || initialData.classes[0];
+    const classes = getMockClasses();
+    if (method === 'PUT') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const idx = classes.findIndex(c => String(c.id) === String(id));
+      if (idx !== -1) {
+        classes[idx] = { ...classes[idx], ...body };
+        saveMockClasses(classes);
+        return classes[idx];
+      }
+    }
+    if (method === 'DELETE') {
+      const filtered = classes.filter(c => String(c.id) !== String(id));
+      saveMockClasses(filtered);
+      return { ok: true, message: 'Class deleted successfully' };
+    }
+    const cls = classes.find((c) => String(c.id) === String(id)) || classes[0];
+    const students = getMockStudents();
+    const classStudents = students.filter(s => String(s.classId) === String(id) || (cls && (s.currentClass === cls.name || s.className === cls.name)));
     return {
       ...cls,
-      students: initialData.students.slice(0, 5),
+      studentCount: classStudents.length,
+      _count: { ...(cls?._count || {}), enrollments: classStudents.length },
+      students: classStudents,
     };
   }
 
@@ -774,15 +1376,16 @@ export function handleMockRequest(path, options = {}) {
 
   // 8. Teachers
   if (cleanPath === '/teachers/attendance/today') {
+    const teachers = getMockTeachers();
     return {
-      summary: { total: 5, present: 4, late: 1, absent: 0, excused: 0 },
-      items: initialData.teachers.map((t) => ({
+      summary: { total: teachers.length, present: teachers.filter(t => t.attendanceStatus !== 'ABSENT').length, late: teachers.filter(t => t.attendanceStatus === 'LATE').length, absent: teachers.filter(t => t.attendanceStatus === 'ABSENT').length, excused: 0 },
+      items: teachers.map((t) => ({
         teacherId: t.id,
         employeeNo: t.employeeNo,
         fullName: t.fullName,
         specialty: t.specialty,
-        classes: t.classes,
-        subjects: t.subjects,
+        classes: t.classes || [],
+        subjects: t.subjects || [],
         status: t.attendanceStatus || 'PRESENT',
         checkIn: t.checkIn || '07:35 AM',
         note: t.note || 'حضور في الموعد',
@@ -793,16 +1396,81 @@ export function handleMockRequest(path, options = {}) {
     return { ok: true, message: 'Attendance recorded successfully' };
   }
   if (cleanPath === '/teachers/assign' && method === 'POST') {
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const teachers = getMockTeachers();
+    const t = teachers.find(tch => tch.id === Number(body.teacherId));
+    if (t) {
+      const classes = getMockClasses();
+      const cls = classes.find(c => c.id === Number(body.classId));
+      const sub = initialData.subjects.find(s => s.id === Number(body.subjectId));
+      if (!t.assignments) t.assignments = [];
+      const newAssign = {
+        id: Date.now(),
+        className: cls ? cls.name : 'Grade 7 A',
+        grade: cls ? `Grade ${cls.grade}` : 'Grade 7',
+        academicYear: cls?.academicYear?.name || '2026/2027',
+        subjectName: sub ? sub.name : 'Mathematics',
+        subjectCode: sub ? sub.code : 'MATH'
+      };
+      t.assignments.push(newAssign);
+      if (cls && !t.classes.includes(cls.name)) t.classes.push(cls.name);
+      if (sub && !t.subjects.includes(sub.name)) t.subjects.push(sub.name);
+      saveMockTeachers(teachers);
+    }
     return { ok: true, message: 'Class assigned successfully' };
   }
   if (cleanPath.startsWith('/teachers/assign/')) {
+    const assignId = parseInt(cleanPath.split('/')[3], 10);
+    const teachers = getMockTeachers();
+    teachers.forEach(t => {
+      if (t.assignments) {
+        t.assignments = t.assignments.filter(a => a.id !== assignId);
+      }
+    });
+    saveMockTeachers(teachers);
     return { ok: true, message: 'Assignment removed' };
   }
   if (cleanPath === '/teachers') {
-    const q = searchParams.get('q') || '';
-    let filtered = initialData.teachers;
+    const teachers = getMockTeachers();
+    if (method === 'POST') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const maxId = teachers.reduce((max, t) => Math.max(max, Number(t.id) || 0), 0);
+      const newId = maxId + 1;
+      const employeeNo = body.employeeNo || `TCH-${String(newId).padStart(3, '0')}`;
+      const fullName = body.fullName || `${body.firstName || ''} ${body.lastName || ''}`.trim() || 'معلم جديد';
+      const newTeacher = {
+        id: newId,
+        employeeNo,
+        code: employeeNo,
+        firstName: body.firstName || '',
+        lastName: body.lastName || '',
+        fullName,
+        specialty: body.specialty || body.specialization || 'عام',
+        specialization: body.specialty || body.specialization || 'عام',
+        phone: body.phone || '',
+        email: body.email || `${employeeNo.toLowerCase()}@school.local`,
+        status: body.status || 'ACTIVE',
+        active: true,
+        user: { email: body.email || `${employeeNo.toLowerCase()}@school.local`, role: 'TEACHER' },
+        classes: [],
+        subjects: [body.specialty || 'عام'],
+        classesCount: 0,
+        subjectsCount: 1,
+        attendanceStatus: 'PRESENT',
+        checkIn: '07:30 AM',
+        isPending: false,
+        assignments: []
+      };
+      const updated = [newTeacher, ...teachers];
+      saveMockTeachers(updated);
+      return newTeacher;
+    }
+    const q = (searchParams.get('q') || '').toLowerCase().trim();
+    let filtered = teachers;
     if (q) {
-      filtered = filtered.filter(t => t.fullName.includes(q) || t.employeeNo.includes(q));
+      filtered = filtered.filter(t => (t.fullName && t.fullName.toLowerCase().includes(q)) || (t.employeeNo && t.employeeNo.toLowerCase().includes(q)));
     }
     return {
       items: filtered,
@@ -813,31 +1481,207 @@ export function handleMockRequest(path, options = {}) {
   }
   if (cleanPath.startsWith('/teachers/')) {
     const id = parseInt(cleanPath.split('/')[2], 10) || 1;
-    return initialData.teachers.find((t) => t.id === id) || initialData.teachers[0];
+    const teachers = getMockTeachers();
+    if (method === 'PUT') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const idx = teachers.findIndex(t => t.id === id);
+      if (idx !== -1) {
+        teachers[idx] = { ...teachers[idx], ...body };
+        saveMockTeachers(teachers);
+        return teachers[idx];
+      }
+    }
+    if (method === 'DELETE') {
+      const filtered = teachers.filter(t => t.id !== id);
+      saveMockTeachers(filtered);
+      return { ok: true, message: 'Teacher deleted successfully' };
+    }
+    return teachers.find((t) => t.id === id) || teachers[0];
   }
 
   // 9. Students
   if (cleanPath === '/students') {
-    const q = searchParams.get('q') || '';
-    let filtered = initialData.students;
+    const students = getMockStudents();
+    if (method === 'POST') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const maxId = students.reduce((max, s) => Math.max(max, Number(s.id) || 0), 0);
+      const newId = maxId + 1;
+      const classes = getMockClasses();
+      const targetClass = body.classId ? classes.find(c => String(c.id) === String(body.classId)) : classes[0];
+      const fullName = body.fullName || `${body.firstName || ''} ${body.middleName ? body.middleName + ' ' : ''}${body.lastName || ''}`.trim() || 'طالب جديد';
+      const studentNumber = body.studentNumber || `STD-${1000 + newId}`;
+      const newStudent = {
+        id: newId,
+        studentNumber,
+        code: studentNumber,
+        firstName: body.firstName || '',
+        middleName: body.middleName || '',
+        lastName: body.lastName || '',
+        fullName,
+        gender: body.gender || 'MALE',
+        dateOfBirth: body.dateOfBirth || '2013-01-01',
+        status: body.status || 'ACTIVE',
+        classId: targetClass ? targetClass.id : 1,
+        className: targetClass ? targetClass.name : 'Grade 7 A',
+        currentClass: targetClass ? targetClass.name : 'Grade 7 A',
+        academicYear: targetClass?.academicYear?.name || '2026/2027',
+        phone: body.phone || '',
+        parentName: body.parentName || '',
+        parentPhone: body.parentPhone || '',
+        contactPhone: body.parentPhone || body.phone || '',
+        address: body.address || '',
+        createdAt: new Date().toISOString(),
+      };
+      const updated = [newStudent, ...students];
+      saveMockStudents(updated);
+
+      if (targetClass) {
+        targetClass.studentCount = (targetClass.studentCount || 0) + 1;
+        saveMockClasses(classes);
+      }
+
+      return newStudent;
+    }
+
+    const q = (searchParams.get('q') || '').toLowerCase().trim();
+    const status = searchParams.get('status');
+    const gender = searchParams.get('gender');
+    const classId = searchParams.get('classId');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '20', 10);
+
+    const classes = getMockClasses();
+    const targetClass = (classId && classId !== 'ALL') ? classes.find(c => String(c.id) === String(classId) || c.name === classId) : null;
+
+    let filtered = students;
     if (q) {
       filtered = filtered.filter(s =>
-        s.fullName.includes(q) ||
-        s.studentNumber.includes(q) ||
-        (s.parentName && s.parentName.includes(q)) ||
+        (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+        (s.studentNumber && s.studentNumber.toLowerCase().includes(q)) ||
+        (s.parentName && s.parentName.toLowerCase().includes(q)) ||
         (s.parentPhone && s.parentPhone.includes(q))
       );
     }
+    if (status && status !== 'ALL') {
+      filtered = filtered.filter(s => s.status === status);
+    }
+    if (gender && gender !== 'ALL') {
+      filtered = filtered.filter(s => s.gender === gender);
+    }
+    if (classId && classId !== 'ALL' && classId !== '') {
+      filtered = filtered.filter(s => 
+        String(s.classId) === String(classId) || 
+        (targetClass && (s.className === targetClass.name || s.currentClass === targetClass.name)) ||
+        (s.className && String(s.className).toLowerCase() === String(classId).toLowerCase()) ||
+        (s.currentClass && String(s.currentClass).toLowerCase() === String(classId).toLowerCase())
+      );
+    }
+
+    const start = (page - 1) * limit;
+    const paginatedItems = filtered.slice(start, start + limit);
+
     return {
-      items: filtered,
-      students: filtered,
-      pagination: { total: filtered.length, page: 1, limit: 20, totalPages: 1 },
+      items: paginatedItems,
+      students: paginatedItems,
+      pagination: {
+        total: filtered.length,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(filtered.length / limit))
+      },
       total: filtered.length,
     };
   }
+
+  // Import preview & execute
+  if (cleanPath === '/students/import/preview' && method === 'POST') {
+    return {
+      totalRows: 2,
+      validCount: 2,
+      invalidCount: 0,
+      duplicateCount: 0,
+      validRows: [
+        { studentNumber: `STU-2026-${Math.floor(800 + Math.random() * 100)}`, firstName: 'ياسين', middleName: 'محمد', lastName: 'البيطار', gender: 'MALE', dateOfBirth: '2013-04-12', phone: '0599112233', parentName: 'محمد البيطار', parentPhone: '0599112233', address: 'غزة - النصر' },
+        { studentNumber: `STU-2026-${Math.floor(800 + Math.random() * 100)}`, firstName: 'ندى', middleName: 'أحمد', lastName: 'حجازي', gender: 'FEMALE', dateOfBirth: '2013-07-19', phone: '0599445566', parentName: 'أحمد حجازي', parentPhone: '0599445566', address: 'غزة - الرمال' }
+      ],
+      errors: []
+    };
+  }
+
+  if (cleanPath === '/students/import/execute' && method === 'POST') {
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const validRows = body.validRows || [];
+    const students = getMockStudents();
+    const classes = getMockClasses();
+    const targetClass = classes[0];
+    let maxId = students.reduce((max, s) => Math.max(max, Number(s.id) || 0), 0);
+    const newStudents = validRows.map(r => {
+      maxId++;
+      const fullName = `${r.firstName || ''} ${r.middleName ? r.middleName + ' ' : ''}${r.lastName || ''}`.trim() || 'طالب مستورد';
+      return {
+        id: maxId,
+        studentNumber: r.studentNumber || `STD-${1000 + maxId}`,
+        code: r.studentNumber || `STD-${1000 + maxId}`,
+        firstName: r.firstName || '',
+        middleName: r.middleName || '',
+        lastName: r.lastName || '',
+        fullName,
+        gender: r.gender || 'MALE',
+        dateOfBirth: r.dateOfBirth || '2013-01-01',
+        status: 'ACTIVE',
+        classId: targetClass ? targetClass.id : 1,
+        className: targetClass ? targetClass.name : 'Grade 7 A',
+        currentClass: targetClass ? targetClass.name : 'Grade 7 A',
+        academicYear: targetClass?.academicYear?.name || '2026/2027',
+        phone: r.phone || '',
+        parentName: r.parentName || '',
+        parentPhone: r.parentPhone || '',
+        contactPhone: r.parentPhone || r.phone || '',
+        address: r.address || '',
+        createdAt: new Date().toISOString()
+      };
+    });
+    const updated = [...newStudents, ...students];
+    saveMockStudents(updated);
+    if (targetClass) {
+      targetClass.studentCount = (targetClass.studentCount || 0) + newStudents.length;
+      saveMockClasses(classes);
+    }
+    return { ok: true, createdCount: newStudents.length };
+  }
+
   if (cleanPath.startsWith('/students/')) {
     const id = parseInt(cleanPath.split('/')[2], 10) || 1;
-    const student = initialData.students.find((s) => s.id === id) || initialData.students[0];
+    const students = getMockStudents();
+    if (method === 'PUT') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const idx = students.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        const classes = getMockClasses();
+        const targetClass = body.classId ? classes.find(c => String(c.id) === String(body.classId)) : null;
+        const fullName = body.fullName || `${body.firstName || students[idx].firstName || ''} ${body.middleName !== undefined ? body.middleName + ' ' : (students[idx].middleName ? students[idx].middleName + ' ' : '')}${body.lastName || students[idx].lastName || ''}`.trim();
+        students[idx] = {
+          ...students[idx],
+          ...body,
+          fullName: fullName || students[idx].fullName,
+          className: targetClass ? targetClass.name : (body.className || students[idx].className),
+          currentClass: targetClass ? targetClass.name : (body.currentClass || students[idx].currentClass),
+          classId: targetClass ? targetClass.id : (body.classId || students[idx].classId)
+        };
+        saveMockStudents(students);
+        return students[idx];
+      }
+    }
+    if (method === 'DELETE') {
+      const filtered = students.filter(s => s.id !== id);
+      saveMockStudents(filtered);
+      return { ok: true, message: 'Student deleted successfully' };
+    }
+    const student = students.find((s) => s.id === id) || students[0];
     return {
       ...student,
       overallAverage: 91,
@@ -906,13 +1750,15 @@ export function handleMockRequest(path, options = {}) {
   }
 
   if (cleanPath === '/attendance/sheet') {
-    const classId = searchParams.get('classId') || String(initialData.classes[0]?.id || 1);
+    const classId = searchParams.get('classId') || '1';
     const date = searchParams.get('date') || '';
     const key = `${classId}_${date}`;
     const savedForDate = mockAttendanceStore[key] || null;
 
-    const targetClass = initialData.classes.find(c => String(c.id) === String(classId)) || initialData.classes[0];
-    const enrolledStudents = initialData.students.filter(s => 
+    const classes = getMockClasses();
+    const targetClass = classes.find(c => String(c.id) === String(classId)) || classes[0];
+    const students = getMockStudents();
+    const enrolledStudents = students.filter(s => 
       String(s.classId) === String(classId) || 
       (targetClass && (
         s.className === targetClass.name || 
@@ -921,7 +1767,7 @@ export function handleMockRequest(path, options = {}) {
         (s.className && targetClass.grade && s.className.includes(targetClass.grade) && targetClass.section && s.className.includes(targetClass.section))
       ))
     );
-    const studentsToUse = enrolledStudents.length > 0 ? enrolledStudents : initialData.students;
+    const studentsToUse = enrolledStudents;
 
     return {
       class: targetClass,
@@ -971,25 +1817,56 @@ export function handleMockRequest(path, options = {}) {
 
   // 11. Grades Sheet & Bulk
   if (cleanPath === '/grades/sheet') {
+    const classId = searchParams.get('classId') || '1';
+    const subjectId = searchParams.get('subjectId') || '1';
+    const examName = searchParams.get('examName') || '';
+    const classes = getMockClasses();
+    const targetClass = classes.find(c => String(c.id) === String(classId)) || classes[0];
+    const students = getMockStudents();
+    const targetStudents = students.filter(s => 
+      String(s.classId) === String(classId) ||
+      (targetClass && (s.className === targetClass.name || s.currentClass === targetClass.name))
+    );
+    const gradesStore = getMockGrades();
+    const keyPrefix = `${classId}_${subjectId}_${examName}`;
     return {
-      sheet: initialData.students.map((s, idx) => ({
-        studentId: s.id,
-        studentNumber: s.studentNumber,
-        fullName: s.fullName,
-        score: 85 + (idx % 14),
-        percentage: 85 + (idx % 14),
-      })),
+      sheet: targetStudents.map((s, idx) => {
+        const studentScore = gradesStore[`${keyPrefix}_${s.id}`];
+        const val = (studentScore !== undefined && studentScore !== null) ? studentScore : (85 + (idx % 14));
+        return {
+          studentId: s.id,
+          studentNumber: s.studentNumber,
+          fullName: s.fullName,
+          score: val,
+          percentage: val,
+        };
+      }),
     };
   }
   if (cleanPath === '/grades/bulk' && method === 'POST') {
-    return { ok: true, message: 'Grades saved' };
+    let body = {};
+    try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+    const { classId, subjectId, examName, grades } = body;
+    const gradesStore = getMockGrades();
+    const keyPrefix = `${classId || '1'}_${subjectId || '1'}_${examName || ''}`;
+    if (Array.isArray(grades)) {
+      grades.forEach(g => {
+        gradesStore[`${keyPrefix}_${g.studentId}`] = Number(g.score);
+      });
+      saveMockGrades(gradesStore);
+    }
+    return { ok: true, message: 'Grades saved successfully' };
   }
   if (cleanPath === '/grades/report') {
     const classId = searchParams.get('classId');
-    let students = initialData.students;
-    if (classId) {
-      students = students.filter(s => s.classId == classId || s.className == classId || (classId == 1 && s.className?.includes('7 A')) || (classId == 2 && s.className?.includes('7 B')));
-      if (students.length === 0) students = initialData.students.slice(0, 3);
+    const classes = getMockClasses();
+    const targetClass = (classId && classId !== 'ALL') ? classes.find(c => String(c.id) === String(classId) || c.name === classId) : null;
+    let students = getMockStudents();
+    if (classId && classId !== 'ALL' && classId !== '') {
+      students = students.filter(s => 
+        String(s.classId) === String(classId) || 
+        (targetClass && (s.className === targetClass.name || s.currentClass === targetClass.name))
+      );
     }
     const subjects = [
       { id: 1, name: 'الرياضيات (Mathematics)', code: 'MATH' },
@@ -1031,19 +1908,93 @@ export function handleMockRequest(path, options = {}) {
   }
 
   // 12. Enrollments
-  if (cleanPath === '/enrollments') {
-    return {
-      items: initialData.students.map((s, idx) => ({
-        id: idx + 1,
-        student: s,
-        class: initialData.classes[idx % initialData.classes.length],
-        enrolledAt: '2026-09-01T08:00:00.000Z',
-      })),
-      pagination: { total: initialData.students.length, page: 1, limit: 25, totalPages: 1 },
-    };
-  }
-  if (cleanPath === '/enrollments/bulk' && method === 'POST') {
-    return { ok: true, enrolledCount: 5, skippedCount: 0 };
+  if (cleanPath.startsWith('/enrollments')) {
+    const students = getMockStudents();
+    const classes = getMockClasses();
+
+    if (cleanPath === '/enrollments/bulk' && method === 'POST') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const targetClass = classes.find(c => String(c.id) === String(body.classId));
+      const sIds = (body.studentIds || []).map(Number);
+      if (targetClass && sIds.length > 0) {
+        students.forEach(s => {
+          if (sIds.includes(Number(s.id))) {
+            s.classId = targetClass.id;
+            s.className = targetClass.name;
+            s.currentClass = targetClass.name;
+          }
+        });
+        saveMockStudents(students);
+      }
+      return { ok: true, enrolledCount: sIds.length, skippedCount: 0 };
+    }
+
+    if (cleanPath === '/enrollments' && method === 'POST') {
+      let body = {};
+      try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
+      const targetClass = classes.find(c => String(c.id) === String(body.classId));
+      const student = students.find(s => String(s.id) === String(body.studentId));
+      if (student && targetClass) {
+        student.classId = targetClass.id;
+        student.className = targetClass.name;
+        student.currentClass = targetClass.name;
+        saveMockStudents(students);
+        return {
+          id: student.id,
+          student,
+          class: targetClass,
+          enrolledAt: new Date().toISOString()
+        };
+      }
+      return { ok: true };
+    }
+
+    if (cleanPath.startsWith('/enrollments/') && method === 'DELETE') {
+      const eId = parseInt(cleanPath.split('/')[2], 10);
+      const student = students.find(s => s.id === eId);
+      if (student) {
+        student.classId = null;
+        student.className = 'غير مسجل';
+        student.currentClass = 'غير مسجل';
+        saveMockStudents(students);
+      }
+      return { ok: true, message: 'Unenrolled successfully' };
+    }
+
+    if (cleanPath === '/enrollments') {
+      const yearId = searchParams.get('academicYearId');
+      const classId = searchParams.get('classId');
+      const page = parseInt(searchParams.get('page') || '1', 10);
+      const limit = parseInt(searchParams.get('limit') || '25', 10);
+
+      let list = students
+        .filter(s => s.classId)
+        .map(s => {
+          const cls = classes.find(c => String(c.id) === String(s.classId) || c.name === s.className || c.name === s.currentClass) || classes[0];
+          return {
+            id: s.id,
+            student: s,
+            class: cls,
+            enrolledAt: s.createdAt || '2026-09-01T08:00:00.000Z',
+          };
+        });
+
+      if (classId && classId !== '' && classId !== 'ALL') {
+        list = list.filter(e => String(e.class.id) === String(classId));
+      }
+      if (yearId && yearId !== '' && yearId !== 'ALL') {
+        list = list.filter(e => String(e.class.academicYearId) === String(yearId));
+      }
+
+      const start = (page - 1) * limit;
+      const paginated = list.slice(start, start + limit);
+
+      return {
+        items: paginated,
+        pagination: { total: list.length, page, limit, totalPages: Math.max(1, Math.ceil(list.length / limit)) },
+      };
+    }
   }
 
   // 13. Users
@@ -1088,10 +2039,14 @@ export function handleMockRequest(path, options = {}) {
   }
   if (cleanPath === '/reports/bulk-certificates') {
     const classId = searchParams.get('classId');
-    let students = initialData.students;
-    if (classId) {
-      students = students.filter(s => s.classId == classId || s.className == classId || (classId == 1 && s.className?.includes('7 A')) || (classId == 2 && s.className?.includes('7 B')));
-      if (students.length === 0) students = initialData.students;
+    const classes = getMockClasses();
+    const targetClass = (classId && classId !== 'ALL') ? classes.find(c => String(c.id) === String(classId) || c.name === classId) : null;
+    let students = getMockStudents();
+    if (classId && classId !== 'ALL' && classId !== '') {
+      students = students.filter(s => 
+        String(s.classId) === String(classId) || 
+        (targetClass && (s.className === targetClass.name || s.currentClass === targetClass.name))
+      );
     }
     return students.map((s, idx) => ({
       id: s.id,
@@ -1242,8 +2197,8 @@ export function handleMockRequest(path, options = {}) {
       ok: true,
       currentSchool: {
         code: 'SCH-001',
-        nameAr: 'مدرسة النور النموذجية',
-        nameEn: 'Al-Noor Model School',
+        nameAr: 'مدرسة جذور النموذجية الخاصة',
+        nameEn: 'Judhoor Model Private School',
         databaseType: 'PostgreSQL (Dedicated Database)',
         studentsCount: 200,
         teachersCount: 15,
@@ -1349,8 +2304,8 @@ export function handleMockRequest(path, options = {}) {
       backup: {
         exportMetadata: {
           schoolCode: 'SCH-001',
-          schoolNameAr: 'مدرسة النور النموذجية',
-          schoolNameEn: 'Al-Noor Model School',
+          schoolNameAr: 'مدرسة جذور النموذجية الخاصة',
+          schoolNameEn: 'Judhoor Model Private School',
           exportedAt: new Date().toISOString(),
           version: 'v2.0.0 (Standalone Instance)',
         },
@@ -1593,9 +2548,15 @@ export function handleMockRequest(path, options = {}) {
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.toLowerCase() || '';
 
-    let students = initialData.students;
-    if (classId && classId !== 'ALL') {
-      students = students.filter(s => s.classId == classId || s.className?.includes(classId));
+    const classes = getMockClasses();
+    const targetClass = (classId && classId !== 'ALL') ? classes.find(c => String(c.id) === String(classId) || c.name === classId) : null;
+    let students = getMockStudents();
+    if (classId && classId !== 'ALL' && classId !== '') {
+      students = students.filter(s => 
+        String(s.classId) === String(classId) || 
+        (targetClass && (s.className === targetClass.name || s.currentClass === targetClass.name)) ||
+        (s.className && String(s.className).toLowerCase().includes(String(classId).toLowerCase()))
+      );
     }
     if (search) {
       students = students.filter(s => s.fullName?.toLowerCase().includes(search) || s.studentNumber?.toLowerCase().includes(search));

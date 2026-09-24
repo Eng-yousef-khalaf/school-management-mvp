@@ -60,7 +60,58 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
   if (!isOpen) return null;
 
   const handlePrintAll = () => {
-    window.print();
+    const container = document.getElementById('bulk-certificates-print-area');
+    if (!container) {
+      window.print();
+      return;
+    }
+
+    const existingIframe = document.getElementById('certificates-print-iframe');
+    if (existingIframe) {
+      existingIframe.remove();
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'certificates-print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    const printHtml = '<!DOCTYPE html>' +
+      '<html dir="rtl" lang="ar">' +
+      '<head>' +
+      '<meta charset="utf-8" />' +
+      '<title>شهادات_الطلاب_مدرسة_جذور_النموذجية_الخاصة</title>' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
+      '<style>' +
+      '@page { size: A4 portrait; margin: 8mm; }' +
+      '* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      'html, body { background: #ffffff !important; color: #0f172a !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }' +
+      '.certificate-page, .printable-sheet { display: flex !important; flex-direction: column !important; justify-content: space-between !important; min-height: 275mm !important; height: 275mm !important; max-height: 275mm !important; padding: 16px 20px !important; margin: 0 0 20px 0 !important; border: 2px solid #0f172a !important; border-radius: 8px !important; background: #ffffff !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; break-inside: avoid-page !important; overflow: hidden !important; box-sizing: border-box !important; }' +
+      '.certificate-page:last-child { page-break-after: auto !important; break-after: auto !important; }' +
+      'table { border-collapse: collapse; width: 100%; }' +
+      'img { max-width: 100%; height: auto; }' +
+      '</style>' +
+      '</head>' +
+      '<body>' +
+      container.innerHTML +
+      '</body>' +
+      '</html>';
+    doc.write(printHtml);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 450);
   };
 
   const getLetterGrade = (percentage) => {
@@ -197,7 +248,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
       </div>
 
       {/* Main Certificates View Container */}
-      <div className="certificates-container" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+      <div className="certificates-container" id="bulk-certificates-print-area" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
         {loading ? (
           <div style={{ background: '#fff', borderRadius: '12px', padding: '40px' }}>
             <PageLoader text={isRtl ? 'جاري تجميع وإعداد الشهادات الأكاديمية لكافة الطلاب...' : 'Generating bulk student certificates...'} />
@@ -227,18 +278,15 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                   background: '#ffffff',
                   color: '#0f172a',
                   borderRadius: '12px',
-                  padding: '28px 34px',
+                  padding: '24px 30px',
                   marginBottom: '24px',
                   boxShadow: '0 8px 30px rgba(0, 0, 0, 0.10)',
-                  border: '2.5px solid #1e293b',
+                  border: '2px solid #0f172a',
                   position: 'relative',
                   pageBreakAfter: 'always',
                   breakAfter: 'page',
                   pageBreakInside: 'avoid',
                   breakInside: 'avoid-page',
-                  height: '275mm',
-                  minHeight: '275mm',
-                  maxHeight: '278mm',
                   boxSizing: 'border-box',
                   display: 'flex',
                   flexDirection: 'column',
@@ -259,16 +307,16 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
 
                 <div>
                   {/* Certificate Header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2.5px solid #0f172a', paddingBottom: 14, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2.5px solid #0f172a', paddingBottom: 14, marginBottom: 14 }}>
                     <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <PalestineFlagIcon />
                         <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
                       </div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 3 }}>
-                        {isRtl ? config?.schoolNameAr || 'إدارة المدرسة' : config?.schoolNameEn || 'School Administration'}
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 3 }}>
+                        {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
+                      <div style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                         {isRtl ? 'قسم شؤون الطلاب والامتحانات' : 'Department of Student Affairs'}
                       </div>
                     </div>
@@ -278,14 +326,14 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                       <SchoolLogo size={62} />
                     </div>
 
-                    <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 6 }}>
+                    <div style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', flexDirection: 'column', alignItems: isRtl ? 'flex-start' : 'flex-end', gap: 4 }}>
                       {/* Enlarged Clean UNICEF Logo */}
-                      <UnicefLogo height={48} />
+                      <UnicefLogo height={42} />
                       <div style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', marginTop: 2 }}>
                         {isRtl ? 'شهادة وإفادة أداء أكاديمي شامل' : 'Official Academic Transcript'}
                       </div>
                       <div style={{ fontSize: 11, color: '#64748b' }}>
-                        {isRtl ? 'العام الدراسي:' : 'Academic Year:'} <strong>{student.academicYear}</strong> | {new Date().toLocaleDateString('ar-EG')}
+                        {isRtl ? 'العام الدراسي:' : 'Academic Year:'} <strong>{student.academicYear || '2026/2027'}</strong> | {new Date().toLocaleDateString('ar-EG')}
                       </div>
                     </div>
                   </div>
@@ -496,33 +544,33 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#4f46e5',
-                        fontSize: 8.5,
+                        color: '#166534',
+                        fontSize: 8,
                         fontWeight: 800,
-                        background: '#faf5ff'
+                        background: '#f0fdf4'
                       }}>
-                        <span>{isRtl ? config?.schoolNameAr || 'المدرسة' : config?.schoolNameEn || 'School'}</span>
-                        <span style={{ fontSize: 7.5 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+                        <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                        <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Footer Page Note */}
                   <div style={{
-                    marginTop: 12,
+                    marginTop: 10,
                     textAlign: 'center',
-                    fontSize: 10,
+                    fontSize: 9.5,
                     color: '#64748b',
                     borderTop: '1px solid #e2e8f0',
-                    paddingTop: 8,
+                    paddingTop: 6,
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
                     <span>
                       {isRtl
-                        ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'إدارة المدرسة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
-                        : `Official document issued electronically by ${config?.schoolNameEn || 'School Administration'} - Student ${studentIdx + 1} of ${students.length}`}
+                        ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
+                        : `Official document issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'} - Student ${studentIdx + 1} of ${students.length}`}
                     </span>
                     <span style={{ fontWeight: 700 }}>
                       {isRtl ? 'صفحة 1 من 1' : 'Page 1 of 1'}

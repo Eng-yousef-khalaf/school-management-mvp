@@ -6,13 +6,16 @@ import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
-import { DownloadIcon } from '../../components/common/Icons';
+import { DownloadIcon, PalestineFlagIcon } from '../../components/common/Icons';
+import SchoolLogo from '../../components/common/SchoolLogo';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import BulkCertificatesModal from '../Reports/BulkCertificatesModal';
 
 export default function GradeReports() {
   const toast = useToast();
   const { user, isAdmin, isStaff, isTeacher, canManageStudents } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { config } = useSchoolConfig();
 
   const [classes, setClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState('');
@@ -70,7 +73,47 @@ export default function GradeReports() {
   };
 
   const handlePrint = () => {
-    window.print();
+    const wrapper = document.getElementById('grade-matrix-printable');
+    if (!wrapper) { window.print(); return; }
+
+    // Remove any stale iframe
+    const old = document.getElementById('grade-matrix-print-iframe');
+    if (old) old.remove();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'grade-matrix-print-iframe';
+    Object.assign(iframe.style, { position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0' });
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(
+      '<!DOCTYPE html>' +
+      '<html dir="rtl" lang="ar">' +
+      '<head><meta charset="utf-8">' +
+      '<title>كشف_الدرجات_والنتائج_مدرسة_جذور_النموذجية_الخاصة</title>' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+      '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
+      '<style>' +
+      '@page { size: A4 portrait; margin: 10mm 10mm 10mm 10mm; }' +
+      '* { box-sizing: border-box; font-family: "Cairo", sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      'html, body { background: #ffffff; color: #0f172a; margin: 0; padding: 0; }' +
+      'table { border-collapse: collapse; width: 100%; font-size: 9pt; }' +
+      'th { background: #f1f5f9 !important; font-weight: 800; border: 1px solid #94a3b8; padding: 6px 8px; }' +
+      'td { border: 1px solid #cbd5e1; padding: 5px 8px; color: #0f172a; }' +
+      'tr:nth-child(even) td { background: #f8fafc; }' +
+      '.print-header { border-bottom: 2.5px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }' +
+      '.print-footer { margin-top: 22px; padding-top: 14px; border-top: 2px dashed #cbd5e1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; text-align: center; }' +
+      '.sig-label { font-size: 10pt; font-weight: 700; color: #475569; margin-bottom: 24px; }' +
+      '.sig-line { border-bottom: 1.5px solid #94a3b8; width: 80%; margin: 0 auto; }' +
+      '.seal { width: 56px; height: 56px; border: 2px dashed #166534; border-radius: 50%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #166534; font-size: 7pt; font-weight: 800; background: #f0fdf4; }' +
+      '</style>' +
+      '</head><body>' +
+      wrapper.innerHTML +
+      '</body></html>'
+    );
+    doc.close();
+    setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); }, 450);
   };
 
   const { subjects = [], report = [] } = reportData;
@@ -171,16 +214,53 @@ export default function GradeReports() {
 
       {error && <ErrorAlert message={error} onRetry={loadReport} />}
 
-      {/* Grade Matrix Table */}
-      <div className="panel">
-        <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+      {/* Grade Matrix Table and Official Printable Sheet */}
+      <div id="grade-matrix-printable" className="panel grade-matrix-print-wrapper" style={{ padding: '24px 28px', background: '#ffffff' }}>
+
+        {/* Official Header for Print Mode Only */}
+        <div className="only-print" style={{ marginBottom: 20, borderBottom: '2.5px solid #0f172a', paddingBottom: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ textAlign: isRtl ? 'right' : 'left' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <PalestineFlagIcon />
+                <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 3 }}>
+                {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
+                {isRtl ? 'الإدارة العامة للتقويم التربوي والامتحانات' : 'Department of Educational Evaluation & Examinations'}
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <SchoolLogo size={62} />
+            </div>
+
+            <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a' }}>
+                {isRtl ? 'كشف ومصفوفة الدرجات والنتائج العامة' : 'Official Grade Matrix & Transcript Sheet'}
+              </div>
+              <div style={{ fontSize: 11.5, color: '#334155', marginTop: 3 }}>
+                <strong>{selectedClassId ? (classes.find(c => String(c.id) === String(selectedClassId))?.name || 'الصف المحدد') : (isRtl ? 'كافة الصفوف والشعب' : 'All Classes')}</strong>
+              </div>
+              <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>
+                {isRtl ? 'تاريخ الإصدار:' : 'Date:'} {new Date().toLocaleDateString('ar-EG')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Screen Header */}
+        <div className="panel-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-main)' }}>
             {isRtl ? `كشف الدرجات والنتائج العامة (${report.length} طالب)` : `Curriculum Grade Matrix (${report.length} Students)`}
           </h3>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             {isRtl ? `المواد المشمولة في التقرير: ${subjects.length} مواد` : `Curriculum Subjects: ${subjects.length}`}
           </span>
         </div>
+
         <div className="table-responsive">
           {loading ? (
             <PageLoader text={isRtl ? 'جاري تجميع مصفوفة درجات ومعدلات الطلاب...' : 'Compiling curriculum grade matrix...'} />
@@ -190,55 +270,60 @@ export default function GradeReports() {
               description={isRtl ? 'لا توجد درجات مرصودة تطابق الفلاتر المحددة حالياً.' : 'No student grades match the specified filters.'}
             />
           ) : (
-            <table>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
-                  <th>{isRtl ? 'الرقم الأكاديمي' : 'Student Number'}</th>
-                  <th>{isRtl ? 'اسم الطالب' : 'Student Name'}</th>
-                  <th>{isRtl ? 'الصف والشعبة' : 'Class'}</th>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                  <th style={{ padding: '10px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: 800 }}>{isRtl ? 'الرقم الأكاديمي' : 'Student Number'}</th>
+                  <th style={{ padding: '10px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: 800 }}>{isRtl ? 'اسم الطالب' : 'Student Name'}</th>
+                  <th style={{ padding: '10px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: 800 }}>{isRtl ? 'الصف والشعبة' : 'Class'}</th>
                   {subjects.map((sub) => (
-                    <th key={sub.id} style={{ textAlign: 'center' }}>
-                      {sub.name} ({sub.code})
+                    <th key={sub.id} style={{ textAlign: 'center', padding: '10px 8px', fontWeight: 800 }}>
+                      {sub.name} <span style={{ fontSize: 11, color: '#64748b' }}>({sub.code})</span>
                     </th>
                   ))}
-                  <th style={{ textAlign: 'center' }}>{isRtl ? 'المعدل العام' : 'Overall Average'}</th>
+                  <th style={{ textAlign: 'center', padding: '10px 12px', fontWeight: 900 }}>{isRtl ? 'المعدل العام' : 'Overall Average'}</th>
                 </tr>
               </thead>
               <tbody>
-                {report.map((row) => (
-                  <tr key={row.studentId}>
-                    <td><strong>{row.studentNumber}</strong></td>
-                    <td><span style={{ fontWeight: 600 }}>{row.studentName}</span></td>
-                    <td>{row.className}</td>
+                {report.map((row, idx) => (
+                  <tr key={row.studentId} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                    <td style={{ padding: '9px 12px', fontFamily: 'monospace', fontWeight: 800, color: '#166534' }}>{row.studentNumber}</td>
+                    <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 800, color: '#0f172a' }}>{row.studentName}</span></td>
+                    <td style={{ padding: '9px 12px', color: '#475569', fontWeight: 600 }}>{row.className}</td>
                     {subjects.map((sub) => {
                       const gradeInfo = row.subjectGrades[sub.code];
                       return (
-                        <td key={sub.id} style={{ textAlign: 'center' }}>
+                        <td key={sub.id} style={{ textAlign: 'center', padding: '9px 8px' }}>
                           {gradeInfo ? (
                             <div>
-                              <strong style={{ fontSize: 13 }}>{gradeInfo.score} / {gradeInfo.maxScore}</strong>
-                              <div style={{ fontSize: 11, color: gradeInfo.percentage >= 75 ? 'var(--success)' : 'var(--text-muted)' }}>
-                                ({gradeInfo.percentage}%)
+                              <strong style={{ fontSize: 13, color: '#0f172a' }}>{gradeInfo.score} <span style={{ fontSize: 10.5, color: '#94a3b8' }}>/ {gradeInfo.maxScore}</span></strong>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: gradeInfo.percentage >= 80 ? '#15803d' : gradeInfo.percentage >= 60 ? '#d97706' : '#b91c1c' }}>
+                                {gradeInfo.percentage}%
                               </div>
                             </div>
                           ) : (
-                            <span style={{ color: 'var(--text-light)' }}>—</span>
+                            <span style={{ color: '#94a3b8' }}>—</span>
                           )}
                         </td>
                       );
                     })}
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', padding: '9px 12px' }}>
                       {row.average !== null ? (
                         <span
-                          className={`badge ${
-                            row.average >= 80 ? 'badge-active' : row.average >= 60 ? 'badge-late' : 'badge-inactive'
-                          }`}
-                          style={{ fontSize: 13, padding: '4px 10px', fontWeight: 700 }}
+                          style={{
+                            fontSize: 12.5,
+                            padding: '3px 10px',
+                            fontWeight: 800,
+                            borderRadius: '6px',
+                            background: row.average >= 80 ? '#dcfce7' : row.average >= 60 ? '#fef3c7' : '#fee2e2',
+                            color: row.average >= 80 ? '#15803d' : row.average >= 60 ? '#b45309' : '#b91c1c',
+                            display: 'inline-block'
+                          }}
                         >
                           {row.average}%
                         </span>
                       ) : (
-                        <span style={{ color: 'var(--text-light)' }}>—</span>
+                        <span style={{ color: '#94a3b8' }}>—</span>
                       )}
                     </td>
                   </tr>
@@ -246,6 +331,62 @@ export default function GradeReports() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Official Signatures Footer for Print Mode Only */}
+        <div className="only-print" style={{ marginTop: 28, paddingTop: 18, borderTop: '2px dashed #cbd5e1' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 26 }}>
+                {isRtl ? 'مربي الصف / معلم المادة' : 'Class Teacher'}
+              </div>
+              <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 26 }}>
+                {isRtl ? 'المشرف التربوي ورئيس القسم' : 'Academic Supervisor'}
+              </div>
+              <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 26 }}>
+                {isRtl ? 'مدير المدرسة / الاعتماد الرسمي' : 'School Principal'}
+              </div>
+              <div style={{ borderBottom: '1.5px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                {isRtl ? 'خاتم المدرسة المعتمد' : 'Official School Seal'}
+              </div>
+              <div style={{
+                width: 58,
+                height: 58,
+                border: '2px dashed #166534',
+                borderRadius: '50%',
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#166534',
+                fontSize: 8,
+                fontWeight: 800,
+                background: '#f0fdf4'
+              }}>
+                <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 9.5, color: '#64748b', marginTop: 14, textAlign: 'center', borderTop: '1px solid #e2e8f0', paddingTop: 6 }}>
+            {isRtl
+              ? `كشف درجات رسمي صادر إلكترونياً من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'} - دولة فلسطين`
+              : `Official grade transcript issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'}`}
+          </div>
         </div>
       </div>
 

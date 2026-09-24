@@ -31,12 +31,12 @@ args.forEach((arg) => {
 });
 
 const targetDbUrl = params['db'] || process.env.DATABASE_URL;
-const schoolNameAr = params['name-ar'] || 'مدرسة النور النموذجية';
-const schoolNameEn = params['name-en'] || 'Al-Noor Model School';
+const schoolNameAr = params['name-ar'] || 'مدرسة جذور النموذجية الخاصة';
+const schoolNameEn = params['name-en'] || 'Judhoor Model Private School';
 const schoolCode = params['code'] || 'SCH-001';
 const adminEmail = params['admin-email'] || 'admin@school.local';
 const adminPass = params['admin-pass'] || 'ChangeMe123!';
-const primaryColor = params['color'] || '#4f46e5';
+const primaryColor = params['color'] || '#166534';
 
 console.log('\n======================================================');
 console.log('🏫 Smart School System (Standalone) — Database Setup');

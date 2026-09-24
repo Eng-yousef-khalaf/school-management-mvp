@@ -154,7 +154,7 @@ body {
 
 /* Fixed Modern Sidebar */
 .sidebar {
-  width: 255px;
+  width: 256px;
   background-color: var(--bg-sidebar);
   color: var(--text-white);
   display: flex;
@@ -1218,3 +1218,278 @@ tbody tr:last-child td {
   }
 }
 
+/* Screen vs Print Utility Rules */
+.only-print {
+  display: none !important;
+}
+
+@media screen {
+  .only-print {
+    display: none !important;
+  }
+}
+
+/* UNICEF Report Screen Styling */
+.unicef-report-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #cbd5e1;
+}
+
+.unicef-document-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.unicef-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  background: #ffffff;
+  padding: 20px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+/* ========================================================= */
+/* COMPREHENSIVE HIGH-PRECISION PRINT STYLESHEET             */
+/* ========================================================= */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 8mm 8mm 8mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    font-size: 10pt !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* App Structure in Print */
+  #root,
+  .app-container,
+  .main-content,
+  .content-body {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Explicitly Hide Non-Printable Elements */
+  .no-print,
+  .sidebar,
+  .header,
+  .topbar,
+  .mobile-menu-btn,
+  .mobile-sidebar-close-btn,
+  .sidebar-overlay,
+  .sidebar-backdrop,
+  .toast-container,
+  .btn,
+  button,
+  .toolbar,
+  .filter-select,
+  .form-input,
+  .nav-item,
+  .modal-header,
+  .modal-footer,
+  .role-badge,
+  .stat-card-badge {
+    display: none !important;
+  }
+
+  /* Show Print-Only Content */
+  .only-print {
+    display: block !important;
+  }
+
+  /* Student Details Print Isolation */
+  .student-details-container > *:not(.official-parent-statement) {
+    display: none !important;
+  }
+
+  /* Official Student Parent Statement */
+  .official-parent-statement {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 16px 20px !important;
+    border: 2px solid #0f172a !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    min-height: auto !important;
+    height: auto !important;
+    box-shadow: none !important;
+  }
+
+  .official-parent-statement table,
+  .official-parent-statement th,
+  .official-parent-statement td {
+    border-color: #cbd5e1 !important;
+  }
+
+  .official-parent-statement th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+  }
+
+  /* Modal Containers in Print */
+  .modal-overlay,
+  .bulk-certificates-overlay,
+  .unicef-report-overlay {
+    position: static !important;
+    inset: auto !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    z-index: auto !important;
+  }
+
+  .modal-content,
+  .unicef-report-modal,
+  .bulk-certificates-modal {
+    position: static !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+
+  .modal-body,
+  #printable-unicef-report {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Bulk Certificates Multi-Page Isolation */
+  .certificates-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .certificate-page,
+  .printable-sheet {
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    box-shadow: none !important;
+    margin: 0 0 16px 0 !important;
+    padding: 20px 24px !important;
+    border: 2px solid #0f172a !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .certificate-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* ========================================================= */
+  /* UNICEF 3-PAGE ANALYTICAL REPORT PRINT RULES               */
+  /* ========================================================= */
+  .unicef-document-wrapper {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .unicef-sheet {
+    display: block !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 280mm !important;
+    height: auto !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 10mm 12mm !important;
+    border: none !important;
+  }
+
+  .unicef-sheet:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Grade Matrix Table Print */
+  .grade-matrix-print-wrapper {
+    width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  .grade-matrix-print-wrapper table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+  }
+
+  .grade-matrix-print-wrapper th,
+  .grade-matrix-print-wrapper td {
+    border: 1px solid #94a3b8 !important;
+    padding: 5px 6px !important;
+    color: #0f172a !important;
+  }
+
+  .grade-matrix-print-wrapper th {
+    background-color: #f1f5f9 !important;
+    font-weight: 800 !important;
+  }
+}

@@ -90,31 +90,31 @@ export default function ReportsHub({ onNavigate }) {
           <div
             style={{
               background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e3a8a 100%)',
-              borderRadius: 16,
-              padding: '24px 28px',
+              borderRadius: 12,
+              padding: '16px 20px',
               color: '#ffffff',
-              marginBottom: 28,
-              boxShadow: '0 10px 25px rgba(30, 27, 75, 0.25)',
+              marginBottom: 16,
+              boxShadow: '0 4px 16px rgba(30, 27, 75, 0.2)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
-              gap: 20
+              gap: 14
             }}
           >
             <div style={{ maxWidth: 640 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-                <div style={{ background: '#ffffff', padding: '6px 14px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-                  <UnicefLogo height={28} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                <div style={{ background: '#ffffff', padding: '4px 10px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
+                  <UnicefLogo height={22} />
                 </div>
                 <span
                   style={{
                     background: 'rgba(255, 255, 255, 0.18)',
-                    padding: '4px 12px',
-                    borderRadius: 20,
-                    fontSize: 11,
+                    padding: '3px 10px',
+                    borderRadius: 16,
+                    fontSize: 10.5,
                     fontWeight: 800,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.4,
                     border: '1px solid rgba(255, 255, 255, 0.25)'
                   }}
                 >
@@ -122,19 +122,19 @@ export default function ReportsHub({ onNavigate }) {
                 </span>
               </div>
 
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', margin: '4px 0 8px 0' }}>
+              <h2 style={{ fontSize: 17, fontWeight: 900, color: '#ffffff', margin: '2px 0 6px 0' }}>
                 {isRtl ? 'السجل والتقرير التحليلي المؤسسي الموجه لوزارة التربية والتعليم واليونيسيف (UNICEF)' : 'Institutional & Humanitarian Analytical Telemetry for UNICEF & MoE'}
               </h2>
 
-              <p style={{ fontSize: 13, color: '#e0e7ff', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 12, color: '#e0e7ff', lineHeight: 1.5, margin: 0 }}>
                 {isRtl
-                  ? 'تنزيل بنقرة واحدة لكافة بيانات وسجلات المعلمين والطلاب مجمعة في ملف Excel، أو استعراض وطباعة التقرير التحليلي المؤسسي (PDF) المصمم وفق معايير الرصد الإنساني والتربوي لتسليمه لوزارة التربية والتعليم واليونيسيف.'
+                  ? 'تنزيل بنقرة واحدة لكافة بيانات وسجلات المعلمين والطلاب مجمعة في ملف Excel، أو استعراض وطباعة التتقرير التحليلي المؤسسي (PDF) المصمم وفق معايير الرصد الإنساني والتربوي لتسليمه لوزارة التربية والتعليم واليونيسيف.'
                   : 'One-click export of complete student & faculty telemetry formatted for Ministry of Education & UNICEF, or view the institutional printable analytical report (PDF) designed for humanitarian reporting requirements.'}
               </p>
             </div>
 
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {/* 1-Click Excel Export Button */}
               <button
                 onClick={exportUnifiedMinistryExcel}
@@ -143,19 +143,19 @@ export default function ReportsHub({ onNavigate }) {
                   background: '#10b981',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '12px 20px',
-                  borderRadius: 10,
-                  fontSize: 13,
+                  padding: '9px 16px',
+                  borderRadius: 8,
+                  fontSize: 12.5,
                   fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                  gap: 6,
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <span style={{ fontSize: 18 }}>📥</span>
+                <span style={{ fontSize: 16 }}>📥</span>
                 <span>
                   {isExportingUnified
                     ? (isRtl ? 'جاري تجهيز الملف...' : 'Exporting...')
@@ -170,19 +170,19 @@ export default function ReportsHub({ onNavigate }) {
                   background: '#0284c7',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '12px 20px',
-                  borderRadius: 10,
-                  fontSize: 13,
+                  padding: '9px 16px',
+                  borderRadius: 8,
+                  fontSize: 12.5,
                   fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)',
+                  gap: 6,
+                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.35)',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <span style={{ fontSize: 18 }}>📊</span>
+                <span style={{ fontSize: 16 }}>📊</span>
                 <span>{isRtl ? 'التقرير التحليلي المؤسسي (PDF)' : 'Institutional Analytical Report (PDF)'}</span>
               </button>
             </div>
@@ -190,27 +190,27 @@ export default function ReportsHub({ onNavigate }) {
         )}
 
         {/* Report Categories Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12, marginBottom: 20 }}>
           {/* Staff & Admin: Bulk Certificates */}
-          <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-              <div className="stat-icon success" style={{ fontSize: 24 }}>
+          <div className="panel" style={{ padding: '14px 16px', border: '1.5px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div className="stat-icon success" style={{ fontSize: 20, width: 32, height: 32 }}>
                 📜
               </div>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#047857' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#047857' }}>
                   {isRtl ? 'إصدار وطباعة الشهادات المجمعة' : 'Official Bulk Certificates'}
                 </h3>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                   {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بشعار المدرسة المعتمد' : 'Generate official student transcripts with school emblem'}
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => setIsBulkCertificatesOpen(true)}
-                style={{ background: '#10b981', borderColor: '#10b981' }}
+                style={{ background: '#10b981', borderColor: '#10b981', padding: '6px 12px', fontSize: 12 }}
               >
                 📜 {isRtl ? 'فتح نافذة طباعة الشهادات' : 'Open Bulk Certificates'}
               </button>

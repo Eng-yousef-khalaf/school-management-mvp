@@ -91,11 +91,22 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
             ) : (
               <SchoolLogo size={36} />
             )}
-            <div className="sidebar-brand" style={{ overflow: 'hidden' }}>
-              <h2 title={schoolName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div className="sidebar-brand" style={{ minWidth: 0, flex: 1 }}>
+              <h2
+                title={schoolName}
+                style={{
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  lineHeight: '1.3',
+                  margin: 0,
+                  color: '#ffffff'
+                }}
+              >
                 {schoolName}
               </h2>
-              <span style={{ color: roleColor, fontWeight: 700 }}>
+              <span style={{ color: roleColor, fontWeight: 700, fontSize: '11px', marginTop: '2px', display: 'block' }}>
                 {roleName}
               </span>
             </div>

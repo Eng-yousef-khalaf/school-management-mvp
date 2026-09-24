@@ -23,14 +23,14 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   
   // School White-Label & Identity Form State
   const [brandForm, setBrandForm] = useState({
-    schoolNameAr: config.schoolNameAr || 'مدرسة النور النموذجية',
-    schoolNameEn: config.schoolNameEn || 'Al-Noor Model School',
-    schoolSloganAr: config.schoolSloganAr || 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
-    schoolSloganEn: config.schoolSloganEn || 'Comprehensive Academic & School Operations Platform',
+    schoolNameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
+    schoolNameEn: config.schoolNameEn || 'Judhoor Model Private School',
+    schoolSloganAr: config.schoolSloganAr || 'بناء الأجيال على جذور متينة وقيم راسخة',
+    schoolSloganEn: config.schoolSloganEn || 'Building Generations on Strong Roots and Solid Values',
     schoolCode: config.schoolCode || 'SCH-001',
-    logoUrl: config.logoUrl || '',
-    primaryColor: config.primaryColor || '#4f46e5',
-    primaryHover: config.primaryHover || '#4338ca',
+    logoUrl: config.logoUrl || '/school-logo.png',
+    primaryColor: config.primaryColor || '#166534',
+    primaryHover: config.primaryHover || '#14532d',
     allocatedStorageMb: config.allocatedStorageMb || 500,
     supportEmail: config.supportEmail || 'support@school-management.dev',
     supportPhone: config.supportPhone || '+966 50 000 0000',
@@ -101,14 +101,14 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
   const handleResetBranding = () => {
     const defaultObj = {
-      schoolNameAr: 'مدرسة النور النموذجية',
-      schoolNameEn: 'Al-Noor Model School',
-      schoolSloganAr: 'المنصة الأكاديمية الشاملة لإدارة العمليات المدرسية',
-      schoolSloganEn: 'Comprehensive Academic & School Operations Platform',
+      schoolNameAr: 'مدرسة جذور النموذجية الخاصة',
+      schoolNameEn: 'Judhoor Model Private School',
+      schoolSloganAr: 'بناء الأجيال على جذور متينة وقيم راسخة',
+      schoolSloganEn: 'Building Generations on Strong Roots and Solid Values',
       schoolCode: 'SCH-001',
-      logoUrl: '',
-      primaryColor: '#4f46e5',
-      primaryHover: '#4338ca',
+      logoUrl: '/school-logo.png',
+      primaryColor: '#166534',
+      primaryHover: '#14532d',
       allocatedStorageMb: 500,
       supportEmail: 'support@school-management.dev',
       supportPhone: '+966 50 000 0000',
@@ -121,11 +121,11 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   // Handover Slip State
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
   const [handoverData, setHandoverData] = useState({
-    schoolNameAr: config.schoolNameAr || 'مدرسة النور النموذجية',
-    schoolNameEn: config.schoolNameEn || 'Al-Noor Model School',
+    schoolNameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
+    schoolNameEn: config.schoolNameEn || 'Judhoor Model Private School',
     schoolCode: config.schoolCode || 'SCH-001',
     domainUrl: window.location.origin,
-    adminFullName: 'أ. محمود حسن (المدير العام)',
+    adminFullName: 'أ. عبد الرحمن خليل (المدير العام)',
     adminEmail: 'admin@school.local',
     adminPassword: 'ChangeMe123!',
   });
@@ -743,7 +743,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                       className="form-input"
                       value={brandForm.schoolNameAr}
                       onChange={(e) => setBrandForm({ ...brandForm, schoolNameAr: e.target.value })}
-                      placeholder="مدرسة النور النموذجية"
+                      placeholder="مدرسة جذور النموذجية الخاصة"
                       required
                     />
                   </div>
@@ -1020,7 +1020,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>
-                      {brandForm.schoolNameAr || 'مدرسة النور النموذجية'}
+                      {brandForm.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'}
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
                       {brandForm.schoolSloganAr || 'المنصة الأكاديمية الشاملة'}
