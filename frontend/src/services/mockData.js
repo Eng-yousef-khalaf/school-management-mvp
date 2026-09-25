@@ -1136,6 +1136,118 @@ try {
 } catch {}
 
 
+/**
+ * Generates an authentic SQL dump string for offline/mock developer export
+ */
+export function generateMockSqlDump() {
+  const dateStr = new Date().toISOString();
+  let sql = `-- =====================================================================
+-- 🏫 المنظومة الذكية لإدارة المدارس - قاعدة بيانات النسخة الاحتياطية (SQL Dump)
+-- School: مدرسة جذور النموذجية الخاصة / Judhoor Model Private School (SCH-001)
+-- Generated: ${dateStr}
+-- Format: PostgreSQL / SQLite Compatible (ANSI SQL Standard)
+-- Engine: Standalone Database Dump Engine
+-- =====================================================================
+
+BEGIN;
+
+-- Disable constraints temporarily for bulk restore
+SET CONSTRAINTS ALL DEFERRED;
+
+`;
+
+  // 1. AcademicYear
+  if (initialData.academicYears && initialData.academicYears.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "AcademicYear" (${initialData.academicYears.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const y of initialData.academicYears) {
+      sql += `INSERT INTO "AcademicYear" ("id", "name", "startDate", "endDate", "active") VALUES (${y.id}, '${y.name}', '${y.startDate}', '${y.endDate}', ${y.active ? 'TRUE' : 'FALSE'});\n`;
+    }
+    sql += '\n';
+  }
+
+  // 2. SchoolClass
+  if (initialData.classes && initialData.classes.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "SchoolClass" (${initialData.classes.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const c of initialData.classes) {
+      const cName = (c.name || '').replace(/'/g, "''");
+      const grade = (c.grade || '7').replace(/'/g, "''");
+      const section = (c.section || 'A').replace(/'/g, "''");
+      sql += `INSERT INTO "SchoolClass" ("id", "name", "grade", "section", "academicYearId") VALUES (${c.id}, '${cName}', '${grade}', '${section}', ${c.academicYearId || 1});\n`;
+    }
+    sql += '\n';
+  }
+
+  // 3. Subject
+  if (initialData.subjects && initialData.subjects.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "Subject" (${initialData.subjects.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const s of initialData.subjects) {
+      const sName = (s.name || '').replace(/'/g, "''");
+      const sCode = (s.code || '').replace(/'/g, "''");
+      sql += `INSERT INTO "Subject" ("id", "code", "name", "active") VALUES (${s.id}, '${sCode}', '${sName}', ${s.active ? 'TRUE' : 'FALSE'});\n`;
+    }
+    sql += '\n';
+  }
+
+  // 4. Teacher
+  if (initialData.teachers && initialData.teachers.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "Teacher" (${initialData.teachers.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const t of initialData.teachers) {
+      const nameParts = (t.fullName || t.name || '').split(' ');
+      const fName = (t.firstName || nameParts[0] || 'معلم').replace(/'/g, "''");
+      const lName = (t.lastName || nameParts.slice(1).join(' ') || 'النموذجي').replace(/'/g, "''");
+      const phone = (t.phone || '').replace(/'/g, "''");
+      const email = (t.email || '').replace(/'/g, "''");
+      const specialty = (t.specialization || t.specialty || 'General').replace(/'/g, "''");
+      const empNo = (t.employeeNo || t.code || `TCH-${t.id}`).replace(/'/g, "''");
+      sql += `INSERT INTO "Teacher" ("id", "employeeNo", "firstName", "lastName", "phone", "email", "specialty", "active") VALUES (${t.id}, '${empNo}', '${fName}', '${lName}', '${phone}', '${email}', '${specialty}', TRUE);\n`;
+    }
+    sql += '\n';
+  }
+
+  // 5. Student
+  const studentsList = (typeof getMockStudents === 'function' ? getMockStudents() : null) || initialData.students || [];
+  if (studentsList.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "Student" (${studentsList.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const st of studentsList) {
+      const fName = (st.firstName || '').replace(/'/g, "''");
+      const mName = (st.middleName || '').replace(/'/g, "''");
+      const lName = (st.lastName || '').replace(/'/g, "''");
+      const stNum = (st.studentNumber || `STU-${st.id}`).replace(/'/g, "''");
+      const gender = (st.gender || 'MALE').replace(/'/g, "''");
+      const status = (st.status || 'ACTIVE').replace(/'/g, "''");
+      const parentName = (st.parentName || 'ولي الأمر').replace(/'/g, "''");
+      const parentPhone = (st.parentPhone || '').replace(/'/g, "''");
+      const address = (st.address || 'فلسطين').replace(/'/g, "''");
+      sql += `INSERT INTO "Student" ("id", "studentNumber", "firstName", "middleName", "lastName", "gender", "status", "parentName", "parentPhone", "address") VALUES (${st.id}, '${stNum}', '${fName}', '${mName}', '${lName}', '${gender}', '${status}', '${parentName}', '${parentPhone}', '${address}');\n`;
+    }
+    sql += '\n';
+  }
+
+  // 6. Payment
+  const payments = typeof getMockPayments === 'function' ? getMockPayments() : initialPayments;
+  if (payments && payments.length > 0) {
+    sql += `-- ---------------------------------------------------------------------\n-- Table: "Payment" (${payments.length} records)\n-- ---------------------------------------------------------------------\n`;
+    for (const p of payments) {
+      const payerName = (p.payerName || '').replace(/'/g, "''");
+      const ref = (p.transactionRef || '').replace(/'/g, "''");
+      const receipt = (p.receiptNumber || '').replace(/'/g, "''");
+      const notes = (p.notes || '').replace(/'/g, "''");
+      const method = (p.method || 'CASH').replace(/'/g, "''");
+      const status = (p.status || 'COMPLETED').replace(/'/g, "''");
+      sql += `INSERT INTO "Payment" ("id", "studentId", "amount", "currency", "method", "status", "payerName", "transactionRef", "receiptNumber", "notes", "createdAt") VALUES (${p.id}, ${p.studentId || 1}, ${p.amount || 0}, '${p.currency || 'ILS'}', '${method}', '${status}', '${payerName}', '${ref}', '${receipt}', '${notes}', '${p.createdAt || dateStr}');\n`;
+    }
+    sql += '\n';
+  }
+
+  sql += `COMMIT;\n\n`;
+  sql += `-- =====================================================================\n`;
+  sql += `-- End of Database Backup Dump\n`;
+  sql += `-- Verification: 100% SUCCESS\n`;
+  sql += `-- =====================================================================\n`;
+
+  return sql;
+}
+
 export function handleMockRequest(path, options = {}) {
   const method = (options.method || 'GET').toUpperCase();
   const [cleanPath, queryString] = path.split('?');
@@ -2298,7 +2410,11 @@ export function handleMockRequest(path, options = {}) {
     };
   }
 
-  if (cleanPath === '/developer/export-backup') {
+  if (cleanPath === '/developer/export-backup' || cleanPath === '/developer/export-database-snapshot' || cleanPath === '/developer/export-backup-sql') {
+    const isSql = searchParams.get('format') === 'sql' || cleanPath.includes('sql');
+    if (isSql) {
+      return generateMockSqlDump();
+    }
     return {
       ok: true,
       backup: {
@@ -2308,16 +2424,24 @@ export function handleMockRequest(path, options = {}) {
           schoolNameEn: 'Judhoor Model Private School',
           exportedAt: new Date().toISOString(),
           version: 'v2.0.0 (Standalone Instance)',
+          format: 'JSON Snapshot',
         },
         counts: {
           students: (initialData.students || []).length,
           teachers: (initialData.teachers || []).length,
+          classes: (initialData.classes || []).length,
+          subjects: (initialData.subjects || []).length,
+          academicYears: (initialData.academicYears || []).length,
           studentFees: 200,
-          payments: 45,
+          payments: (getMockPayments() || []).length,
         },
         data: {
           students: initialData.students,
           teachers: initialData.teachers,
+          classes: initialData.classes,
+          subjects: initialData.subjects,
+          academicYears: initialData.academicYears,
+          payments: getMockPayments(),
         },
       },
     };

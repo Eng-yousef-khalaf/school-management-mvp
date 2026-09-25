@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>دليل معمارية وهندسة النظام الشامل | المنظومة الأكاديمية الذكية</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 14mm 12mm 14mm 12mm;
+      @bottom-center {
+        content: counter(page);
+        font-family: 'Cairo', sans-serif;
+        font-size: 9pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.8;
+      color: #1e293b;
+      background-color: #ffffff;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* English & Code spans inside Arabic */
+    .en-code, code, .path {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      direction: ltr;
+      display: inline-block;
+      unicode-bidi: embed;
+      font-size: 9.5pt;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    pre {
+      direction: ltr;
+      text-align: left;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 9pt;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      margin: 12px 0 16px 0;
+      line-height: 1.6;
+      overflow-x: auto;
+      page-break-inside: avoid;
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 0;
+      display: block;
+    }
+
+    /* Document Header / Banner */
+    .doc-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 24px 28px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      border: 1px solid #4338ca;
+      box-shadow: 0 8px 24px -6px rgba(30, 27, 75, 0.25);
+      page-break-inside: avoid;
+    }
+
+    .doc-banner h1 {
+      font-size: 20pt;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .doc-banner .subtitle {
+      font-size: 11.5pt;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .tech-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      direction: ltr;
+      justify-content: flex-end;
+    }
+
+    .tech-badge {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      font-size: 8.5pt;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 14.5pt;
+      font-weight: 800;
+      color: #1e1b4b;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #312e81;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+
+    h4 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #4338ca;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin-right: 22px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    /* Info Cards & Callouts */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+
+    .alert-box {
+      border-right: 5px solid #4f46e5;
+      background: #eef2ff;
+      border-radius: 8px 12px 12px 8px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 10pt;
+      color: #1e1b4b;
+      page-break-inside: avoid;
+    }
+
+    .alert-box.tip {
+      border-right-color: #059669;
+      background: #ecfdf5;
+      color: #064e3b;
+    }
+
+    .alert-box.warning {
+      border-right-color: #d97706;
+      background: #fffbeb;
+      color: #78350f;
+    }
+
+    /* Architecture Visual Diagram */
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 16px 0;
+      page-break-inside: avoid;
+    }
+
+    .arch-layer {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 18px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .arch-layer.frontend {
+      border-right: 6px solid #6366f1;
+      background: linear-gradient(to left, #ffffff, #f5f3ff);
+    }
+
+    .arch-layer.backend {
+      border-right: 6px solid #059669;
+      background: linear-gradient(to left, #ffffff, #f0fdf4);
+    }
+
+    .arch-layer.database {
+      border-right: 6px solid #0284c7;
+      background: linear-gradient(to left, #ffffff, #f0f9ff);
+    }
+
+    .arch-title {
+      font-weight: 800;
+      font-size: 11pt;
+      color: #0f172a;
+    }
+
+    .arch-desc {
+      font-size: 9pt;
+      color: #64748b;
+    }
+
+    .arch-connector {
+      text-align: center;
+      font-size: 12pt;
+      color: #94a3b8;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px 0;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    th, td {
+      padding: 9px 12px;
+      border: 1px solid #e2e8f0;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #1e1b4b;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 9.5pt;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+
+    .badge-admin { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .badge-staff { background: #e0e7ff; color: #3730a3; border: 1px solid #a5b4fc; }
+    .badge-teacher { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .badge-dev { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    /* Cheat Sheet Questions */
+    .qa-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-right: 5px solid #3b82f6;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    .qa-question {
+      font-weight: 800;
+      color: #1e3a8a;
+      font-size: 10.5pt;
+      margin-bottom: 6px;
+    }
+
+    .qa-answer {
+      font-size: 9.5pt;
+      color: #334155;
+      line-height: 1.7;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer-note {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 9pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 12px;
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER BANNER ==================== -->
+  <div class="doc-banner">
+    <h1>🏫 المنظومة الأكاديمية الذكية لإدارة المدارس (SIS Enterprise)</h1>
+    <div class="subtitle">الدليل الهندسي والتشغيلي الشامل لمعمارية النظام وملفاته البرمجية لمناقشة وإدارة المطورين</div>
+    <div class="tech-badges">
+      <span class="tech-badge">React 19 &amp; Vite 7</span>
+      <span class="tech-badge">Node.js 20+</span>
+      <span class="tech-badge">Express.js 5</span>
+      <span class="tech-badge">Prisma ORM v6</span>
+      <span class="tech-badge">PostgreSQL 16</span>
+      <span class="tech-badge">RBAC Security</span>
+      <span class="tech-badge">Bilingual RTL/LTR</span>
+    </div>
+  </div>
+
+  <!-- ==================== INTRO ==================== -->
+  <div class="alert-box">
+    <strong>📌 الغرض من هذا المستند:</strong> تم إعداد هذا الملف ليكون مرجعك التنفيذي الكامل كمالك ومسؤول عن النظام. يمكّنك هذا الدليل من قيادة أي نقاش فني أو تفاوض برمجي مع أي شركة تطوير، والإجابة فوراً على أماكن كتابة الأكواد، وتفصيل قواعد البيانات، وتوجيه المهندسين لأي تعديل أو توسعة مطلوبة بدقة متناهية.
+  </div>
+
+  <!-- ==================== SECTION 1: ARCHITECTURE ==================== -->
+  <h2>1. 🏗️ معمارية النظام ومكدس التقنيات (Architecture &amp; Tech Stack)</h2>
+  <p>
+    يعتمد النظام معمارية <strong>فصل الواجهة الأمامية عن الخلفية (Decoupled Client-Server Architecture)</strong>، حيث يعمل كل جزء بشكل مستقل ويتواصلان عبر استدعاءات برمجية مشفرة وآمنة بنظام <span class="en-code">RESTful APIs</span> وجلسات توثيق <span class="en-code">JSON Web Tokens (JWT)</span>:
+  </p>
+
+  <div class="arch-diagram">
+    <div class="arch-layer frontend">
+      <div>
+        <div class="arch-title">🖥️ الواجهة الأمامية (Frontend Web App)</div>
+        <div class="arch-desc">React 19 + Vite 7 + Vanilla CSS Tokens + React Context API</div>
+      </div>
+      <div class="en-code">Port: 5173 / Vercel HTTPS</div>
+    </div>
+    <div class="arch-connector">▼ استدعاءات سريعة ومحمية (HTTPS / REST API / Bearer Token) ▼</div>
+    <div class="arch-layer backend">
+      <div>
+        <div class="arch-title">⚙️ خادم العمليات والخدمات (Backend API Server)</div>
+        <div class="arch-desc">Node.js 20+ + Express.js 5 + Zod Validation + Helmet + Rate Limit</div>
+      </div>
+      <div class="en-code">Port: 4000 / Cloud Server</div>
+    </div>
+    <div class="arch-connector">▼ استعلامات علائقية مشفرة ومفهرسة (Prisma Client Queries) ▼</div>
+    <div class="arch-layer database">
+      <div>
+        <div class="arch-title">🗄️ قاعدة البيانات المؤسسية (Relational Database)</div>
+        <div class="arch-desc">PostgreSQL 16 (مع فهارس مركبة على المعرفات وتاريخ الحضور والدرجات)</div>
+      </div>
+      <div class="en-code">Port: 5432 / Supabase / Local Docker</div>
+    </div>
+  </div>
+
+  <div class="alert-box tip">
+    <strong>⚡ ميزة محرك البيانات الهجين (Hybrid Data Engine):</strong>
+    الواجهة الأمامية مزودة بنظام ذكي في <span class="en-code">api.js</span> يتصل بالسيرفر الحي إن كان متاحاً، وفي حال كان الخادم في وضع السكون السحابي، ينتقل النظام تلقائياً (0ms) للعمل على محرك محاكاة داخلي عالي الغنى <span class="en-code">mockData.js</span> مع حفظ التعديلات بذاكرة المتصفح لضمان عدم توقف العروض أو تجميد الشاشات مطلقاً.
+  </div>
+
+  <!-- ==================== SECTION 2: DIRECTORY STRUCTURE ==================== -->
+  <h2>2. 🗂️ فهرس وهيكلية المجلدات الرئيسية للمشروع</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">المسار / المجلد</th>
+        <th style="width: 20%;">النوع</th>
+        <th>المسؤولية ومحتويات المجلد</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="en-code">/backend</span></td>
+        <td>مجلد الباك إند</td>
+        <td>خادم Node/Express، نماذج Prisma لقاعدة البيانات، الـ Controllers، والـ Services.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">/frontend</span></td>
+        <td>مجلد الفرونت إند</td>
+        <td>تطبيق React 19، الصفحات والشاشات، المكونات، السياقات المركزية، وملف التصميم.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">/docs</span></td>
+        <td>التوثيق الفني</td>
+        <td>أدلة الاستخدام المعتمدة، دليل النشر للنسخة المستقلة، ومواصفات النظام باللغة العربية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">/docker-compose.yml</span></td>
+        <td>حاوية تشغيل</td>
+        <td>تشغيل قاعدة بيانات PostgreSQL 16 محلية بضغطة زر دون الحاجة لتثبيت برامج إضافية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">/vercel.json</span></td>
+        <td>ملف الاستضافة</td>
+        <td>قواعد إعادة توجيه الروابط وتوجيه المتصفح على منصة Vercel السحابية.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== SECTION 3: BACKEND DEEP DIVE ==================== -->
+  <div class="page-break"></div>
+  <h2>3. ⚙️ تشريح ملفات الواجهة الخلفية (Backend) بالتحديد</h2>
+  <p>
+    تم تنظيم خادم الباك إند وفق نمط المعمارية الطبقية <strong>(Layered Architecture)</strong>، حيث تنفصل معالجة الروابط عن منطق العمليات وعن استعلامات قاعدة البيانات لضمان سهولة التعديل والصيانة:
+  </p>
+
+  <h3>أ. ملفات قاعدة البيانات (<span class="en-code">backend/prisma/</span>)</h3>
+  <ul>
+    <li><strong><span class="en-code">schema.prisma</span> (الأهم):</strong> الملف المسؤول عن تعريف جميع جداول النظام الـ 13، الحقول، المفاتيح الأساسية والأجنبية، القيود، والفهارس (Indexes).</li>
+    <li><strong><span class="en-code">seed.js</span>:</strong> سكربت تشغيل أولي يغذي قاعدة البيانات بحسابات افتراضية واقعية (مدير، موظف شؤون، معلمين، طلاب، شعب، وسجلات حضور ودرجات).</li>
+    <li><strong><span class="en-code">reset_clean_slate.js</span>:</strong> سكربت لتصفير وتنظيف قاعدة البيانات 100% وحذف كل البيانات التجريبية مع إبقاء حساب المدير الافتراضي، ويُستخدم فوراً عند بيع أو تسليم النظام لمدرسة فعلية.</li>
+  </ul>
+
+  <h3>ب. خادم التشغيل المركزي (<span class="en-code">backend/src/server.js</span>)</h3>
+  <p>نقطة الانطلاق (Entrypoint) لخادم Express 5:</p>
+  <ul>
+    <li>تطبيق طبقات الحماية الأمنية (<span class="en-code">helmet</span> للترويسات، و <span class="en-code">cors</span> للنطاقات المسموحة).</li>
+    <li>تفعيل حماية تسجيل الدخول من محاولات التخمين (<span class="en-code">Rate Limiting</span>).</li>
+    <li>ربط المسارات (Routes) وتجميعها تحت بادئة <span class="en-code">/api</span>.</li>
+    <li>توفير مسار فحص الجاهزية <span class="en-code">/api/health</span> وصفحة هبوط إرشادية للمطورين.</li>
+  </ul>
+
+  <h3>ج. طبقة المسارات (<span class="en-code">backend/src/routes/</span>)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 32%;">ملف المسار (Route)</th>
+        <th>المسؤولية ونوع العمليات المعالجة</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="en-code">authRoutes.js</span></td>
+        <td>تسجيل الدخول، التحقق من الجلسة، وتعديل كلمة المرور.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">studentRoutes.js</span></td>
+        <td>إدارة الطلاب، البحث والفلترة، واستيراد وتصدير ملفات Excel.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">teacherRoutes.js</span></td>
+        <td>دليل المعلمين، الجداول، دوام المعلمين، وتدوير الطاقم سنوياً.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">classRoutes.js</span> &amp; <span class="en-code">subjectRoutes.js</span></td>
+        <td>إنشاء وتعديل الصفوف والشعب والمواد والمناهج الدراسية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">academicYearRoutes.js</span></td>
+        <td>إدارة السنوات الدراسية وتفعيل العام النشط وأرشفة القديم.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">enrollmentRoutes.js</span></td>
+        <td>تسكين الطلاب وتوزيعهم على الشعب في السنة الأكاديمية النشطة.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">attendanceRoutes.js</span></td>
+        <td>رصد الحضور والغياب اليومي والتسجيل الجماعي (Mark All Present).</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">gradeRoutes.js</span></td>
+        <td>رصد درجات الاختبارات والتقويمات وحساب النسب والمعدلات.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">feeRoutes.js</span></td>
+        <td>إدارة الأقساط، الخصومات، سندات القبض، وبوابات الدفع البنكية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">reportRoutes.js</span></td>
+        <td>توليد كشوف العلامات، تقارير الغياب، والتقارير الإحصائية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">userRoutes.js</span> &amp; <span class="en-code">auditLogRoutes.js</span></td>
+        <td>إدارة حسابات النظام وتعيين الأدوار وسجل التدقيق والرقابة الأمني.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">developerRoutes.js</span></td>
+        <td>مركز تشخيص المطور، قياس استهلاك التخزين، وتصدير نسخة احتياطية JSON.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>د. طبقة الخدمات والمنطق التجاري (<span class="en-code">backend/src/services/</span>)</h3>
+  <p>هنا يكمن العقل الحقيقي للنظام وجميع استعلامات قاعدة البيانات الحسابية:</p>
+  <ul>
+    <li><strong><span class="en-code">studentService.js</span>:</strong> الفلترة متعددة المعايير، الترقيم (Pagination)، وإعداد الملف الشامل للطالب (360° Profile).</li>
+    <li><strong><span class="en-code">feeService.js</span>:</strong> احتساب الرسوم المتبقية والخصومات، وتوليد أرقام إيصالات الدفع الرسمية (<span class="en-code">REC-YYYYMMDD-XXXX</span>).</li>
+    <li><strong><span class="en-code">excelService.js</span>:</strong> فحص ومعالجة ملفات Excel المرفوعة واكتشاف تكرار أرقام الهوية قبل إدخالها في قاعدة البيانات.</li>
+    <li><strong><span class="en-code">teacherService.js</span>:</strong> حساب نصاب الحصص، وأداة تدوير المعلمين للعام الجديد بضغطة زر واحدة.</li>
+    <li><strong><span class="en-code">reportService.js</span>:</strong> استخراج تحليلات اليونيسيف (UNICEF)، نسب النجاح والرسوب، ومصفوفة الدرجات.</li>
+  </ul>
+
+  <h3>هـ. طبقة الحماية والأدوات (<span class="en-code">backend/src/middleware/</span> &amp; <span class="en-code">utils/</span>)</h3>
+  <ul>
+    <li><strong><span class="en-code">authMiddleware.js</span>:</strong> فك تشفير توكن JWT والتحقق من هوية وصلاحية جلسة المستخدم.</li>
+    <li><strong><span class="en-code">rbacMiddleware.js</span>:</strong> التحقق من الصلاحيات بناءً على الدور (ADMIN, STAFF, TEACHER).</li>
+    <li><strong><span class="en-code">validateMiddleware.js</span> &amp; <span class="en-code">validators.js</span>:</strong> تدقيق المدخلات بمكتبة Zod الصارمة.</li>
+    <li><strong><span class="en-code">auditLogger.js</span>:</strong> تسجيل أي حركة حساسة (حذف، تعديل، ترقية) في جدول الرقابة تلقائياً.</li>
+    <li><strong><span class="en-code">prisma.js</span>:</strong> كائن الاتصال الموحد بقاعدة البيانات لمنع استهلاك الذاكرة.</li>
+  </ul>
+
+  <!-- ==================== SECTION 4: FRONTEND DEEP DIVE ==================== -->
+  <div class="page-break"></div>
+  <h2>4. 🎨 تشريح ملفات الواجهة الأمامية (Frontend) بالتحديد</h2>
+
+  <h3>أ. قلب التوجيه والتحكم (<span class="en-code">frontend/src/App.jsx</span>)</h3>
+  <p>
+    يدير التطبيق كـ (Single Page Application)، حيث يقوم بما يلي:
+  </p>
+  <ul>
+    <li>التعرف على الصفحة المطلوبة والتبديل بين الصفحات بدون إعادة تحميل المتصفح.</li>
+    <li>حراسة المسارات (Route Guards) والتأكد من امتلاك المستخدم للصلاحية المطلوبة.</li>
+    <li>التعرف التلقائي على البوابات المنفصلة: بوابة المطورين (<span class="en-code">/developer-hub</span>) وبوابة أولياء الأمور للدفع السريع (<span class="en-code">/pay</span>).</li>
+  </ul>
+
+  <h3>ب. سياقات إدارة الحالة المشتركة (<span class="en-code">frontend/src/context/</span>)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 32%;">السياق (Context)</th>
+        <th>المسؤولية والبيانات المدارة</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="en-code">AuthContext.jsx</span></td>
+        <td>حفظ بيانات المستخدم والتوكن، الصلاحيات (<span class="en-code">isAdmin, isStaff, isTeacher</span>)، وخاصية تبديل الأدوار السريع للتجربة.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">LanguageContext.jsx</span></td>
+        <td>تبديل اللغة (العربية والإنجليزية)، عكس اتجاه الصفحة RTL/LTR، وقاموس ترجمة متكامل.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">AcademicYearContext.jsx</span></td>
+        <td>توفير السنة الدراسية النشطة حالياً لكافة الجداول والصفحات لمنع تداخل السنوات.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">SchoolConfigContext.jsx</span></td>
+        <td>إدارة هوية المدرسة، الشعار، الشعار اللفظي، وألوان النظام برمجياً ومن الإعدادات.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">ToastContext.jsx</span></td>
+        <td>نظام الإشعارات المنبثقة التفاعلية (نجاح، تحذير، خطأ).</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">NotificationContext.jsx</span></td>
+        <td>إدارة جرس الإشعارات العلوي للتحويلات المالية الواردة والمتأخرات.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>ج. صفحات وشاشات النظام (<span class="en-code">frontend/src/pages/</span>)</h3>
+  
+  <h4>1. لوحات التحكم (Dashboards):</h4>
+  <ul>
+    <li><strong><span class="en-code">AdminDashboard.jsx</span>:</strong> لوحة المدير العام؛ إيرادات الأقساط، مؤشرات الطلاب والمعلمين، ونسب الحضور.</li>
+    <li><strong><span class="en-code">StaffDashboard.jsx</span>:</strong> لوحة شؤون الطلاب؛ القبول والتسجيل، التسكين الفصلي، واستيراد الإكسل.</li>
+    <li><strong><span class="en-code">TeacherDashboard.jsx</span>:</strong> لوحة المعلم؛ جدول الحصص اليومي، روابط رصد الحضور السريع، ورصد العلامات.</li>
+  </ul>
+
+  <h4>2. شؤون الطلاب والكادر التدريسي:</h4>
+  <ul>
+    <li><strong><span class="en-code">StudentList.jsx</span> &amp; <span class="en-code">StudentDetails.jsx</span>:</strong> جدول الطلاب مع فلاتر ذكية، وملف الطالب الشامل (360° Profile) متضمناً سجل الحضور، كشف الدرجات، والوضع المالي، وزر طباعة إفادة قيد فورية.</li>
+    <li><strong><span class="en-code">ImportStudentsModal.jsx</span>:</strong> معالج استيراد بيانات الطلاب من ملفات Excel وفحص الأخطاء والتكرار.</li>
+    <li><strong><span class="en-code">TeacherList.jsx</span> &amp; <span class="en-code">TeacherTracker.jsx</span>:</strong> دليل المعلمين وتخصصاتهم، ومصفوفة متابعة دوام المعلمين اليومية.</li>
+    <li><strong><span class="en-code">TeacherRolloverModal.jsx</span>:</strong> أداة تدوير المعلمين ونقل تكليفاتهم للعام الدراسي الجديد بضغطة زر.</li>
+  </ul>
+
+  <h4>3. الحضور والدرجات والتقارير:</h4>
+  <ul>
+    <li><strong><span class="en-code">AttendanceSheet.jsx</span>:</strong> كشف الحضور اليومي التفاعلي السريع مع زر "تحديد الكل حاضر".</li>
+    <li><strong><span class="en-code">GradeEntry.jsx</span> &amp; <span class="en-code">GradeReports.jsx</span>:</strong> رصد العلامات ومصفوفة نتائج الشعب وحساب المعدلات.</li>
+    <li><strong><span class="en-code">BulkCertificatesModal.jsx</span>:</strong> توليد الشهادات المدرسية وإفادات القيد للطباعة الجماعية الرسمية.</li>
+    <li><strong><span class="en-code">UnicefAnalyticalReportModal.jsx</span>:</strong> تقرير تحليلي بمعايير منظمة اليونيسيف (UNICEF) لتقييم استقرار التعليم وحالات الطوارئ.</li>
+  </ul>
+
+  <h4>4. المالية وبوابة ولي الأمر ومركز المطور:</h4>
+  <ul>
+    <li><strong><span class="en-code">FeeManagement.jsx</span> &amp; <span class="en-code">RecordPaymentModal.jsx</span>:</strong> إدارة الأقساط، الخصومات، وتسجيل الدفعات النقدية والبنكية.</li>
+    <li><strong><span class="en-code">PaymentReceiptModal.jsx</span>:</strong> سند قبض مالي رسمي فوري جاهز للطباعة والختم.</li>
+    <li><strong><span class="en-code">ParentPaymentPortalStandalone.jsx</span>:</strong> بوابة مستقلة لولي الأمر برقم الطالب وهاتف الوالد لسداد الرسوم والاطلاع على السندات.</li>
+    <li><strong><span class="en-code">DeveloperFleetDashboard.jsx</span>:</strong> لوحة المطور والتشخيص؛ مراقبة الخادم، سعة التخزين، وفحص الجداول، وتصدير نسخة JSON احتياطية.</li>
+  </ul>
+
+  <!-- ==================== SECTION 5: DATABASE SCHEMA ==================== -->
+  <div class="page-break"></div>
+  <h2>5. 🗄️ نموذج قاعدة البيانات والعلاقات (Database Schema)</h2>
+  <p>تحتوي قاعدة البيانات على <strong>13 جدولاً مترابطاً</strong> تضمن الترابط الأكاديمي والمالي التام:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">اسم الجدول (Prisma)</th>
+        <th style="width: 35%;">الحقول الأساسية</th>
+        <th>الوظيفة والترابط البرمجي</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="en-code">User</span></td>
+        <td>email, passwordHash, role, fullName</td>
+        <td>حسابات الدخول للمدراء والموظفين والمعلمين.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">AcademicYear</span></td>
+        <td>name, startDate, endDate, active</td>
+        <td>الأعوام الدراسية مع تمييز العام المفعل active.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">SchoolClass</span></td>
+        <td>name, grade, section, academicYearId</td>
+        <td>الصفوف والشعب وربطها بالسنة الدراسية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Student</span></td>
+        <td>studentNumber, firstName, lastName, parentPhone</td>
+        <td>ملف الطالب، جهات الاتصال، والحالة الأكاديمية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Teacher</span></td>
+        <td>employeeNo, firstName, specialty, phone</td>
+        <td>أعضاء الهيئة التدريسية وتخصصاتهم.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Subject</span></td>
+        <td>code, name, active</td>
+        <td>المواد والمناهج الدراسية وأكوادها الفريدة.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">TeacherClassSubject</span></td>
+        <td>teacherId, classId, subjectId</td>
+        <td>جدول الربط الثلاثي لإسناد المعلم لصف ومادة.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Enrollment</span></td>
+        <td>studentId, classId, academicYearId</td>
+        <td>تسكين الطالب في الشعبة للعام لمنع التكرار وحفظ الأرشيف.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Attendance</span></td>
+        <td>studentId, classId, date, status, note</td>
+        <td>رصد الحضور اليومي للطلاب (حاضر، غائب، متأخر، معذور).</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">TeacherAttendance</span></td>
+        <td>teacherId, date, status, checkIn, note</td>
+        <td>متابعة دوام وساعات حضور المعلمين اليومية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Grade</span></td>
+        <td>studentId, subjectId, examName, score</td>
+        <td>علامات الاختبارات والتقويمات وحساب النسب المئوية.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">StudentFee</span></td>
+        <td>totalAmount, discountAmount, paidAmount</td>
+        <td>الملف المالي السنوي للطالب ورسوم العام والأقساط.</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">Payment</span></td>
+        <td>amount, method, receiptNumber, recordedBy</td>
+        <td>سندات القبض الفردية وطرق الدفع (بنك، نقدي، محافظ).</td>
+      </tr>
+      <tr>
+        <td><span class="en-code">AuditLog</span></td>
+        <td>action, entity, ipAddress, timestamp</td>
+        <td>سجل الرقابة الأمني لتتبع من قام بكل عملية.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== SECTION 6: CHEAT SHEET ==================== -->
+  <div class="page-break"></div>
+  <h2>6. 💼 دليل الإجابات السريعة لنقاش الشركة البرمجية (Developer Cheat Sheet)</h2>
+  <p>استخدم هذه الإجابات المحددة لتوجيه أي مهندس أو شركة برمجية مباشرة لمكان الكود:</p>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 1: "أين نذهب إذا أردنا إضافة حقل جديد في بيانات الطلاب أو المعلمين؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      1. افتحوا ملف <span class="en-code">backend/prisma/schema.prisma</span> وأضيفوا الحقل في نموذج <span class="en-code">Student</span> أو <span class="en-code">Teacher</span> ونفذوا أمر <span class="en-code">npx prisma migrate dev</span>.<br>
+      2. أضيفوا الحقل في قواعد التحقق بملف <span class="en-code">backend/src/utils/validators.js</span>.<br>
+      3. في الواجهة الأمامية، أضيفوا مدخل الحقل في نافذة <span class="en-code">frontend/src/pages/Students/AddEditStudentModal.jsx</span> وفي جدول العرض <span class="en-code">StudentList.jsx</span>.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 2: "أين نعدل منطق احتساب الرسوم أو نضيف وسيلة دفع بنكية أو إلكترونية جديدة؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      * في الباك إند: عدلوا في <span class="en-code">backend/src/services/feeService.js</span> و <span class="en-code">backend/src/routes/feeRoutes.js</span> حيث يتم حساب المبالغ وتوليد أرقام السندات.<br>
+      * في الفرونت إند: افتحوا نافذة تسجيل الدفع <span class="en-code">frontend/src/pages/Fees/RecordPaymentModal.jsx</span> وبوابة ولي الأمر <span class="en-code">ParentPaymentPortalStandalone.jsx</span> لإضافة وسيلة الدفع وتعديل خيارات السند.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 3: "أين نضيف تقريراً جديداً أو نعدل تصميم شهادات الطلاب وإفادات القيد؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      * استعلامات التقرير وبياناته البرمجية تُكتب في <span class="en-code">backend/src/services/reportService.js</span>.<br>
+      * واجهة الشهادات والطباعة الرسمية موجودة في <span class="en-code">frontend/src/pages/Reports/BulkCertificatesModal.jsx</span> وتقرير الطوارئ في <span class="en-code">UnicefAnalyticalReportModal.jsx</span>.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 4: "كيف نغير اسم المدرسة أو الشعار أو الألوان الافتراضية؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      لا تحتاجون لتعديل الكود المصدري إطلاقاً! يتم ذلك عبر:<br>
+      1. ملف الإعدادات <span class="en-code">frontend/.env</span> عبر المتغيرات <span class="en-code">VITE_SCHOOL_NAME_AR</span> و <span class="en-code">VITE_PRIMARY_COLOR</span> و <span class="en-code">VITE_SCHOOL_LOGO_URL</span>.<br>
+      2. أو برمجياً من داخل شاشة إعدادات النظام <span class="en-code">frontend/src/pages/Settings/SettingsPage.jsx</span> المحفوظة عبر <span class="en-code">SchoolConfigContext.jsx</span>.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 5: "أين نتحكم بالصلاحيات والأمان وما يراه كل مستخدم؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      * في الباك إند: عبر وسيط الصلاحيات في <span class="en-code">backend/src/middleware/rbacMiddleware.js</span> بحظر أو السماح للمسارات حسب دور المستخدم (<span class="en-code">ADMIN, STAFF, TEACHER</span>).<br>
+      * في الفرونت إند: يتم حجب أو إظهار الروابط في القائمة الجانبية <span class="en-code">Sidebar.jsx</span> وفحص الصلاحية في <span class="en-code">App.jsx</span> بالاعتماد على <span class="en-code">AuthContext.jsx</span>.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">❓ السؤال 6: "أين توجد أدوات المطورين والتشخيص والنسخ الاحتياطي؟"</div>
+    <div class="qa-answer">
+      <strong>الإجابة المباشرة:</strong><br>
+      افتحوا الرابط <span class="en-code">http://localhost:5173/developer-hub</span> أو المسار <span class="en-code">?portal=dev</span>، والذي يفتح شاشة <span class="en-code">DeveloperFleetDashboard.jsx</span> المربوطة بمسارات <span class="en-code">backend/src/routes/developerRoutes.js</span> وتوفر لوحة حية لقياسات السيرفر وسعة التخزين والنسخ الاحتياطي بصيغة JSON.
+    </div>
+  </div>
+
+  <!-- ==================== SECTION 7: DEFAULT ACCOUNTS ==================== -->
+  <h2>7. 🔑 بيانات الحسابات الافتراضية ومفاتيح الوصول</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">الدور (Role)</th>
+        <th style="width: 32%;">البريد الإلكتروني (Email)</th>
+        <th style="width: 20%;">كلمة المرور</th>
+        <th>الصلاحيات ونطاق الوصول</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="role-badge badge-admin">المدير العام (ADMIN)</span></td>
+        <td><span class="en-code">admin@school.local</span></td>
+        <td><span class="en-code">ChangeMe123!</span></td>
+        <td>صلاحية كاملة على النظام، المستخدمين، الإعدادات، والرقابة.</td>
+      </tr>
+      <tr>
+        <td><span class="role-badge badge-staff">شؤون الطلاب (STAFF)</span></td>
+        <td><span class="en-code">staff@school.local</span></td>
+        <td><span class="en-code">ChangeMe123!</span></td>
+        <td>قبول الطلاب، التسكين، الحضور، الدرجات، الإكسل، والأقساط.</td>
+      </tr>
+      <tr>
+        <td><span class="role-badge badge-teacher">المعلم (TEACHER)</span></td>
+        <td><span class="en-code">ahmed.khalil@school.local</span></td>
+        <td><span class="en-code">ChangeMe123!</span></td>
+        <td>صفوف ومواد المعلم فقط، رصد الحضور اليومي، وإدخال الدرجات.</td>
+      </tr>
+      <tr>
+        <td><span class="role-badge badge-dev">مفتاح المطور (DEVELOPER)</span></td>
+        <td><span class="en-code">YOUSEF_MASTER_2026</span></td>
+        <td><em>(Master Key)</em></td>
+        <td>الدخول لمركز التشخيص والصيانة والنسخ الاحتياطي عبر <span class="en-code">/developer-hub</span>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    © المنظومة الأكاديمية الذكية لإدارة المدارس (Smart School Management System) — مرجع المواصفات المعتمدة.
+  </div>
+
+</body>
+</html>

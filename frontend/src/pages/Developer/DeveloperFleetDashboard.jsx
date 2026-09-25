@@ -134,7 +134,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [pingStatus, setPingStatus] = useState(null);
   const [isPinging, setIsPinging] = useState(false);
   const [isClearingCache, setIsClearingCache] = useState(false);
-  const [isExportingBackup, setIsExportingBackup] = useState(false);
+  const [isExportingBackup, setIsExportingBackup] = useState(null); // 'sql' | 'json' | null
   const [isRepairing, setIsRepairing] = useState(false);
   const [repairReport, setRepairReport] = useState(null);
 
@@ -258,16 +258,31 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     }, 400);
   };
 
-  const handleExportBackup = async () => {
+  const handleExportBackup = async (format = 'sql') => {
     try {
-      setIsExportingBackup(true);
-      toast.info(isRtl ? 'جاري تجهيز النسخة الاحتياطية وتصديرها...' : 'Generating database backup snapshot...');
-      await api.download('/developer/export-database-snapshot', `school_db_backup_${new Date().toISOString().slice(0, 10)}.json`);
-      toast.success(isRtl ? 'تم تنزيل النسخة الاحتياطية بنجاح!' : 'Backup snapshot downloaded successfully!');
+      setIsExportingBackup(format);
+      const isSql = format === 'sql';
+      const fileExt = isSql ? 'sql' : 'json';
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const fileName = `school_db_backup_${dateStr}.${fileExt}`;
+
+      toast.info(
+        isRtl
+          ? (isSql ? 'جاري تجهيز وتوليد ملف النسخة الاحتياطية (SQL Dump)...' : 'جاري تجهيز لقطة بيانات النسخة الاحتياطية (JSON)...')
+          : (isSql ? 'Generating SQL database backup dump...' : 'Generating JSON database backup snapshot...')
+      );
+
+      await api.download(`/developer/export-backup?format=${format}`, fileName);
+
+      toast.success(
+        isRtl
+          ? (isSql ? 'تم تنزيل النسخة الاحتياطية (ملف SQL) بنجاح!' : 'تم تنزيل النسخة الاحتياطية (ملف JSON) بنجاح!')
+          : (isSql ? 'SQL backup dump downloaded successfully!' : 'JSON snapshot downloaded successfully!')
+      );
     } catch (err) {
       toast.error(err.message || 'Backup export failed');
     } finally {
-      setIsExportingBackup(false);
+      setIsExportingBackup(null);
     }
   };
 
@@ -665,13 +680,32 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
               <button
                 type="button"
-                className="btn btn-secondary"
-                onClick={handleExportBackup}
-                disabled={isExportingBackup}
-                style={{ gridColumn: '1 / -1' }}
+                className="btn btn-primary"
+                onClick={() => handleExportBackup('sql')}
+                disabled={Boolean(isExportingBackup)}
+                title={isRtl ? 'تصدير نسخة احتياطية كاملة بصيغة SQL متوافقة مع PostgreSQL و SQLite' : 'Export complete SQL dump for PostgreSQL & SQLite'}
               >
-                <span>💾</span>
-                <span>{isExportingBackup ? 'Exporting...' : (isRtl ? 'تصدير نسخة احتياطية كاملة (Backup JSON)' : 'Export Full DB Snapshot')}</span>
+                <span>🗄️</span>
+                <span>
+                  {isExportingBackup === 'sql'
+                    ? (isRtl ? 'جاري تصدير SQL...' : 'Exporting SQL...')
+                    : (isRtl ? 'تصدير نسخة احتياطية (SQL)' : 'Export Backup (.sql)')}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => handleExportBackup('json')}
+                disabled={Boolean(isExportingBackup)}
+                title={isRtl ? 'تصدير لقطة سريعة للبيانات بصيغة JSON' : 'Export raw database JSON snapshot'}
+              >
+                <span>📄</span>
+                <span>
+                  {isExportingBackup === 'json'
+                    ? (isRtl ? 'جاري تصدير JSON...' : 'Exporting JSON...')
+                    : (isRtl ? 'تصدير نسخة احتياطية (JSON)' : 'Export Backup (.json)')}
+                </span>
               </button>
             </div>
           </div>
