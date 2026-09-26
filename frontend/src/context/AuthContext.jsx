@@ -143,21 +143,35 @@ export function AuthProvider({ children }) {
     if (targetRole === 'STAFF') targetEmail = 'staff@school.local';
     if (targetRole === 'TEACHER') targetEmail = 'ahmed.khalil@school.local';
 
+    try {
+      const data = await api.post('/auth/login', { email: targetEmail, password: 'ChangeMe123!' }, { timeout: 2000 });
+      if (data && data.token && data.user) {
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.removeItem(`school_welcome_seen_${data.user.id}`);
+        sessionStorage.removeItem(`school_welcome_seen_${targetEmail}`);
+        sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
+        api.clearCache();
+        setUser(data.user);
+        return data.user;
+      }
+    } catch (err) {
+      console.warn('Switch portal live auth error, using local fallback:', err);
+    }
+
     const switchedUser = getFallbackUser(targetEmail);
     sessionStorage.removeItem(`school_welcome_seen_${switchedUser.id}`);
     sessionStorage.removeItem(`school_welcome_seen_${targetEmail}`);
     sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
 
-    // Instantaneous 0ms switch without blocking UI
     sessionStorage.setItem('token', 'demo-token-preview-2026');
     sessionStorage.setItem('user', JSON.stringify(switchedUser));
     localStorage.setItem('token', 'demo-token-preview-2026');
     localStorage.setItem('user', JSON.stringify(switchedUser));
     api.clearCache();
     setUser(switchedUser);
-
-    // Non-blocking background sync
-    api.post('/auth/login', { email: targetEmail, password: 'ChangeMe123!' }, { timeout: 700 }).catch(() => {});
 
     return switchedUser;
   };

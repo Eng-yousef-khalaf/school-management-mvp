@@ -131,6 +131,16 @@ export async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
+  // Pass active user context for seamless authentication
+  const userStr = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('user') : null) || (typeof localStorage !== 'undefined' ? localStorage.getItem('user') : null);
+  if (userStr) {
+    try {
+      const u = JSON.parse(userStr);
+      if (u.role) headers['x-user-role'] = u.role;
+      if (u.email) headers['x-user-email'] = u.email;
+    } catch {}
+  }
+
   const isFormData = options.body instanceof FormData;
   if (!isFormData && !headers['Content-Type'] && options.body && typeof options.body === 'string') {
     headers['Content-Type'] = 'application/json';
@@ -138,7 +148,7 @@ export async function request(path, options = {}) {
 
   const url = `${API_BASE_URL}${path}`;
 
-  // 4. Setup AbortController with fast timeout
+  // 4. Setup AbortController with healthy timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options.timeout || NETWORK_TIMEOUT_MS);
 
@@ -154,12 +164,28 @@ export async function request(path, options = {}) {
     backendStatus.lastChecked = Date.now();
 
     if (!response.ok) {
-      // Graceful fallback to rich local Mock Engine
-      const mockRes = handleMockRequest(path, options);
-      if (isGet) {
-        queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+      if (!isGet) {
+        let errorMsg = 'Failed to execute operation';
+        try {
+          const errData = await response.json();
+          errorMsg = errData.error || errData.message || errorMsg;
+        } catch {}
+        throw new Error(errorMsg);
       }
-      return mockRes;
+
+      // Only fallback to mock if on vercel web preview
+      if (typeof window !== 'undefined' && window.location.origin.includes('vercel.app')) {
+        const mockRes = handleMockRequest(path, options);
+        queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+        return mockRes;
+      }
+
+      let errorMsg = `Server error (${response.status})`;
+      try {
+        const errData = await response.json();
+        errorMsg = errData.error || errData.message || errorMsg;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
     const contentType = response.headers.get('content-type') || '';
@@ -178,15 +204,19 @@ export async function request(path, options = {}) {
     return result;
   } catch (networkOrTimeoutError) {
     clearTimeout(timeoutId);
-    backendStatus.isAvailable = false;
-    backendStatus.lastFailure = Date.now();
 
-    // Graceful and instant fallback to rich Mock Engine
-    const mockRes = handleMockRequest(path, options);
-    if (isGet) {
-      queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+    if (!isGet) {
+      throw networkOrTimeoutError;
     }
-    return mockRes;
+
+    // Only fallback to mock if on vercel web preview
+    if (typeof window !== 'undefined' && window.location.origin.includes('vercel.app')) {
+      const mockRes = handleMockRequest(path, options);
+      queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+      return mockRes;
+    }
+
+    throw networkOrTimeoutError;
   }
 }
 

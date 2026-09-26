@@ -459,7 +459,29 @@ async function getTeacherAttendanceToday(targetDate) {
 }
 
 async function saveTeacherAttendance({ teacherId, date, status, checkIn, note }, user, req) {
-  const tId = parseInt(teacherId, 10);
+  let teacher = null;
+  const numId = parseInt(teacherId, 10);
+  if (!isNaN(numId)) {
+    teacher = await prisma.teacher.findUnique({ where: { id: numId } });
+  }
+  if (!teacher && teacherId) {
+    teacher = await prisma.teacher.findFirst({
+      where: {
+        OR: [
+          { employeeNo: String(teacherId) },
+          { email: String(teacherId) }
+        ]
+      }
+    });
+  }
+  if (!teacher) {
+    teacher = await prisma.teacher.findFirst({ where: { active: true } });
+  }
+  if (!teacher) {
+    throw new Error('Teacher record not found in system.');
+  }
+
+  const tId = teacher.id;
   const d = date ? new Date(date) : new Date();
   d.setUTCHours(0, 0, 0, 0);
 

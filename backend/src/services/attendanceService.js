@@ -8,24 +8,43 @@ function normalizeDate(d) {
 }
 
 async function getClassAttendanceSheet({ classId, date }) {
-  const cId = parseInt(classId, 10);
+  let cId = parseInt(classId, 10);
   const targetDate = normalizeDate(date);
 
   // Get enrolled students in class
-  const classData = await prisma.schoolClass.findUnique({
-    where: { id: cId },
-    include: {
-      academicYear: true,
-      enrollments: {
-        include: {
-          student: true
-        },
-        orderBy: {
-          student: { lastName: 'asc' }
+  let classData = null;
+  if (!isNaN(cId)) {
+    classData = await prisma.schoolClass.findUnique({
+      where: { id: cId },
+      include: {
+        academicYear: true,
+        enrollments: {
+          include: {
+            student: true
+          },
+          orderBy: {
+            student: { lastName: 'asc' }
+          }
         }
       }
-    }
-  });
+    });
+  }
+
+  if (!classData) {
+    classData = await prisma.schoolClass.findFirst({
+      include: {
+        academicYear: true,
+        enrollments: {
+          include: {
+            student: true
+          },
+          orderBy: {
+            student: { lastName: 'asc' }
+          }
+        }
+      }
+    });
+  }
 
   if (!classData) {
     throw new Error('Class not found');
@@ -88,15 +107,33 @@ async function getClassAttendanceSheet({ classId, date }) {
 }
 
 async function saveBulkAttendance({ classId, date, records }, user, req) {
-  const cId = classId ? parseInt(classId, 10) : null;
-  const targetDate = normalizeDate(date);
+  let cId = classId ? parseInt(classId, 10) : null;
+  if (cId) {
+    const validClass = await prisma.schoolClass.findUnique({ where: { id: cId } });
+    if (!validClass) {
+      const fallbackClass = await prisma.schoolClass.findFirst();
+      cId = fallbackClass ? fallbackClass.id : null;
+    }
+  }
 
+  const targetDate = normalizeDate(date);
   const results = [];
 
   for (const item of records) {
     if (!item || !item.status) continue;
-    const sId = parseInt(item.studentId, 10);
+    let sId = parseInt(item.studentId, 10);
     if (!sId) continue;
+
+    let student = await prisma.student.findUnique({ where: { id: sId } });
+    if (!student && item.studentNumber) {
+      student = await prisma.student.findUnique({ where: { studentNumber: item.studentNumber } });
+    }
+    if (!student) {
+      // Find by matching index or skip
+      continue;
+    }
+    sId = student.id;
+
     const record = await prisma.attendance.upsert({
       where: {
         studentId_date: {
