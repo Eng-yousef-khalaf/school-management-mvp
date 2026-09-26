@@ -10,7 +10,7 @@ import SchoolLogo from '../../components/common/SchoolLogo';
 
 export default function SettingsPage() {
   const { user, isAdmin } = useAuth();
-  const { config, updateSchoolBranding, resetSchoolBranding } = useSchoolConfig();
+  const { config, updateSchoolBranding, updateSchoolConfig, resetSchoolBranding } = useSchoolConfig();
   const { isRtl } = useLanguage();
   const toast = useToast();
 
@@ -159,6 +159,36 @@ export default function SettingsPage() {
           </span>
         </div>
       </div>
+
+      {/* Official Shift Start Time Panel (Admin Only) */}
+      {isAdmin && (
+        <div className="panel" style={{ padding: 24, marginBottom: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>🕒</span>
+            <span>{isRtl ? 'توقيت بدء الدوام المدرسي وطابور الصباح' : 'Official Shift Start Time'}</span>
+          </h3>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, lineHeight: 1.6 }}>
+            {isRtl
+              ? 'يُستخدم هذا التوقيت كمعيار رسمي لاحتساب دقائق التأخير والانضباط الصباحي لجميع المعلمين تلقائياً في دفتر الدوام وكشوف الرقابة.'
+              : 'This time serves as the benchmark to automatically calculate teacher tardiness minutes and morning punctuality logs.'}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, maxWidth: 360 }}>
+            <input
+              type="time"
+              className="form-input"
+              value={config.schoolStartTime || '07:45'}
+              onChange={(e) => {
+                updateSchoolConfig({ schoolStartTime: e.target.value });
+                toast.success(isRtl ? `تم تحديث بداية الدوام إلى ${e.target.value}` : `Start time updated to ${e.target.value}`);
+              }}
+              style={{ fontWeight: 700, fontSize: 15, padding: '8px 12px' }}
+            />
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>
+              {isRtl ? 'صباحاً (معتمد)' : 'AM (Approved)'}
+            </span>
+          </div>
+        </div>
+      )}
 
 
       {/* Change Password Panel */}

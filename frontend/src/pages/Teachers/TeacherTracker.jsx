@@ -3,19 +3,21 @@ import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import StatCard from '../../components/common/StatCard';
 import { TeachersIcon, AttendanceIcon, CheckIcon } from '../../components/common/Icons';
 
-// Official school morning start time reference (7:45 AM)
-const OFFICIAL_START_HOUR = 7;
-const OFFICIAL_START_MINUTE = 45;
-
 export default function TeacherTracker({ onViewTeacher }) {
   const toast = useToast();
   const { user, isAdmin, isStaff, canRecordTeacherAttendance } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { config, updateSchoolConfig } = useSchoolConfig();
+
+  const [startH, startM] = (config.schoolStartTime || '07:45').split(':').map(Number);
+  const OFFICIAL_START_HOUR = !isNaN(startH) ? startH : 7;
+  const OFFICIAL_START_MINUTE = !isNaN(startM) ? startM : 45;
 
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [data, setData] = useState(null);
@@ -279,9 +281,30 @@ export default function TeacherTracker({ onViewTeacher }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ background: 'rgba(255,255,255,0.18)', padding: '6px 12px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-              <div style={{ fontSize: 11, opacity: 0.85 }}>{isRtl ? 'بداية الدوام الرسمي' : 'Official Shift Start'}</div>
-              <strong style={{ fontSize: 15 }}>07:45 AM</strong>
+            <div style={{ background: 'rgba(255,255,255,0.18)', padding: '6px 12px', borderRadius: 'var(--radius-md)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontSize: 11, opacity: 0.9 }}>{isRtl ? 'بداية الدوام الرسمي:' : 'Official Shift Start:'}</div>
+              <input
+                type="time"
+                value={config.schoolStartTime || '07:45'}
+                onChange={(e) => {
+                  updateSchoolConfig({ schoolStartTime: e.target.value });
+                  toast.success(isRtl ? `تم تحديث بداية الدوام الرسمي إلى ${e.target.value}` : `Start time set to ${e.target.value}`);
+                }}
+                disabled={!isAdmin && !isStaff}
+                style={{
+                  background: 'rgba(255,255,255,0.25)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  borderRadius: 4,
+                  fontWeight: 800,
+                  fontSize: 14,
+                  padding: '2px 6px',
+                  cursor: (isAdmin || isStaff) ? 'pointer' : 'default',
+                  textAlign: 'center',
+                  outline: 'none'
+                }}
+                title={isRtl ? 'انقر لتغيير توقيت الدوام الرسمي' : 'Click to change official shift start time'}
+              />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', color: 'var(--text-main)', padding: '6px 12px', borderRadius: 'var(--radius-md)' }}>
@@ -316,14 +339,27 @@ export default function TeacherTracker({ onViewTeacher }) {
               </strong>
               <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 2 }}>
                 {isRtl
-                  ? 'يظهر لك كشف تحليلي شامل لنسب الحضور والغياب وأوقات وصول المعلمين. (تسجيل الحضور وضبط الدوام يتم حصرياً عبر موظف شؤون الطلاب).'
-                  : 'You have full executive visibility into daily faculty presence, check-in times, and attendance statistics (Data entry is handled by Staff).'}
+                  ? 'يظهر لك كشف تحليلي شامل لنسب الحضور والغياب وأوقات وصول المعلمين. يمكنك تعديل توقيت بداية الدوام الرسمي للمدرسة مباشرة.'
+                  : 'You have full executive visibility into daily faculty presence, check-in times, and can configure the official shift start time directly.'}
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', padding: '5px 10px', borderRadius: 'var(--radius-md)', border: '1px solid #cbd5e1' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>{isRtl ? 'بداية الدوام:' : 'Shift Start:'}</span>
+              <input
+                type="time"
+                value={config.schoolStartTime || '07:45'}
+                onChange={(e) => {
+                  updateSchoolConfig({ schoolStartTime: e.target.value });
+                  toast.success(isRtl ? `تم ضبط توقيت بداية الدوام على ${e.target.value}` : `Official start time set to ${e.target.value}`);
+                }}
+                style={{ border: 'none', fontWeight: 800, fontSize: 13, padding: 0, cursor: 'pointer', color: 'var(--primary)', outline: 'none' }}
+                title={isRtl ? 'تعديل توقيت الدوام الرسمي للمدرسة (خاص بالمدير)' : 'Configure official shift start time'}
+              />
+            </div>
             <span className="badge badge-primary" style={{ fontWeight: 700, fontSize: 11 }}>
-              {isRtl ? 'اطلاع وإشراف عام' : 'Read-Only Oversight'}
+              {isRtl ? 'إشراف المدير العام' : 'Executive Oversight'}
             </span>
             <input
               type="date"

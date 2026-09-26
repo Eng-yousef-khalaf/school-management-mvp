@@ -24,6 +24,7 @@ export function SchoolConfigProvider({ children }) {
           allocatedStorageMb: parseInt(parsed.allocatedStorageMb || import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
           supportEmail: parsed.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
           supportPhone: parsed.supportPhone || import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+          schoolStartTime: parsed.schoolStartTime || '07:45',
         };
       }
     } catch (e) {
@@ -44,6 +45,7 @@ export function SchoolConfigProvider({ children }) {
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
       supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
       supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+      schoolStartTime: '07:45',
     };
   });
 
@@ -83,6 +85,20 @@ export function SchoolConfigProvider({ children }) {
     });
   };
 
+  // Update any school configuration settings
+  const updateSchoolConfig = (newSettings) => {
+    setConfig((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.error('Failed to persist school config to localStorage', err);
+      }
+      return updated;
+    });
+  };
+
   // Reset to environment defaults
   const resetSchoolBranding = () => {
     try {
@@ -102,6 +118,7 @@ export function SchoolConfigProvider({ children }) {
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
       supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
       supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+      schoolStartTime: '07:45',
     });
   };
 
@@ -115,6 +132,7 @@ export function SchoolConfigProvider({ children }) {
     config,
     setConfig,
     updateSchoolBranding,
+    updateSchoolConfig,
     resetSchoolBranding,
     updateDocumentTitle,
     isMasterInstance: config.instanceType === 'MASTER',
@@ -125,6 +143,7 @@ export function SchoolConfigProvider({ children }) {
     logoUrl: config.logoUrl,
     primaryColor: config.primaryColor,
     schoolCode: config.schoolCode,
+    schoolStartTime: config.schoolStartTime || '07:45',
     allocatedStorageMb: config.allocatedStorageMb,
   }), [config]);
 
