@@ -5,16 +5,26 @@ const LIVE_RENDER_API = 'https://school-management-uzlu.onrender.com/api';
 const configuredApiUrl = import.meta.env.VITE_API_URL || '';
 const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
 
-// Default to live Render backend on production HTTPS, or configured URL, or localhost in dev
-const API_BASE_URL = configuredApiUrl || (isHttps ? LIVE_RENDER_API : 'http://localhost:4000/api');
+// Default to same origin /api when served by backend, or configured URL, or localhost:4000
+const defaultBaseUrl = typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('vercel.app')
+  ? `${window.location.origin}/api`
+  : (isHttps ? LIVE_RENDER_API : 'http://localhost:4000/api');
 
-// Fast network timeout threshold (500ms) to ensure the UI never hangs or freezes
-const NETWORK_TIMEOUT_MS = 500;
-const BACKEND_RETRY_COOLDOWN_MS = 300000; // 5 minutes cooldown after a failed connection
+const API_BASE_URL = configuredApiUrl || defaultBaseUrl;
 
-// Track backend availability
+// Healthy network timeout threshold (3000ms) for reliable database operations
+const NETWORK_TIMEOUT_MS = 3000;
+const BACKEND_RETRY_COOLDOWN_MS = 30000; // 30 seconds cooldown after a failed connection
+
+// Track backend availability - auto-enable for local or dedicated host
+const isLocalOrDirect = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  !window.location.hostname.includes('vercel.app')
+);
+
 let backendStatus = {
-  isAvailable: false, // Start false for instant 0ms first render without waiting on sleeping cloud instances
+  isAvailable: isLocalOrDirect,
   lastChecked: 0,
   lastFailure: 0,
   isProbing: false

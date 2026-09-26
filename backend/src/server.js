@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 let helmet;
 try {
@@ -82,8 +84,16 @@ const loginLimiter = rateLimit
       next();
     };
 
-// Welcome & Status Root Route
-app.get('/', async (req, res) => {
+// Paths and frontend dist check
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+const hasFrontendDist = () => fs.existsSync(path.join(frontendDistPath, 'index.html'));
+
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+}
+
+// Welcome & Status Root Route Renderer
+async function renderStatusPage(req, res) {
   let dbStatus = 'Connected 🟢';
   let totalStudents = 0;
   let totalTeachers = 0;
@@ -397,6 +407,17 @@ app.get('/', async (req, res) => {
     </body>
     </html>
   `);
+}
+
+// Diagnostics / Status endpoint
+app.get('/api/status', renderStatusPage);
+
+// Root route: If frontend dist is built, serve React SPA; otherwise serve status page
+app.get('/', (req, res) => {
+  if (req.query.status === '1' || !hasFrontendDist()) {
+    return renderStatusPage(req, res);
+  }
+  return res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // Health check
@@ -431,6 +452,14 @@ app.use('/api/users', userRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/developer', developerRoutes);
 app.use('/api/fees', feeRoutes);
+
+// SPA client-side routing fallback (for all non-API paths in Express 5)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && hasFrontendDist()) {
+    return res.sendFile(path.join(frontendDistPath, 'index.html'));
+  }
+  next();
+});
 
 // Centralized error handler
 app.use(errorHandler);
