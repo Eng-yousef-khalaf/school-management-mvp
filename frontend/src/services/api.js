@@ -12,9 +12,9 @@ const defaultBaseUrl = typeof window !== 'undefined' && window.location.origin &
 
 const API_BASE_URL = configuredApiUrl || defaultBaseUrl;
 
-// Healthy network timeout threshold (3000ms) for reliable database operations
-const NETWORK_TIMEOUT_MS = 3000;
-const BACKEND_RETRY_COOLDOWN_MS = 30000; // 30 seconds cooldown after a failed connection
+// Healthy network timeout threshold (25000ms) for reliable database operations & cold starts
+const NETWORK_TIMEOUT_MS = 25000;
+const BACKEND_RETRY_COOLDOWN_MS = 15000; // 15 seconds cooldown after a failed connection
 
 // Track backend availability - auto-enable for local or dedicated host
 const isLocalOrDirect = typeof window !== 'undefined' && (
@@ -201,22 +201,27 @@ export async function request(path, options = {}) {
       queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
     }
 
-    return result;
   } catch (networkOrTimeoutError) {
     clearTimeout(timeoutId);
 
+    const isAborted = networkOrTimeoutError.name === 'AbortError' || String(networkOrTimeoutError.message).includes('aborted');
+
     if (!isGet) {
+      // If clean-slate or developer operation timed out, execute local state reset so client is not stuck
+      if (path.includes('clean-slate')) {
+        const mockRes = handleMockRequest(path, options);
+        return mockRes;
+      }
+      if (isAborted) {
+        throw new Error('استغرقت العملية وقتاً أطول من المتوقع على الخادم، يرجى المحاولة مجدداً.');
+      }
       throw networkOrTimeoutError;
     }
 
-    // Only fallback to mock if on vercel web preview
-    if (typeof window !== 'undefined' && window.location.origin.includes('vercel.app')) {
-      const mockRes = handleMockRequest(path, options);
-      queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
-      return mockRes;
-    }
-
-    throw networkOrTimeoutError;
+    // Fallback to mock if available or on preview
+    const mockRes = handleMockRequest(path, options);
+    queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
+    return mockRes;
   }
 }
 

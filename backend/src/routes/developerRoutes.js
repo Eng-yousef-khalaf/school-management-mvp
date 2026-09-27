@@ -737,5 +737,115 @@ router.post('/clean-slate', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/developer/onboard-member
+ * Registers a real teacher or staff member during initial school setup or from principal dashboard
+ */
+router.post('/onboard-member', async (req, res) => {
+  try {
+    const { fullName, email, password, role, specialty, phone } = req.body;
+    if (!fullName || !email) {
+      return res.status(400).json({ ok: false, error: 'Full name and email are required' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = fullName.trim();
+    const cleanRole = role === 'TEACHER' ? 'TEACHER' : 'STAFF';
+    const cleanPassword = password?.trim() || 'ChangeMe123!';
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash(cleanPassword, 12);
+
+    const existing = await prisma.user.findUnique({
+      where: { email: cleanEmail }
+    });
+    if (existing) {
+      return res.status(400).json({ ok: false, error: 'هذا البريد الإلكتروني مسجل مسبقاً في المنظومة' });
+    }
+
+    let teacherId = null;
+    if (cleanRole === 'TEACHER') {
+      const names = cleanName.split(' ');
+      const firstName = names[0] || cleanName;
+      const lastName = names.slice(1).join(' ') || 'المعلم';
+      const employeeNo = `TCH-${Date.now().toString().slice(-4)}`;
+
+      const teacher = await prisma.teacher.create({
+        data: {
+          employeeNo,
+          firstName,
+          lastName,
+          email: cleanEmail,
+          phone: phone?.trim() || null,
+          specialty: specialty?.trim() || 'عام',
+          active: true
+        }
+      });
+      teacherId = teacher.id;
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        email: cleanEmail,
+        fullName: cleanName,
+        passwordHash,
+        role: cleanRole,
+        teacherId,
+        active: true
+      }
+    });
+
+    return res.status(201).json({
+      ok: true,
+      message: `تم اعتماد وتسجيل ${cleanRole === 'TEACHER' ? 'المعلم' : 'الموظف'} بنجاح`,
+      member: {
+        id: newUser.id,
+        fullName: newUser.fullName,
+        email: newUser.email,
+        role: newUser.role,
+        teacherId: newUser.teacherId,
+        specialty: specialty || null,
+        phone: phone || null
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/developer/onboarded-members
+ * Fetches all active teachers and staff members registered in the school
+ */
+router.get('/onboarded-members', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        role: { in: ['TEACHER', 'STAFF'] }
+      },
+      include: {
+        teacher: true
+      },
+      orderBy: { id: 'asc' }
+    });
+
+    return res.json({
+      ok: true,
+      members: users.map(u => ({
+        id: u.id,
+        fullName: u.fullName,
+        email: u.email,
+        role: u.role,
+        teacherId: u.teacherId,
+        specialty: u.teacher?.specialty || null,
+        phone: u.teacher?.phone || null,
+        createdAt: u.createdAt
+      }))
+    });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 module.exports = router;
+
 

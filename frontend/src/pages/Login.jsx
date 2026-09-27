@@ -14,8 +14,16 @@ export default function Login() {
   const { config } = useSchoolConfig();
 
   const [activeRole, setActiveRole] = useState('ADMIN');
-  const [email, setEmail] = useState('admin@school.local');
-  const [password, setPassword] = useState('ChangeMe123!');
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const p = JSON.parse(localStorage.getItem('school_principal_info') || '{}');
+        if (p.email) return p.email;
+      } catch {}
+    }
+    return 'admin@school.local';
+  });
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [secretClickCount, setSecretClickCount] = useState(0);

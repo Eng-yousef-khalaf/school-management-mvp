@@ -323,7 +323,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         principalName: principalForm.fullName.trim(),
         principalEmail: principalForm.email.trim(),
         principalPassword: principalForm.password.trim() || undefined,
-      });
+      }, { timeout: 45000 });
 
       if (res?.ok) {
         toast.success(res.message || (isRtl ? 'تم تصفير المنظومة وحذف البيانات الوهمية بنجاح تام! المنظومة نقية وجاهزة 100%.' : 'Clean slate completed successfully!'));

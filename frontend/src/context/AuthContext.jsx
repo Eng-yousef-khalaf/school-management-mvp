@@ -103,40 +103,85 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
-    const fallbackUser = getFallbackUser(email || 'admin@school.local');
-    const targetRole = fallbackUser.role;
-    sessionStorage.removeItem(`school_welcome_seen_${fallbackUser.id}`);
-    sessionStorage.removeItem(`school_welcome_seen_${email}`);
-    sessionStorage.removeItem(`school_welcome_seen_${targetRole}`);
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
 
-    // 0ms instant login path for instant responsiveness
+    // 1. First attempt live backend login
     try {
-      // Race API request with fast timeout (700ms)
-      const data = await api.post('/auth/login', { email, password }, { timeout: 700 });
+      const data = await api.post('/auth/login', { email: cleanEmail, password: cleanPassword }, { timeout: 10000 });
       if (data && data.user) {
-        sessionStorage.setItem('token', data.token || 'demo-token');
+        sessionStorage.setItem('token', data.token || 'auth-token');
         sessionStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token || 'demo-token');
+        localStorage.setItem('token', data.token || 'auth-token');
         localStorage.setItem('user', JSON.stringify(data.user));
-        sessionStorage.removeItem(`school_welcome_seen_${data.user.id}`);
-        sessionStorage.removeItem(`school_welcome_seen_${data.user.email}`);
-        sessionStorage.removeItem(`school_welcome_seen_${data.user.role}`);
         api.clearCache();
         setUser(data.user);
         return data.user;
       }
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
     } catch (err) {
-      console.warn('Live auth unavailable or timed out, activating instant auth', err);
-    }
+      // 2. Check if it's the Principal from Handover Pass
+      const savedPrincipalInfo = typeof window !== 'undefined' ? localStorage.getItem('school_principal_info') : null;
+      let principalEmail = 'admin@school.local';
+      let principalName = typeof window !== 'undefined' ? (localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)') : 'أ. عبد الرحمن خليل (المدير العام)';
+      if (savedPrincipalInfo) {
+        try {
+          const parsed = JSON.parse(savedPrincipalInfo);
+          if (parsed.email) principalEmail = parsed.email.toLowerCase();
+          if (parsed.fullName) principalName = parsed.fullName;
+        } catch {}
+      }
 
-    // Direct Instant Demo Authentication Fallback
-    sessionStorage.setItem('token', 'demo-token-preview-2026');
-    sessionStorage.setItem('user', JSON.stringify(fallbackUser));
-    localStorage.setItem('token', 'demo-token-preview-2026');
-    localStorage.setItem('user', JSON.stringify(fallbackUser));
-    api.clearCache();
-    setUser(fallbackUser);
-    return fallbackUser;
+      if (cleanEmail === principalEmail || cleanEmail === 'admin@school.local') {
+        const principalUser = {
+          id: 1,
+          email: principalEmail,
+          fullName: principalName,
+          role: 'ADMIN',
+          active: true,
+        };
+        sessionStorage.setItem('token', 'auth-token-principal');
+        sessionStorage.setItem('user', JSON.stringify(principalUser));
+        localStorage.setItem('token', 'auth-token-principal');
+        localStorage.setItem('user', JSON.stringify(principalUser));
+        api.clearCache();
+        setUser(principalUser);
+        return principalUser;
+      }
+
+      // 3. Check registered staff & teachers added by the Principal
+      const staffListStr = typeof window !== 'undefined' ? localStorage.getItem('registered_school_staff') : null;
+      if (staffListStr) {
+        try {
+          const staffList = JSON.parse(staffListStr);
+          const found = staffList.find(s => s.email?.toLowerCase() === cleanEmail);
+          if (found) {
+            const userRole = found.role || 'STAFF';
+            const memberUser = {
+              id: found.id || Date.now(),
+              email: found.email,
+              fullName: found.fullName,
+              role: userRole,
+              teacherId: userRole === 'TEACHER' ? (found.teacherId || found.id || 1) : null,
+              specialty: found.specialty || null,
+              active: true,
+            };
+            sessionStorage.setItem('token', `auth-token-${userRole.toLowerCase()}`);
+            sessionStorage.setItem('user', JSON.stringify(memberUser));
+            localStorage.setItem('token', `auth-token-${userRole.toLowerCase()}`);
+            localStorage.setItem('user', JSON.stringify(memberUser));
+            api.clearCache();
+            setUser(memberUser);
+            return memberUser;
+          }
+        } catch {}
+      }
+
+      // 4. Reject unrecognized credentials
+      throw new Error(err?.message || 'البريد الإلكتروني أو كلمة المرور غير صحيحة، أو لم يتم تسجيل واعتماد هذا الحساب بعد من قبل مدير المدرسة.');
+    }
   };
 
   const switchPortalRole = async (targetRole) => {

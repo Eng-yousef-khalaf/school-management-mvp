@@ -9,6 +9,7 @@ import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import TeacherRolloverModal from '../Teachers/TeacherRolloverModal';
+import InitialStaffOnboarding from '../../components/onboarding/InitialStaffOnboarding';
 import {
   TeachersIcon,
   ClassesIcon,
@@ -27,6 +28,9 @@ export default function AdminDashboard({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isRolloverOpen, setIsRolloverOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem('school_setup_completed') !== 'true' : false;
+  });
 
   const loadDashboard = async () => {
     try {
@@ -51,6 +55,30 @@ export default function AdminDashboard({ onNavigate }) {
   useEffect(() => {
     loadDashboard();
   }, [selectedYearId]);
+
+  if (isOnboardingOpen) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              localStorage.setItem('school_setup_completed', 'true');
+              setIsOnboardingOpen(false);
+            }}
+            style={{ fontWeight: 800 }}
+          >
+            {isRtl ? 'عرض لوحة التحكم الافتراضية المعتادة ←' : 'Switch to Standard Dashboard View →'}
+          </button>
+        </div>
+        <InitialStaffOnboarding onComplete={() => {
+          setIsOnboardingOpen(false);
+          loadDashboard();
+        }} />
+      </div>
+    );
+  }
 
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadDashboard} />;
@@ -95,6 +123,13 @@ export default function AdminDashboard({ onNavigate }) {
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setIsOnboardingOpen(true)}
+            className="btn btn-sm"
+            style={{ background: '#f59e0b', color: '#fff', border: 'none', fontWeight: 900, boxShadow: '0 2px 8px rgba(245, 158, 11, 0.35)' }}
+          >
+            👥 {isRtl ? 'تسجيل وتعيين كادر جديد' : 'Onboard Staff/Faculty'}
+          </button>
           <button
             onClick={() => setIsRolloverOpen(true)}
             className="btn btn-sm"

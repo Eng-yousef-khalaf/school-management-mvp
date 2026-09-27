@@ -1257,49 +1257,65 @@ export function handleMockRequest(path, options = {}) {
   if (cleanPath === '/auth/login' && method === 'POST') {
     let body = {};
     try { body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {}; } catch {}
-    const email = body.email || 'admin@school.local';
+    const cleanEmail = (body.email || '').trim().toLowerCase();
+    const cleanPassword = (body.password || '').trim();
 
-    let userRole = 'ADMIN';
-    let fullName = 'يوسف (المدير العام)';
-    let teacherId = null;
-
-    if (email.includes('staff')) {
-      userRole = 'STAFF';
-      fullName = email.includes('khalid') ? 'خالد السعيد (شؤون الطلاب)' : 'محمد (شؤون الطلاب)';
-    } else if (email.includes('khalil')) {
-      userRole = 'TEACHER';
-      fullName = 'أحمد خليل (معلم الرياضيات)';
-      teacherId = 1;
-    } else if (email.includes('mansour')) {
-      userRole = 'TEACHER';
-      fullName = 'سارة منصور (معلمة الإنجليزية)';
-      teacherId = 2;
-    } else if (email.includes('farooq')) {
-      userRole = 'TEACHER';
-      fullName = 'عمر فاروق (معلم العربية)';
-      teacherId = 3;
-    } else if (email.includes('hassan')) {
-      userRole = 'TEACHER';
-      fullName = 'ليلى حسن (معلمة العلوم)';
-      teacherId = 4;
-    } else if (email.includes('aziz')) {
-      userRole = 'TEACHER';
-      fullName = 'طارق عزيز (معلم الحاسوب)';
-      teacherId = 5;
+    // 1. Check Principal from Handover Pass
+    const savedPrincipalInfo = typeof window !== 'undefined' ? localStorage.getItem('school_principal_info') : null;
+    let principalEmail = 'admin@school.local';
+    let principalName = typeof window !== 'undefined' ? (localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)') : 'أ. عبد الرحمن خليل (المدير العام)';
+    if (savedPrincipalInfo) {
+      try {
+        const parsed = JSON.parse(savedPrincipalInfo);
+        if (parsed.email) principalEmail = parsed.email.toLowerCase();
+        if (parsed.fullName) principalName = parsed.fullName;
+      } catch {}
     }
 
-    const mockUser = {
-      id: 1,
-      email,
-      fullName,
-      role: userRole,
-      teacherId,
-      active: true,
-    };
+    if (cleanEmail === principalEmail || cleanEmail === 'admin@school.local') {
+      const mockUser = {
+        id: 1,
+        email: principalEmail,
+        fullName: principalName,
+        role: 'ADMIN',
+        teacherId: null,
+        active: true,
+      };
+      return {
+        token: 'auth-jwt-token-principal',
+        user: mockUser,
+      };
+    }
 
+    // 2. Check registered staff & teachers added by the Principal
+    const staffListStr = typeof window !== 'undefined' ? localStorage.getItem('registered_school_staff') : null;
+    if (staffListStr) {
+      try {
+        const staffList = JSON.parse(staffListStr);
+        const found = staffList.find(s => s.email?.toLowerCase() === cleanEmail);
+        if (found) {
+          const userRole = found.role || 'STAFF';
+          const mockUser = {
+            id: found.id || Date.now(),
+            email: found.email,
+            fullName: found.fullName,
+            role: userRole,
+            teacherId: userRole === 'TEACHER' ? (found.teacherId || found.id || 1) : null,
+            specialty: found.specialty || null,
+            active: true,
+          };
+          return {
+            token: `auth-jwt-token-${userRole.toLowerCase()}`,
+            user: mockUser,
+          };
+        }
+      } catch {}
+    }
+
+    // 3. Reject any unauthorized credentials
     return {
-      token: 'demo-jwt-token-sample-for-preview-mode',
-      user: mockUser,
+      error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة، أو لم يتم اعتماد وتسجيل هذا الحساب بعد من قبل مدير المدرسة.',
+      ok: false
     };
   }
 
@@ -2514,6 +2530,8 @@ export function handleMockRequest(path, options = {}) {
     saveMockPayments([]);
     
     if (typeof window !== 'undefined') {
+      localStorage.setItem('registered_school_staff', '[]');
+      localStorage.removeItem('school_setup_completed');
       localStorage.setItem('school_principal_name', cleanName);
       localStorage.setItem('school_principal_info', JSON.stringify({
         fullName: cleanName,
@@ -2544,6 +2562,84 @@ export function handleMockRequest(path, options = {}) {
         teachersCount: 0,
         classesCount: 0
       }
+    };
+  }
+
+  // Onboard member (Teacher or Staff)
+  if (cleanPath === '/developer/onboard-member' && method === 'POST') {
+    const { fullName, email, password, role, specialty, phone } = data || {};
+    const cleanRole = role === 'TEACHER' ? 'TEACHER' : 'STAFF';
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanName = (fullName || '').trim();
+
+    let staffList = [];
+    if (typeof window !== 'undefined') {
+      try {
+        staffList = JSON.parse(localStorage.getItem('registered_school_staff') || '[]');
+      } catch {
+        staffList = [];
+      }
+    }
+
+    if (staffList.some(s => s.email?.toLowerCase() === cleanEmail)) {
+      return { ok: false, error: 'هذا البريد الإلكتروني مسجل مسبقاً في المنظومة' };
+    }
+
+    const newId = Date.now();
+    const newMember = {
+      id: newId,
+      fullName: cleanName,
+      email: cleanEmail,
+      password: password?.trim() || 'ChangeMe123!',
+      role: cleanRole,
+      specialty: specialty || (cleanRole === 'TEACHER' ? 'عام' : 'إدارة شؤون طلاب'),
+      phone: phone || '',
+      createdAt: new Date().toISOString()
+    };
+
+    staffList.push(newMember);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('registered_school_staff', JSON.stringify(staffList));
+      if (cleanRole === 'TEACHER') {
+        const teachers = getMockTeachers();
+        teachers.push({
+          id: newId,
+          employeeNo: `TCH-${String(newId).slice(-4)}`,
+          firstName: cleanName.split(' ')[0] || cleanName,
+          lastName: cleanName.split(' ').slice(1).join(' ') || 'المعلم',
+          email: cleanEmail,
+          phone: phone || '',
+          specialty: specialty || 'عام',
+          active: true,
+          assignmentsCount: 0,
+          pendingSetup: true
+        });
+        saveMockTeachers(teachers);
+      }
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('teachers_updated'));
+    }
+
+    return {
+      ok: true,
+      message: `تم اعتماد وتسجيل ${cleanRole === 'TEACHER' ? 'المعلم' : 'الموظف'} (${cleanName}) بنجاح`,
+      member: newMember
+    };
+  }
+
+  if (cleanPath === '/developer/onboarded-members' && method === 'GET') {
+    let staffList = [];
+    if (typeof window !== 'undefined') {
+      try {
+        staffList = JSON.parse(localStorage.getItem('registered_school_staff') || '[]');
+      } catch {
+        staffList = [];
+      }
+    }
+    return {
+      ok: true,
+      members: staffList
     };
   }
 
