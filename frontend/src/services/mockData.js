@@ -2502,8 +2502,60 @@ export function handleMockRequest(path, options = {}) {
     };
   }
 
+  if (cleanPath === '/developer/clean-slate' && method === 'POST') {
+    const { principalName, principalEmail } = data || {};
+    const cleanName = principalName?.trim() || 'أ. عبد الرحمن خليل (المدير العام)';
+    const cleanEmail = principalEmail?.trim()?.toLowerCase() || 'admin@school.local';
+    
+    // Wipe all mock entities
+    saveMockStudents([]);
+    saveMockTeachers([]);
+    saveMockClasses([]);
+    saveMockPayments([]);
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_principal_name', cleanName);
+      localStorage.setItem('school_principal_info', JSON.stringify({
+        fullName: cleanName,
+        email: cleanEmail,
+        role: 'ADMIN'
+      }));
+      sessionStorage.setItem('user', JSON.stringify({
+        id: 1,
+        fullName: cleanName,
+        email: cleanEmail,
+        role: 'ADMIN'
+      }));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('principal-updated'));
+    }
+
+    return {
+      ok: true,
+      message: 'تم تصفير المنظومة بنجاح تام! قاعدة البيانات الآن نقية 100% وجاهزة للمدرسة الحقيقية بدون أي طلاب أو معلمين وهميين.',
+      principal: {
+        fullName: cleanName,
+        email: cleanEmail,
+        role: 'ADMIN'
+      },
+      academicYear: '2026/2027',
+      stats: {
+        studentsCount: 0,
+        teachersCount: 0,
+        classesCount: 0
+      }
+    };
+  }
+
   // 16. Developer Diagnostics
   if (cleanPath === '/developer/system-stats' || cleanPath === '/developer/fleet-stats') {
+    const students = getMockStudents();
+    const teachers = getMockTeachers();
+    const classes = getMockClasses();
+    const payments = getMockPayments();
+    const totalRecs = students.length + teachers.length + classes.length + payments.length + 2;
+    const estMb = parseFloat(((totalRecs * 512 + 102400) / (1024 * 1024)).toFixed(3));
+
     return {
       ok: true,
       currentSchool: {
@@ -2511,38 +2563,38 @@ export function handleMockRequest(path, options = {}) {
         nameAr: 'مدرسة جذور النموذجية الخاصة',
         nameEn: 'Judhoor Model Private School',
         databaseType: 'PostgreSQL (Dedicated Database)',
-        studentsCount: 200,
-        teachersCount: 15,
-        classesCount: 8,
-        totalRecords: 1650,
-        storageUsedMb: 1.42,
+        studentsCount: students.length,
+        teachersCount: teachers.length,
+        classesCount: classes.length,
+        totalRecords: totalRecs,
+        storageUsedMb: estMb,
         storageLimitMb: 500,
-        storagePercent: 0.28,
+        storagePercent: parseFloat(((estMb / 500) * 100).toFixed(2)),
         latencyMs: 12,
         tables: {
-          students: 200,
-          teachers: 15,
-          classes: 8,
-          enrollments: 200,
-          attendance: 840,
-          grades: 320,
-          studentFees: 200,
-          payments: 45,
-          auditLogs: 150,
-          users: 18,
-          subjects: 12,
-          academicYears: 3,
+          students: students.length,
+          teachers: teachers.length,
+          classes: classes.length,
+          enrollments: students.length,
+          attendance: 0,
+          grades: 0,
+          studentFees: students.length,
+          payments: payments.length,
+          auditLogs: 1,
+          users: 1,
+          subjects: 0,
+          academicYears: 1,
         },
       },
       stats: {
         totalSchools: 1,
-        totalStudents: 200,
-        totalTeachers: 15,
-        totalClasses: 8,
-        totalRecords: 1650,
-        totalStorageUsedMb: 1.42,
+        totalStudents: students.length,
+        totalTeachers: teachers.length,
+        totalClasses: classes.length,
+        totalRecords: totalRecs,
+        totalStorageUsedMb: estMb,
         totalStorageLimitMb: 500,
-        fleetStoragePercent: 0.28,
+        fleetStoragePercent: parseFloat(((estMb / 500) * 100).toFixed(2)),
         latencyMs: 12,
         healthStatus: 'ALL_SYSTEMS_OPERATIONAL',
         serverUptimeSec: 3600,

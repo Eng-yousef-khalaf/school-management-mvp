@@ -144,6 +144,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [isExportingBackup, setIsExportingBackup] = useState(null); // 'sql' | 'json' | null
   const [isRepairing, setIsRepairing] = useState(false);
   const [repairReport, setRepairReport] = useState(null);
+  const [isCleaningSlate, setIsCleaningSlate] = useState(false);
 
   // Load telemetry & live database stats
   const fetchTelemetry = async () => {
@@ -306,6 +307,35 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
       toast.error(err.message || 'Integrity audit failed');
     } finally {
       setIsRepairing(false);
+    }
+  };
+
+  const handleCleanSlate = async () => {
+    const confirmMessage = isRtl
+      ? '⚠️ تأكيد إفراغ وتصفير المنظومة للمدرسة الحقيقية:\n\nهل أنت متأكد من رغبتك في حذف كافة الطلاب والمعلمين والصفوف والبيانات الوهمية من قاعدة البيانات الحية بشكل نهائي؟\n\n- سيتم الإبقاء فقط على حساب مدير المدرسة المعتمد والعام الدراسي 2026/2027.\n- ستصبح العدادات (الطلاب: 0، المعلمين: 0، الصفوف: 0) لتتمكن المدرسة من إدخال بياناتها الحقيقية.'
+      : '⚠️ Clean Slate Confirmation:\n\nAre you sure you want to permanently purge all dummy students, teachers, classes, and dummy records from the database?\n\n- ONLY the designated Principal account and Academic Year 2026/2027 will be kept.\n- Counters will reset to 0.';
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      setIsCleaningSlate(true);
+      const res = await api.post('/developer/clean-slate', {
+        principalName: principalForm.fullName.trim(),
+        principalEmail: principalForm.email.trim(),
+        principalPassword: principalForm.password.trim() || undefined,
+      });
+
+      if (res?.ok) {
+        toast.success(res.message || (isRtl ? 'تم تصفير المنظومة وحذف البيانات الوهمية بنجاح تام! المنظومة نقية وجاهزة 100%.' : 'Clean slate completed successfully!'));
+        await fetchTelemetry();
+        await fetchPrincipal();
+      } else {
+        toast.error(res?.error || 'Failed to perform clean slate');
+      }
+    } catch (err) {
+      toast.error(err.message || 'Clean slate operation failed');
+    } finally {
+      setIsCleaningSlate(false);
     }
   };
 
@@ -746,6 +776,35 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
               >
                 <span>🛡️</span>
                 <span>{isRepairing ? (isRtl ? 'جاري الفحص والترميم...' : 'Auditing...') : (isRtl ? 'فحص وترميم تكامل الجداول فوراً' : 'Run Full Integrity Audit & Repair')}</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn"
+                onClick={handleCleanSlate}
+                disabled={isCleaningSlate}
+                style={{
+                  gridColumn: '1 / -1',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: 13,
+                  padding: '11px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  boxShadow: '0 2px 10px rgba(239, 68, 68, 0.3)',
+                  cursor: isCleaningSlate ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <span>🧹</span>
+                <span>
+                  {isCleaningSlate
+                    ? (isRtl ? 'جاري تصفير وحذف كافة البيانات الوهمية...' : 'Cleaning Slate...')
+                    : (isRtl ? 'تصفير المنظومة للمدرسة الحقيقية (حذف كافة الطلاب والمعلمين الوهميين)' : 'Purge All Demo Data (Start Real School Clean Slate)')}
+                </span>
               </button>
 
               <button
