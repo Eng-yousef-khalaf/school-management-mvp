@@ -12,6 +12,8 @@ router.get('/', academicYearController.getAcademicYears);
 router.get('/active', academicYearController.getActiveYear);
 router.get('/teachers-pool', adminOnly, academicYearController.getTeachersPool);
 router.post('/rollover-reactivate', adminOnly, academicYearController.rolloverReactivate);
+router.get('/promote-preview', adminOnly, academicYearController.getPromotionPreview);
+router.post('/promote-students', adminOnly, academicYearController.promoteStudentsYearEnd);
 router.post('/', adminOnly, validate(academicYearSchema), academicYearController.createAcademicYear);
 router.put('/:id', adminOnly, academicYearController.updateAcademicYear);
 router.post('/:id/set-active', adminOnly, academicYearController.setActiveYear);

@@ -63,6 +63,24 @@ async function rolloverReactivate(req, res, next) {
   }
 }
 
+async function getPromotionPreview(req, res, next) {
+  try {
+    const result = await academicYearService.getPromotionPreview(req.query);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function promoteStudentsYearEnd(req, res, next) {
+  try {
+    const result = await academicYearService.promoteStudentsYearEnd(req.body, req.user, req);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getAcademicYears,
   getActiveYear,
@@ -70,5 +88,7 @@ module.exports = {
   updateAcademicYear,
   setActiveYear,
   getTeachersPool,
-  rolloverReactivate
+  rolloverReactivate,
+  getPromotionPreview,
+  promoteStudentsYearEnd
 };

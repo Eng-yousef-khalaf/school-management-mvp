@@ -218,7 +218,8 @@ async function getStudentById(id, user) {
     absent: allAttendance.filter(a => a.status === 'ABSENT').length,
     late: allAttendance.filter(a => a.status === 'LATE').length,
     excused: allAttendance.filter(a => a.status === 'EXCUSED').length,
-    percentage: 0
+    percentage: null,
+    isNewStudent: allAttendance.length === 0
   };
 
   if (attendanceSummary.totalDays > 0) {
@@ -371,9 +372,140 @@ async function deactivateStudent(id, user, req) {
   return updated;
 }
 
+async function getPublicStudentInquiry(identifier) {
+  if (!identifier || typeof identifier !== 'string' || !identifier.trim()) {
+    return null;
+  }
+  const cleanId = identifier.trim();
+
+  // Find strictly by exact studentNumber (personal identifier) to ensure privacy
+  const student = await prisma.student.findFirst({
+    where: {
+      studentNumber: cleanId
+    },
+    include: {
+      enrollments: {
+        include: {
+          class: {
+            include: {
+              academicYear: true
+            }
+          }
+        },
+        orderBy: { enrolledAt: 'desc' },
+        take: 1
+      },
+      attendance: {
+        orderBy: { date: 'desc' },
+        take: 30
+      },
+      grades: {
+        include: {
+          subject: true,
+          class: true
+        },
+        orderBy: { date: 'desc' }
+      }
+    }
+  });
+
+  if (!student) return null;
+
+  // Attendance summary
+  const allAttendance = await prisma.attendance.findMany({
+    where: { studentId: student.id },
+    select: { status: true, date: true }
+  });
+
+  const totalDays = allAttendance.length;
+  const present = allAttendance.filter(a => a.status === 'PRESENT').length;
+  const absent = allAttendance.filter(a => a.status === 'ABSENT').length;
+  const late = allAttendance.filter(a => a.status === 'LATE').length;
+  const excused = allAttendance.filter(a => a.status === 'EXCUSED').length;
+
+  const attendancePercentage = totalDays > 0
+    ? Math.round(((present + late) / totalDays) * 100)
+    : null;
+
+  // Grades summary
+  const subjectGrades = {};
+  let totalScore = 0;
+  let totalMaxScore = 0;
+
+  student.grades.forEach(g => {
+    const subName = g.subject.name;
+    if (!subjectGrades[subName]) {
+      subjectGrades[subName] = {
+        subjectCode: g.subject.code,
+        subjectName: subName,
+        scores: []
+      };
+    }
+    const percent = Math.round((g.score / g.maxScore) * 100);
+    subjectGrades[subName].scores.push({
+      examName: g.examName,
+      score: g.score,
+      maxScore: g.maxScore,
+      percentage: percent,
+      date: g.date
+    });
+    totalScore += g.score;
+    totalMaxScore += g.maxScore;
+  });
+
+  const subjectSummary = Object.values(subjectGrades).map(sub => {
+    const subAvg = Math.round(
+      sub.scores.reduce((acc, cur) => acc + cur.percentage, 0) / (sub.scores.length || 1)
+    );
+    return {
+      ...sub,
+      averagePercentage: subAvg
+    };
+  });
+
+  const overallAverage = totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : null;
+  const isNewStudent = totalDays === 0 && student.grades.length === 0;
+  const currentEnrollment = student.enrollments[0] || null;
+
+  return {
+    id: student.id,
+    studentNumber: student.studentNumber,
+    firstName: student.firstName,
+    middleName: student.middleName || '',
+    lastName: student.lastName,
+    fullName: `${student.firstName} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName}`,
+    gender: student.gender,
+    status: student.status,
+    currentClass: currentEnrollment?.class?.name || null,
+    grade: currentEnrollment?.class?.grade || null,
+    academicYear: currentEnrollment?.class?.academicYear?.name || null,
+    overallAverage,
+    isNewStudent,
+    attendanceSummary: {
+      totalDays,
+      present,
+      absent,
+      late,
+      excused,
+      percentage: attendancePercentage,
+      isNewStudent: totalDays === 0
+    },
+    subjectSummary,
+    recentGrades: student.grades.slice(0, 10).map(g => ({
+      subjectName: g.subject.name,
+      examName: g.examName,
+      score: g.score,
+      maxScore: g.maxScore,
+      percentage: Math.round((g.score / g.maxScore) * 100),
+      date: g.date
+    }))
+  };
+}
+
 module.exports = {
   getStudents,
   getStudentById,
+  getPublicStudentInquiry,
   createStudent,
   updateStudent,
   deactivateStudent

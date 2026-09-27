@@ -37,10 +37,29 @@ import DeveloperFleetDashboard from './pages/Developer/DeveloperFleetDashboard';
 import DailyMotivationalModal from './components/common/DailyMotivationalModal';
 import FeeManagement from './pages/Fees/FeeManagement';
 import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
+import ParentInquiryPortal from './pages/Parent/ParentInquiryPortal';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole, logout } = useAuth();
   const { t, isRtl } = useLanguage();
+
+  const [isParentInquiryPortal, setIsParentInquiryPortal] = useState(() => {
+    const search = window.location.search.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    return (
+      path.includes('inquiry') ||
+      path.includes('parent-inquiry') ||
+      path.includes('parents') ||
+      hash.includes('inquiry') ||
+      hash.includes('parent-inquiry') ||
+      hash.includes('parents') ||
+      search.includes('portal=inquiry') ||
+      search.includes('portal=parents') ||
+      search.includes('inquiry=') ||
+      search.includes('studentid=')
+    );
+  });
 
   const [isDeveloperPortal, setIsDeveloperPortal] = useState(() => {
     const search = window.location.search.toLowerCase();
@@ -102,6 +121,18 @@ export default function App() {
         return;
       }
 
+      const isParentInq =
+        path.includes('inquiry') ||
+        path.includes('parent-inquiry') ||
+        path.includes('parents') ||
+        hash.includes('inquiry') ||
+        hash.includes('parent-inquiry') ||
+        hash.includes('parents') ||
+        search.includes('portal=inquiry') ||
+        search.includes('portal=parents') ||
+        search.includes('inquiry=') ||
+        search.includes('studentid=');
+
       const isDev =
         path.includes('developer-hub') ||
         path.includes('dev-hub') ||
@@ -122,6 +153,7 @@ export default function App() {
         search.includes('portal=parent') ||
         search.includes('role=parent');
 
+      setIsParentInquiryPortal(isParentInq);
       setIsDeveloperPortal(isDev);
       setIsParentPortal(isParent);
 
@@ -148,6 +180,24 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlRoute);
     };
   }, [user, switchPortalRole, logout]);
+
+  // If in standalone parent inquiry portal route, render parent student inquiry portal
+  if (isParentInquiryPortal) {
+    return (
+      <ParentInquiryPortal
+        onExitToSchool={() => {
+          window.location.hash = '';
+          window.location.search = '';
+          window.history.pushState({}, '', '/');
+          setIsParentInquiryPortal(false);
+        }}
+        onNavigateToFees={() => {
+          setIsParentInquiryPortal(false);
+          setIsParentPortal(true);
+        }}
+      />
+    );
+  }
 
   // If in standalone parent payment portal route, render parent portal
   if (isParentPortal) {

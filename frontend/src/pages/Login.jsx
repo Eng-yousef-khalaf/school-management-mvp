@@ -254,8 +254,47 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Parent Tuition Portal Shortcut */}
+          {/* Parent Portals Section */}
           <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border-color)' }}>
+            {/* Direct Parent Student Inquiry Portal */}
+            <a
+              href="#inquiry"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.hash = '#inquiry';
+                window.location.reload();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '13px 16px',
+                background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%)',
+                border: '1.5px solid rgba(99, 102, 241, 0.35)',
+                borderRadius: 'var(--radius-md)',
+                textDecoration: 'none',
+                color: 'var(--text-main)',
+                transition: 'var(--transition)',
+                marginBottom: 10,
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.06)'
+              }}
+              className="panel"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 22 }}>🎓</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--primary)' }}>
+                    {isRtl ? 'بوابة أولياء الأمور للاستعلام عن الطالب' : 'Parent Student Inquiry Portal'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {isRtl ? 'استعلام مباشر بالمعرف الشخصي عن الدرجات والدوام' : 'Direct public lookup by ID for grades & attendance'}
+                  </div>
+                </div>
+              </div>
+              <span style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '16px' }}>{isRtl ? '←' : '→'}</span>
+            </a>
+
+            {/* Direct Parent Tuition Payment Portal */}
             <a
               href="#pay"
               onClick={(e) => {
@@ -280,11 +319,11 @@ export default function Login() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 20 }}>💳</span>
                 <div>
-                  <div style={{ fontSize: '12.5px', fontWeight: 800, color: 'var(--primary)' }}>
-                    {isRtl ? 'بوابة أولياء الأمور وسداد الرسوم' : 'Parent Tuition Payment Portal'}
+                  <div style={{ fontSize: '12.5px', fontWeight: 800, color: 'var(--text-main)' }}>
+                    {isRtl ? 'بوابة سداد الرسوم والأقساط المدرسية' : 'Parent Tuition Payment Portal'}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    {isRtl ? 'دخول مباشر بدون حساب للدفع والاستعلام' : 'Direct public access without login'}
+                    {isRtl ? 'تسديد الرسوم وإرفاق الحوالات البنكية' : 'Pay tuition & submit transaction receipts'}
                   </div>
                 </div>
               </div>

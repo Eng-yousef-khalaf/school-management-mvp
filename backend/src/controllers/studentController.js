@@ -22,6 +22,22 @@ async function getStudentById(req, res, next) {
   }
 }
 
+async function getPublicStudentInquiry(req, res, next) {
+  try {
+    const identifier = req.query.identifier || req.query.studentNumber || req.query.q;
+    if (!identifier) {
+      return res.status(400).json({ error: 'Student identifier is required' });
+    }
+    const student = await studentService.getPublicStudentInquiry(identifier);
+    if (!student) {
+      return res.status(404).json({ error: 'لم يتم العثور على طالب مطابق لهذا المعرف. يرجى التحقق من الرقم المدخل.' });
+    }
+    res.json(student);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function createStudent(req, res, next) {
   try {
     const student = await studentService.createStudent(req.body, req.user, req);
@@ -117,6 +133,7 @@ async function exportStudents(req, res, next) {
 module.exports = {
   getStudents,
   getStudentById,
+  getPublicStudentInquiry,
   createStudent,
   updateStudent,
   deactivateStudent,

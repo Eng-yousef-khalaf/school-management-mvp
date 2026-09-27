@@ -1346,6 +1346,77 @@ export function handleMockRequest(path, options = {}) {
     return { ok: true, message: 'Academic year activated' };
   }
 
+  // Academic Year Promotion Endpoints
+  if (cleanPath === '/academic-years/promote-preview') {
+    const students = getMockStudents().filter(s => s.status === 'ACTIVE');
+    const half = Math.ceil(students.length / 2);
+    const groups = [
+      {
+        currentGrade: '7',
+        currentClassName: 'الصف السابع',
+        isGraduating: false,
+        targetGrade: '8',
+        targetGradeNameAr: 'الصف الثامن (قيد التوزيع)',
+        studentCount: half,
+        sampleStudents: students.slice(0, 3).map(s => ({ id: s.id, name: s.fullName || s.firstName, number: s.studentNumber }))
+      },
+      {
+        currentGrade: '12',
+        currentClassName: 'الصف الثاني عشر (توجيهي)',
+        isGraduating: true,
+        targetGrade: 'خريج',
+        targetGradeNameAr: 'خريجون',
+        studentCount: Math.max(0, students.length - half),
+        sampleStudents: students.slice(half, half + 3).map(s => ({ id: s.id, name: s.fullName || s.firstName, number: s.studentNumber }))
+      }
+    ];
+    return {
+      sourceYear: { id: 1, name: '2026/2027' },
+      targetYear: { id: 2, name: '2027/2028' },
+      totalStudents: students.length,
+      totalPromotable: half,
+      totalGraduating: Math.max(0, students.length - half),
+      groups
+    };
+  }
+
+  if (cleanPath === '/academic-years/promote-students') {
+    const students = getMockStudents();
+    let promoted = 0;
+    let graduated = 0;
+    const updated = students.map((s, idx) => {
+      if (s.status !== 'ACTIVE') return s;
+      if (idx % 2 === 0) {
+        promoted++;
+        const currNum = parseInt(s.grade || '7', 10) || 7;
+        const nextNum = currNum < 12 ? currNum + 1 : 12;
+        return {
+          ...s,
+          grade: `${nextNum}`,
+          className: `الصف ${nextNum} (قيد التوزيع)`,
+          currentClass: `الصف ${nextNum} (قيد التوزيع)`,
+          academicYear: '2027/2028'
+        };
+      } else {
+        graduated++;
+        return {
+          ...s,
+          status: 'GRADUATED'
+        };
+      }
+    });
+    saveMockStudents(updated);
+    return {
+      success: true,
+      message: `تم الترفيع بنجاح: تم ترفيع ${promoted} طالباً للصفوف التالية بدون شعب مسبقة، وتخريج ${graduated} طالباً.`,
+      promotedCount: promoted,
+      graduatedCount: graduated,
+      totalProcessed: promoted + graduated,
+      sourceYearName: '2026/2027',
+      targetYearName: '2027/2028'
+    };
+  }
+
   // 5. Dashboards
   if (cleanPath === '/dashboard') {
     return {
@@ -1612,6 +1683,59 @@ export function handleMockRequest(path, options = {}) {
     return teachers.find((t) => t.id === id) || teachers[0];
   }
 
+  // Public student inquiry for parents (single personal identifier lookup)
+  if (cleanPath === '/students/public/inquiry') {
+    const identifier = (searchParams.get('identifier') || searchParams.get('studentNumber') || searchParams.get('q') || '').trim();
+    if (!identifier) {
+      const err = new Error('Student identifier is required');
+      err.status = 400;
+      throw err;
+    }
+    const students = getMockStudents();
+    const student = students.find(s =>
+      String(s.studentNumber || '').trim().toLowerCase() === identifier.toLowerCase() ||
+      String(s.code || '').trim().toLowerCase() === identifier.toLowerCase() ||
+      String(s.id) === identifier
+    );
+
+    if (!student) {
+      const err = new Error('لم يتم العثور على طالب مطابق لهذا المعرف. يرجى التحقق من الرقم المدخل.');
+      err.status = 404;
+      throw err;
+    }
+
+    const isNewlyAdded = student.id > 10 || student.isNewStudent || student.overallAverage === null;
+    return {
+      id: student.id,
+      studentNumber: student.studentNumber,
+      firstName: student.firstName,
+      middleName: student.middleName || '',
+      lastName: student.lastName,
+      fullName: student.fullName || `${student.firstName} ${student.lastName}`,
+      gender: student.gender,
+      status: student.status || 'ACTIVE',
+      currentClass: student.currentClass || student.className || 'الصف السابع أ',
+      grade: student.grade || '7',
+      academicYear: student.academicYear || '2026/2027',
+      overallAverage: isNewlyAdded ? null : (student.overallAverage ?? 91),
+      isNewStudent: isNewlyAdded,
+      attendanceSummary: isNewlyAdded
+        ? { percentage: null, present: 0, absent: 0, late: 0, excused: 0, totalDays: 0, isNewStudent: true }
+        : { percentage: 96, present: 24, absent: 1, late: 1, excused: 0, totalDays: 26, isNewStudent: false },
+      subjectSummary: isNewlyAdded ? [] : [
+        { subjectCode: 'MATH', subjectName: 'الرياضيات العامة (Mathematics)', averagePercentage: 92 },
+        { subjectCode: 'ENG', subjectName: 'اللغة الإنجليزية (English Language)', averagePercentage: 88 },
+        { subjectCode: 'SCI', subjectName: 'العلوم العامة والفيزياء (General Science)', averagePercentage: 94 },
+        { subjectCode: 'ARAB', subjectName: 'اللغة العربية وقواعدها (Arabic Literature)', averagePercentage: 95 }
+      ],
+      recentGrades: isNewlyAdded ? [] : [
+        { subjectName: 'الرياضيات', examName: 'الاختبار النصفي', score: 28, maxScore: 30, percentage: 93 },
+        { subjectName: 'العلوم العامة', examName: 'الاختبار النصفي', score: 29, maxScore: 30, percentage: 97 },
+        { subjectName: 'اللغة العربية', examName: 'المهمة الأدائية', score: 20, maxScore: 20, percentage: 100 }
+      ]
+    };
+  }
+
   // 9. Students
   if (cleanPath === '/students') {
     const students = getMockStudents();
@@ -1644,6 +1768,8 @@ export function handleMockRequest(path, options = {}) {
         parentPhone: body.parentPhone || '',
         contactPhone: body.parentPhone || body.phone || '',
         address: body.address || '',
+        overallAverage: null,
+        isNewStudent: true,
         createdAt: new Date().toISOString(),
       };
       const updated = [newStudent, ...students];
@@ -1794,10 +1920,30 @@ export function handleMockRequest(path, options = {}) {
       return { ok: true, message: 'Student deleted successfully' };
     }
     const student = students.find((s) => s.id === id) || students[0];
+    const isNewlyAdded = student && (student.id > 10 || student.isNewStudent || student.overallAverage === null);
+    if (isNewlyAdded) {
+      return {
+        ...student,
+        overallAverage: null,
+        isNewStudent: true,
+        attendanceSummary: {
+          percentage: null,
+          present: 0,
+          absent: 0,
+          late: 0,
+          excused: 0,
+          totalDays: 0,
+          isNewStudent: true
+        },
+        subjectSummary: [],
+        grades: [],
+        attendance: []
+      };
+    }
     return {
       ...student,
       overallAverage: 91,
-      attendanceSummary: { percentage: 96, present: 24, absent: 1, late: 1, excused: 0, totalDays: 26 },
+      attendanceSummary: { percentage: 96, present: 24, absent: 1, late: 1, excused: 0, totalDays: 26, isNewStudent: false },
       subjectSummary: [
         { 
           subjectCode: 'MATH', 

@@ -8,6 +8,7 @@ import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import AddEditYearModal from './AddEditYearModal';
 import TeacherRolloverModal from '../Teachers/TeacherRolloverModal';
+import StudentPromotionModal from './StudentPromotionModal';
 import { PlusIcon, EditIcon, CheckIcon } from '../../components/common/Icons';
 
 export default function AcademicYearList() {
@@ -21,6 +22,7 @@ export default function AcademicYearList() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRolloverOpen, setIsRolloverOpen] = useState(false);
+  const [isPromotionOpen, setIsPromotionOpen] = useState(false);
   const [editingYear, setEditingYear] = useState(null);
 
   const canManage = canManageAcademicYears ?? isAdmin;
@@ -74,6 +76,22 @@ export default function AcademicYearList() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {isAdmin && (
+              <button
+                className="btn btn-sm"
+                onClick={() => setIsPromotionOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  color: '#fff',
+                  fontWeight: 800,
+                  border: 'none',
+                  boxShadow: '0 2px 6px rgba(124, 58, 237, 0.3)',
+                  padding: '6px 14px'
+                }}
+              >
+                🎓 {isRtl ? 'الترفيع والترقية السنوية للطلاب' : 'Promote & Graduate Students'}
+              </button>
+            )}
             {isAdmin && (
               <button
                 className="btn btn-secondary btn-sm"
@@ -201,6 +219,17 @@ export default function AcademicYearList() {
           isOpen={isRolloverOpen}
           onClose={() => setIsRolloverOpen(false)}
           onSaved={loadYears}
+        />
+      )}
+
+      {isPromotionOpen && (
+        <StudentPromotionModal
+          isOpen={isPromotionOpen}
+          onClose={() => setIsPromotionOpen(false)}
+          academicYears={years}
+          onPromotedSuccess={() => {
+            loadYears();
+          }}
         />
       )}
     </div>

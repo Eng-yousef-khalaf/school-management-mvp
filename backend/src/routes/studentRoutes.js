@@ -9,6 +9,9 @@ const { staffOrAdmin } = require('../middleware/rbacMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const { studentSchema } = require('../utils/validators');
 
+// Public student lookup for parents (single identifier search - strictly protected)
+router.get('/public/inquiry', studentController.getPublicStudentInquiry);
+
 router.use(authMiddleware);
 
 router.get('/', studentController.getStudents);

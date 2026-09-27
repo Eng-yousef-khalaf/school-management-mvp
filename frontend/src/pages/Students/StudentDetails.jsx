@@ -142,7 +142,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{
               background: gpaInfo ? gpaInfo.bg : 'var(--bg-main)',
-              border: '1px solid var(--border-color)',
+              border: `1px solid ${gpaInfo ? gpaInfo.color : 'var(--border-color)'}`,
               padding: '12px 18px',
               borderRadius: 'var(--radius-md)',
               textAlign: 'center',
@@ -151,30 +151,50 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
               <span style={{ fontSize: 11, fontWeight: 700, color: gpaInfo ? gpaInfo.color : 'var(--text-muted)', display: 'block' }}>
                 {isRtl ? 'المعدل الأكاديمي' : 'OVERALL GPA'}
               </span>
-              <div style={{ fontSize: 26, fontWeight: 900, color: gpaInfo ? gpaInfo.color : 'var(--text-main)', marginTop: 2 }}>
-                {overallAverage !== null ? `${overallAverage}%` : '—'}
+              <div style={{ fontSize: 24, fontWeight: 900, color: gpaInfo ? gpaInfo.color : 'var(--text-main)', marginTop: 2 }}>
+                {overallAverage !== null ? `${overallAverage}%` : (isRtl ? 'قيد الرصد' : 'Pending')}
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, color: gpaInfo ? gpaInfo.color : 'var(--text-muted)' }}>
-                {gpaInfo ? (isRtl ? gpaInfo.textAr : gpaInfo.textEn) : 'No Exams'}
+                {overallAverage !== null ? (isRtl ? gpaInfo.textAr : gpaInfo.textEn) : (isRtl ? 'طالب جديد - لا توجد اختبارات' : 'New Student - No Exams')}
               </span>
             </div>
 
             <div style={{
-              background: attendanceSummary.percentage >= 85 ? 'var(--success-light)' : 'var(--warning-light)',
+              background: (!attendanceSummary || attendanceSummary.totalDays === 0 || attendanceSummary.percentage === null)
+                ? 'var(--bg-main)'
+                : (attendanceSummary.percentage >= 85 ? 'var(--success-light)' : 'var(--warning-light)'),
               border: '1px solid var(--border-color)',
               padding: '12px 18px',
               borderRadius: 'var(--radius-md)',
               textAlign: 'center',
               minWidth: 130
             }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: attendanceSummary.percentage >= 85 ? 'var(--success)' : 'var(--warning)', display: 'block' }}>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: (!attendanceSummary || attendanceSummary.totalDays === 0 || attendanceSummary.percentage === null)
+                  ? 'var(--text-muted)'
+                  : (attendanceSummary.percentage >= 85 ? 'var(--success)' : 'var(--warning)'),
+                display: 'block'
+              }}>
                 {isRtl ? 'نسبة الحضور' : 'ATTENDANCE'}
               </span>
-              <div style={{ fontSize: 26, fontWeight: 900, color: attendanceSummary.percentage >= 85 ? 'var(--success)' : 'var(--warning)', marginTop: 2 }}>
-                {attendanceSummary.percentage}%
+              <div style={{
+                fontSize: 24,
+                fontWeight: 900,
+                color: (!attendanceSummary || attendanceSummary.totalDays === 0 || attendanceSummary.percentage === null)
+                  ? 'var(--text-muted)'
+                  : (attendanceSummary.percentage >= 85 ? 'var(--success)' : 'var(--warning)'),
+                marginTop: 2
+              }}>
+                {(!attendanceSummary || attendanceSummary.totalDays === 0 || attendanceSummary.percentage === null)
+                  ? (isRtl ? 'سجل جديد' : 'New Record')
+                  : `${attendanceSummary.percentage}%`}
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>
-                {attendanceSummary.present} / {attendanceSummary.totalDays} {isRtl ? 'يوم' : 'days'}
+                {(!attendanceSummary || attendanceSummary.totalDays === 0)
+                  ? (isRtl ? 'لا يوجد غياب مسجل' : 'No Absences Recorded')
+                  : `${attendanceSummary.present} / ${attendanceSummary.totalDays} ${isRtl ? 'يوم' : 'days'}`}
               </span>
             </div>
           </div>
