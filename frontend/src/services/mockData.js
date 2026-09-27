@@ -1252,6 +1252,10 @@ export function handleMockRequest(path, options = {}) {
   const method = (options.method || 'GET').toUpperCase();
   const [cleanPath, queryString] = path.split('?');
   const searchParams = new URLSearchParams(queryString || '');
+  let data = {};
+  try {
+    data = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
+  } catch {}
 
   // 1. Auth: Login
   if (cleanPath === '/auth/login' && method === 'POST') {

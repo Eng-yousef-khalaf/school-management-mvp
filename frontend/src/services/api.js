@@ -105,9 +105,10 @@ export async function request(path, options = {}) {
   }
 
   const now = Date.now();
+  const isOnRender = typeof window !== 'undefined' && window.location.origin.includes('onrender.com');
 
-  // 3. Fast-path: If backend is known offline or unverified on web without custom VITE_API_URL, serve mock instantly (0ms)
-  if (!backendStatus.isAvailable && !configuredApiUrl) {
+  // 3. Fast-path: Only serve mock on client-only hosts (like vercel.app preview) without a live backend
+  if (!isOnRender && !backendStatus.isAvailable && !configuredApiUrl) {
     const mockRes = handleMockRequest(path, options);
     if (isGet) {
       queryCache.set(cacheKey, { data: mockRes, timestamp: now });
@@ -115,8 +116,8 @@ export async function request(path, options = {}) {
     return mockRes;
   }
 
-  // If backend recently failed within cooldown, immediately use mock engine (0ms)
-  if (backendStatus.isAvailable === false && now - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) {
+  // If backend recently failed within cooldown, immediately use mock engine on client-only previews
+  if (!isOnRender && backendStatus.isAvailable === false && now - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) {
     const mockRes = handleMockRequest(path, options);
     if (isGet) {
       queryCache.set(cacheKey, { data: mockRes, timestamp: now });

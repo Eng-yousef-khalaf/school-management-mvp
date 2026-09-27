@@ -194,16 +194,20 @@ export default function TeacherDashboard({ onNavigate }) {
               ))}
             </div>
           ) : (
-            <div style={{ padding: '32px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>🏫</div>
-              <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', margin: '0 0 6px 0' }}>
-                {isRtl ? 'لم يتم تعيين شعب دراسية لهذا الحساب بعد' : 'No Class Sections Assigned Yet'}
+            <div style={{ padding: '36px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>👨‍🏫</div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-main)', margin: '0 0 8px 0' }}>
+                {isRtl ? `أهلاً بك أستاذ ${user?.fullName || ''} في المنظومة المدرسية` : `Welcome Instructor ${user?.fullName || ''}`}
               </h4>
-              <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, maxWidth: 500, marginInline: 'auto' }}>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '0 auto 14px', maxWidth: 520, lineHeight: 1.6 }}>
                 {isRtl
-                  ? 'يمكنك مراجعة شؤون الطلاب لتعيين الشعب والمواد المسندة، أو اختيار حساب المعلم "أحمد خليل" أو "سارة منصور" من صفحة الدخول لمعاينة الشعب الجاهزة.'
-                  : 'Contact staff affairs to allocate your class schedule, or switch to Ahmed Khalil from login to view active classes.'}
+                  ? 'تم تفعيل واعتماد حسابك كمعلم رسمي في المنظومة بنجاح. بمجرد قيام إدارة المدرسة بإنشاء وتوزيع الشعب الدراسية للعام الجديد، ستظهر هنا فوراً لرصد الحضور والدرجات.'
+                  : 'Your teacher account is authenticated and active. Once class sections are allocated by administration, they will appear here.'}
               </p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ecfdf5', color: '#047857', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 800 }}>
+                <span>✅</span>
+                <span>{isRtl ? 'حسابك معتمد ومفعل بصلاحيات معلم كاملة' : 'Account active with full faculty privileges'}</span>
+              </div>
             </div>
           )}
         </div>
