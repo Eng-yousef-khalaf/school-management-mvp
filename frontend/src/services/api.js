@@ -51,24 +51,25 @@ if (typeof window !== 'undefined') {
  */
 async function probeBackendInBackground() {
   if (backendStatus.isProbing || !API_BASE_URL) return;
+  const isOnRender = typeof window !== 'undefined' && window.location.origin.includes('onrender.com');
+  if (isOnRender) {
+    backendStatus.isAvailable = true;
+    return;
+  }
   if (Date.now() - backendStatus.lastFailure < BACKEND_RETRY_COOLDOWN_MS) return;
 
   backendStatus.isProbing = true;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 600);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
     const res = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal });
     clearTimeout(timeoutId);
     if (res.ok) {
       backendStatus.isAvailable = true;
       backendStatus.lastChecked = Date.now();
-    } else {
-      backendStatus.isAvailable = false;
-      backendStatus.lastFailure = Date.now();
     }
   } catch {
-    backendStatus.isAvailable = false;
-    backendStatus.lastFailure = Date.now();
+    // Non-blocking
   } finally {
     backendStatus.isProbing = false;
   }
@@ -202,24 +203,25 @@ export async function request(path, options = {}) {
       queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
     }
 
+    return result;
   } catch (networkOrTimeoutError) {
     clearTimeout(timeoutId);
 
     const isAborted = networkOrTimeoutError.name === 'AbortError' || String(networkOrTimeoutError.message).includes('aborted');
 
     if (!isGet) {
-      // If clean-slate or developer operation timed out, execute local state reset so client is not stuck
-      if (path.includes('clean-slate')) {
-        const mockRes = handleMockRequest(path, options);
-        return mockRes;
-      }
       if (isAborted) {
         throw new Error('استغرقت العملية وقتاً أطول من المتوقع على الخادم، يرجى المحاولة مجدداً.');
       }
       throw networkOrTimeoutError;
     }
 
-    // Fallback to mock if available or on preview
+    // Never return mock on live Render backend
+    if (isOnRender) {
+      throw networkOrTimeoutError;
+    }
+
+    // Fallback to mock ONLY on client-only previews (e.g. vercel)
     const mockRes = handleMockRequest(path, options);
     queryCache.set(cacheKey, { data: mockRes, timestamp: Date.now() });
     return mockRes;

@@ -150,48 +150,48 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const fetchTelemetry = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/developer/system-stats').catch(() => null);
+      const res = await api.get('/developer/system-stats', { noCache: true }).catch(() => null);
       if (res && res.stats) {
         setTelemetry(res);
       } else {
-        // Fallback state
+        // Real clean fallback state (0 dummy data)
         setTelemetry({
           currentSchool: {
-            code: config.schoolCode,
-            nameAr: config.schoolNameAr,
-            nameEn: config.schoolNameEn,
+            code: config.schoolCode || 'SCH-001',
+            nameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
+            nameEn: config.schoolNameEn || 'Judhoor Model Private School',
             databaseType: 'PostgreSQL (Dedicated Instance)',
-            studentsCount: 200,
-            teachersCount: 15,
-            classesCount: 8,
-            totalRecords: 1650,
-            storageUsedMb: 1.42,
+            studentsCount: 0,
+            teachersCount: 0,
+            classesCount: 0,
+            totalRecords: 0,
+            storageUsedMb: 0.05,
             storageLimitMb: config.allocatedStorageMb || 500,
-            storagePercent: 0.28,
+            storagePercent: 0.01,
             latencyMs: 12,
             tables: {
-              students: 200,
-              teachers: 15,
-              classes: 8,
-              enrollments: 200,
-              attendance: 840,
-              grades: 320,
-              studentFees: 200,
-              payments: 45,
-              auditLogs: 150,
-              users: 18,
-              subjects: 12,
-              academicYears: 3,
+              students: 0,
+              teachers: 0,
+              classes: 0,
+              enrollments: 0,
+              attendance: 0,
+              grades: 0,
+              studentFees: 0,
+              payments: 0,
+              auditLogs: 0,
+              users: 1,
+              subjects: 0,
+              academicYears: 1,
             },
           },
           stats: {
-            totalStudents: 200,
-            totalTeachers: 15,
-            totalClasses: 8,
-            totalRecords: 1650,
-            totalStorageUsedMb: 1.42,
+            totalStudents: 0,
+            totalTeachers: 0,
+            totalClasses: 0,
+            totalRecords: 0,
+            totalStorageUsedMb: 0.05,
             totalStorageLimitMb: config.allocatedStorageMb || 500,
-            fleetStoragePercent: 0.28,
+            fleetStoragePercent: 0.01,
             latencyMs: 12,
             healthStatus: 'ALL_SYSTEMS_OPERATIONAL',
             serverUptimeSec: 3600,
@@ -320,17 +320,28 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     try {
       setIsCleaningSlate(true);
       const res = await api.post('/developer/clean-slate', {
-        principalName: principalForm.fullName.trim(),
-        principalEmail: principalForm.email.trim(),
-        principalPassword: principalForm.password.trim() || undefined,
+        principalName: (principalForm.fullName || handoverData.adminFullName || 'أ. عبد الرحمن خليل (المدير العام)').trim(),
+        principalEmail: (principalForm.email || handoverData.adminEmail || 'admin@school.local').trim(),
+        principalPassword: (principalForm.password || handoverData.adminPassword || '').trim() || undefined,
       }, { timeout: 45000 });
 
-      if (res?.ok) {
+      // Clean all demo caches from localStorage
+      try {
+        localStorage.removeItem('school_students');
+        localStorage.removeItem('school_teachers');
+        localStorage.removeItem('school_classes');
+        localStorage.removeItem('school_subjects');
+        localStorage.removeItem('school_attendance');
+        localStorage.removeItem('school_grades');
+        localStorage.removeItem('school_staff');
+      } catch {}
+
+      if (res?.ok || res?.message) {
         toast.success(res.message || (isRtl ? 'تم تصفير المنظومة وحذف البيانات الوهمية بنجاح تام! المنظومة نقية وجاهزة 100%.' : 'Clean slate completed successfully!'));
         await fetchTelemetry();
         await fetchPrincipal();
       } else {
-        toast.error(res?.error || 'Failed to perform clean slate');
+        toast.error(res?.error || (isRtl ? 'فشلت عملية التصفير' : 'Failed to perform clean slate'));
       }
     } catch (err) {
       toast.error(err.message || 'Clean slate operation failed');
@@ -364,10 +375,20 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const handleClearCache = () => {
     setIsClearingCache(true);
     api.clearCache();
+    try {
+      localStorage.removeItem('school_students');
+      localStorage.removeItem('school_teachers');
+      localStorage.removeItem('school_classes');
+      localStorage.removeItem('school_subjects');
+      localStorage.removeItem('school_attendance');
+      localStorage.removeItem('school_grades');
+      localStorage.removeItem('school_staff');
+    } catch {}
     setTimeout(() => {
       setIsClearingCache(false);
-      toast.success(isRtl ? 'تم مسح ذاكرة التخزين المؤقت (Query Cache) بنجاح!' : 'API Cache cleared successfully!');
-    }, 400);
+      toast.success(isRtl ? 'تم مسح وتصفير الذاكرة المؤقتة (Cache) بالكامل بنجاح!' : 'API & Local Cache purged successfully!');
+      fetchTelemetry();
+    }, 300);
   };
 
   const handleExportBackup = async (format = 'sql') => {
