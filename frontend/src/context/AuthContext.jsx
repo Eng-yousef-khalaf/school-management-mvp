@@ -58,7 +58,8 @@ export function AuthProvider({ children }) {
 
   const getFallbackUser = (email) => {
     let userRole = 'ADMIN';
-    let fullName = 'أ. عبد الرحمن خليل (المدير العام)';
+    const savedPrincipalName = typeof window !== 'undefined' ? (localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)') : 'أ. عبد الرحمن خليل (المدير العام)';
+    let fullName = savedPrincipalName;
     let teacherId = null;
     let id = 1;
 
@@ -227,6 +228,23 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     fetchProfile();
+    const handlePrincipalSync = () => {
+      const savedName = localStorage.getItem('school_principal_name');
+      if (savedName) {
+        setUser((prev) => {
+          if (prev && prev.role === 'ADMIN') {
+            return { ...prev, fullName: savedName };
+          }
+          return prev;
+        });
+      }
+    };
+    window.addEventListener('storage', handlePrincipalSync);
+    window.addEventListener('principal-updated', handlePrincipalSync);
+    return () => {
+      window.removeEventListener('storage', handlePrincipalSync);
+      window.removeEventListener('principal-updated', handlePrincipalSync);
+    };
   }, [fetchProfile]);
 
   const isAdmin = user?.role === 'ADMIN' || user?.isDeveloper;

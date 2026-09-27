@@ -2449,6 +2449,59 @@ export function handleMockRequest(path, options = {}) {
     };
   }
 
+  // 15.9. Developer Principal Management
+  if (cleanPath === '/developer/principal' && method === 'GET') {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('school_principal_info') : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ok: true, principal: parsed };
+      } catch {}
+    }
+    return {
+      ok: true,
+      principal: {
+        fullName: 'أ. عبد الرحمن خليل (المدير العام)',
+        email: 'admin@school.local',
+        role: 'ADMIN'
+      }
+    };
+  }
+
+  if (cleanPath === '/developer/update-principal' && method === 'POST') {
+    const { fullName, email, password } = data || {};
+    const cleanName = fullName?.trim() || 'أ. عبد الرحمن خليل (المدير العام)';
+    const cleanEmail = email?.trim()?.toLowerCase() || 'admin@school.local';
+    const principalInfo = {
+      fullName: cleanName,
+      email: cleanEmail,
+      role: 'ADMIN',
+      updatedAt: new Date().toISOString()
+    };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('school_principal_info', JSON.stringify(principalInfo));
+      localStorage.setItem('school_principal_name', cleanName);
+      const curUser = sessionStorage.getItem('user');
+      if (curUser) {
+        try {
+          const u = JSON.parse(curUser);
+          if (u.role === 'ADMIN') {
+            u.fullName = cleanName;
+            u.email = cleanEmail;
+            sessionStorage.setItem('user', JSON.stringify(u));
+            localStorage.setItem('user', JSON.stringify(u));
+          }
+        } catch {}
+      }
+      window.dispatchEvent(new Event('storage'));
+    }
+    return {
+      ok: true,
+      message: 'Principal details updated successfully',
+      principal: principalInfo
+    };
+  }
+
   // 16. Developer Diagnostics
   if (cleanPath === '/developer/system-stats' || cleanPath === '/developer/fleet-stats') {
     return {

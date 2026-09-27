@@ -559,4 +559,89 @@ router.get('/export-backup-sql', (req, res) => {
 });
 router.get('/export-database-snapshot', exportBackupHandler);
 
+/**
+ * GET /api/developer/principal
+ * Retrieve current principal / super-admin user information
+ */
+router.get('/principal', async (req, res) => {
+  try {
+    const admin = await prisma.user.findFirst({
+      where: { role: 'ADMIN' },
+      select: { id: true, fullName: true, email: true, role: true, createdAt: true }
+    });
+
+    return res.json({
+      ok: true,
+      principal: admin || {
+        fullName: 'أ. عبد الرحمن خليل (المدير العام)',
+        email: 'admin@school.local',
+        role: 'ADMIN'
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/developer/update-principal
+ * Developer tool to designate principal name, email and password for official handover
+ */
+router.post('/update-principal', async (req, res) => {
+  try {
+    const { fullName, email, password } = req.body;
+    if (!fullName || !fullName.trim()) {
+      return res.status(400).json({ ok: false, error: 'Principal name is required' });
+    }
+
+    const cleanName = fullName.trim();
+    const cleanEmail = email ? email.trim().toLowerCase() : 'admin@school.local';
+    const bcrypt = require('bcryptjs');
+
+    let admin = await prisma.user.findFirst({
+      where: { role: 'ADMIN' }
+    });
+
+    const updateData = {
+      fullName: cleanName,
+      email: cleanEmail
+    };
+
+    if (password && password.trim()) {
+      updateData.passwordHash = await bcrypt.hash(password.trim(), 12);
+    }
+
+    if (admin) {
+      admin = await prisma.user.update({
+        where: { id: admin.id },
+        data: updateData
+      });
+    } else {
+      const passwordHash = await bcrypt.hash(password?.trim() || 'ChangeMe123!', 12);
+      admin = await prisma.user.create({
+        data: {
+          fullName: cleanName,
+          email: cleanEmail,
+          passwordHash,
+          role: 'ADMIN',
+          active: true
+        }
+      });
+    }
+
+    return res.json({
+      ok: true,
+      message: 'Principal details updated successfully',
+      principal: {
+        id: admin.id,
+        fullName: admin.fullName,
+        email: admin.email,
+        role: admin.role
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 module.exports = router;

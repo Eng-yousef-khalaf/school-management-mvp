@@ -120,12 +120,19 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
   // Handover Slip State
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
+  const [principalForm, setPrincipalForm] = useState({
+    fullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
+    email: 'admin@school.local',
+    password: 'ChangeMe123!'
+  });
+  const [isSavingPrincipal, setIsSavingPrincipal] = useState(false);
+
   const [handoverData, setHandoverData] = useState({
     schoolNameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
     schoolNameEn: config.schoolNameEn || 'Judhoor Model Private School',
     schoolCode: config.schoolCode || 'SCH-001',
     domainUrl: window.location.origin,
-    adminFullName: 'أ. عبد الرحمن خليل (المدير العام)',
+    adminFullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
     adminEmail: 'admin@school.local',
     adminPassword: 'ChangeMe123!',
   });
@@ -208,9 +215,84 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     }
   };
 
+  const fetchPrincipal = async () => {
+    try {
+      const res = await api.get('/developer/principal').catch(() => null);
+      if (res?.principal?.fullName) {
+        setPrincipalForm((prev) => ({
+          ...prev,
+          fullName: res.principal.fullName,
+          email: res.principal.email || prev.email,
+        }));
+        setHandoverData((prev) => ({
+          ...prev,
+          adminFullName: res.principal.fullName,
+          adminEmail: res.principal.email || prev.adminEmail,
+        }));
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     fetchTelemetry();
+    fetchPrincipal();
   }, []);
+
+  const handleSavePrincipal = async (e) => {
+    e?.preventDefault?.();
+    if (!principalForm.fullName.trim()) {
+      toast.error(isRtl ? 'يرجى إدخال اسم مدير المدرسة' : 'Principal full name is required');
+      return;
+    }
+    try {
+      setIsSavingPrincipal(true);
+      const cleanName = principalForm.fullName.trim();
+      const cleanEmail = principalForm.email.trim();
+      const res = await api.post('/developer/update-principal', {
+        fullName: cleanName,
+        email: cleanEmail,
+        password: principalForm.password.trim() || undefined,
+      });
+
+      if (res?.ok) {
+        setHandoverData((prev) => ({
+          ...prev,
+          adminFullName: cleanName,
+          adminEmail: cleanEmail,
+          adminPassword: principalForm.password.trim() || prev.adminPassword,
+        }));
+        localStorage.setItem('school_principal_name', cleanName);
+        localStorage.setItem('school_principal_info', JSON.stringify({
+          fullName: cleanName,
+          email: cleanEmail,
+        }));
+
+        const curUser = sessionStorage.getItem('user');
+        if (curUser) {
+          try {
+            const u = JSON.parse(curUser);
+            if (u.role === 'ADMIN') {
+              u.fullName = cleanName;
+              u.email = cleanEmail;
+              sessionStorage.setItem('user', JSON.stringify(u));
+              localStorage.setItem('user', JSON.stringify(u));
+            }
+          } catch {}
+        }
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('principal-updated'));
+        toast.success(
+          isRtl
+            ? `تم تثبيت اسم المدير (${cleanName}) بنجاح! يظهر اسمه الآن في كامل أرجاء المنظومة.`
+            : `Principal name (${cleanName}) saved & updated system-wide!`
+        );
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to update principal credentials');
+    } finally {
+      setIsSavingPrincipal(false);
+    }
+  };
 
   const handleRepairIntegrity = async () => {
     try {
@@ -510,9 +592,9 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
                   schoolCode: brandForm.schoolCode || config.schoolCode,
                   domainUrl: window.location.origin,
-                  adminFullName: 'أ. محمود حسن (المدير العام)',
-                  adminEmail: 'admin@school.local',
-                  adminPassword: 'ChangeMe123!',
+                  adminFullName: principalForm.fullName.trim() || handoverData.adminFullName,
+                  adminEmail: principalForm.email.trim() || handoverData.adminEmail,
+                  adminPassword: principalForm.password.trim() || handoverData.adminPassword,
                 });
                 setIsHandoverModalOpen(true);
               }}
@@ -541,6 +623,14 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           style={{ fontWeight: 700 }}
         >
           📊 {isRtl ? 'نظرة عامة والتشخيص الحي' : 'System Overview & Telemetry'}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('principal')}
+          className={`btn ${activeTab === 'principal' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+          style={{ fontWeight: 700 }}
+        >
+          👑 {isRtl ? 'بيانات وبطاقة المدير' : 'Principal Credentials & Pass'}
         </button>
 
         <button
@@ -707,6 +797,281 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                     : (isRtl ? 'تصدير نسخة احتياطية (JSON)' : 'Export Backup (.json)')}
                 </span>
               </button>
+            </div>
+          </div>
+
+          {/* Card 3: Principal Account Designation & Official Handover */}
+          <div className="panel" style={{ padding: 22, gridColumn: '1 / -1', background: 'linear-gradient(to right, #ffffff, #f8fafc)', border: '1px solid #c7d2fe' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+              <div>
+                <h3 className="panel-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8, color: '#1e1b4b' }}>
+                  <span>👑</span>
+                  <span>{isRtl ? 'إدارة واعتماد حساب مدير المدرسة (Principal Credentials & Handover Pass)' : 'Principal Credentials & Official Handover Pass'}</span>
+                </h3>
+                <p className="panel-subtitle" style={{ margin: '4px 0 0' }}>
+                  {isRtl
+                    ? 'يمكن للمطور تحديد اسم مدير المدرسة وتحديث بيانات دخوله فوراً، ثم إصدار وطباعة بطاقة تسليم رسمية معتمدة له.'
+                    : 'Designate the school principal name, update login credentials, and issue an official branded handover slip.'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => {
+                  setHandoverData({
+                    schoolNameAr: brandForm.schoolNameAr || config.schoolNameAr,
+                    schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
+                    schoolCode: brandForm.schoolCode || config.schoolCode,
+                    domainUrl: window.location.origin,
+                    adminFullName: principalForm.fullName.trim() || handoverData.adminFullName,
+                    adminEmail: principalForm.email.trim() || handoverData.adminEmail,
+                    adminPassword: principalForm.password.trim() || handoverData.adminPassword,
+                  });
+                  setIsHandoverModalOpen(true);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  padding: '7px 16px',
+                }}
+              >
+                🎴 {isRtl ? 'معاينة وإصدار بطاقة الدخول الرسمية' : 'Issue Official Handover Pass'}
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePrincipal} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, alignItems: 'flex-end' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: 12 }}>
+                  {isRtl ? 'اسم مدير المدرسة الكامل (يظهر في كامل المنظومة):' : 'Principal Full Name (propagates system-wide):'}
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={principalForm.fullName}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, fullName: e.target.value })}
+                  placeholder="أ. عبد الرحمن خليل (المدير العام)"
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: 12 }}>
+                  {isRtl ? 'البريد الإلكتروني لحساب المدير:' : 'Principal Login Email:'}
+                </label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={principalForm.email}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, email: e.target.value })}
+                  placeholder="admin@school.local"
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: 12 }}>
+                  {isRtl ? 'كلمة المرور (اختياري لتغييرها):' : 'Password (leave blank to keep current):'}
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={principalForm.password}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, password: e.target.value })}
+                  placeholder="ChangeMe123!"
+                />
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSavingPrincipal}
+                  style={{ width: '100%', fontWeight: 800, padding: '9px 16px' }}
+                >
+                  {isSavingPrincipal
+                    ? (isRtl ? 'جاري الحفظ والتعميم...' : 'Saving...')
+                    : (isRtl ? '💾 حفظ وتثبيت اسم المدير في المنظومة' : 'Save & Propagate Principal')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: PRINCIPAL CREDENTIALS & HANDOVER PASS STUDIO */}
+      {activeTab === 'principal' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: 20, alignItems: 'start' }}>
+          {/* Controls Column */}
+          <div className="panel" style={{ padding: 24 }}>
+            <h3 className="panel-title" style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>👑</span>
+              <span>{isRtl ? 'إدارة وتعيين بيانات مدير المدرسة' : 'School Principal Credentials & Authority'}</span>
+            </h3>
+            <p className="panel-subtitle" style={{ marginBottom: 20 }}>
+              {isRtl
+                ? 'حدد الاسم الرسمي لمدير المدرسة، ليتم اعتماده وتعميمه على كافة لوحات الإشراف والشهادات والتقارير التنفيذية.'
+                : 'Configure official principal credentials. Changes reflect across all dashboards, certificates, and system reports.'}
+            </p>
+
+            <form onSubmit={handleSavePrincipal} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
+                  {isRtl ? 'اسم مدير المدرسة الكامل (مع اللقب الرسمي):' : 'Principal Full Name & Official Title:'}
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={principalForm.fullName}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, fullName: e.target.value })}
+                  placeholder="مثال: أ. عبد الرحمن خليل (المدير العام)"
+                  required
+                />
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                  {isRtl ? 'هذا الاسم سيظهر في تذييل كشوف الدرجات، الهيدر، وبطاقة الدخول الرسمية.' : 'Displayed on student grade transcripts, topbar, and official passes.'}
+                </span>
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
+                  {isRtl ? 'البريد الإلكتروني المعتمد لتسجيل الدخول:' : 'Official Login Email:'}
+                </label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={principalForm.email}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, email: e.target.value })}
+                  placeholder="admin@school.local"
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
+                  {isRtl ? 'كلمة المرور الافتراضية للتسليم:' : 'Default Handover Password:'}
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={principalForm.password}
+                  onChange={(e) => setPrincipalForm({ ...principalForm, password: e.target.value })}
+                  placeholder="ChangeMe123!"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSavingPrincipal}
+                  style={{ fontWeight: 800, padding: '10px 20px', flex: 1 }}
+                >
+                  {isSavingPrincipal
+                    ? (isRtl ? 'جاري التثبيت والتعميم...' : 'Saving...')
+                    : (isRtl ? '💾 حفظ وتثبيت اسم المدير في المنظومة' : 'Save & Propagate Principal')}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => {
+                    setHandoverData({
+                      schoolNameAr: brandForm.schoolNameAr || config.schoolNameAr,
+                      schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
+                      schoolCode: brandForm.schoolCode || config.schoolCode,
+                      domainUrl: window.location.origin,
+                      adminFullName: principalForm.fullName.trim() || handoverData.adminFullName,
+                      adminEmail: principalForm.email.trim() || handoverData.adminEmail,
+                      adminPassword: principalForm.password.trim() || handoverData.adminPassword,
+                    });
+                    setIsHandoverModalOpen(true);
+                  }}
+                  style={{ fontWeight: 800, padding: '10px 18px' }}
+                >
+                  🎴 {isRtl ? 'إصدار بطاقة التسليم' : 'Open Delivery Slip'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Pass Preview Column */}
+          <div className="panel" style={{ padding: 22, background: 'var(--bg-main)', border: '1px solid var(--border-color)' }}>
+            <h3 className="panel-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>👁️</span>
+              <span>{isRtl ? 'معاينة حية لبطاقة الدخول والتسليم الرسمية' : 'Live Official Handover Slip Preview'}</span>
+            </h3>
+
+            {/* Slip Visual Simulation */}
+            <div style={{ background: '#ffffff', borderRadius: 12, border: '2px solid #e2e8f0', padding: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #e2e8f0', paddingBottom: 14, marginBottom: 14 }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#1e1b4b' }}>
+                    {brandForm.schoolNameAr || config.schoolNameAr}
+                  </h4>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>
+                    {brandForm.schoolCode || config.schoolCode} • {isRtl ? 'وثيقة اعتماد رسمية' : 'Official Handover Pass'}
+                  </span>
+                </div>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {brandForm.logoUrl || config.logoUrl ? (
+                    <img src={brandForm.logoUrl || config.logoUrl} alt="Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                  ) : (
+                    <SchoolLogo size={28} />
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12.5 }}>
+                <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>{isRtl ? 'مدير المدرسة المعتمد:' : 'Principal Name:'}</span>
+                  <strong style={{ color: '#0f172a' }}>{principalForm.fullName || handoverData.adminFullName}</strong>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>{isRtl ? 'البريد الإلكتروني:' : 'Login Email:'}</span>
+                  <strong style={{ fontFamily: 'monospace', color: '#2563eb' }}>{principalForm.email || handoverData.adminEmail}</strong>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>{isRtl ? 'كلمة المرور المؤقتة:' : 'Password:'}</span>
+                  <strong style={{ fontFamily: 'monospace', color: '#dc2626' }}>{principalForm.password || handoverData.adminPassword}</strong>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>{isRtl ? 'رابط الدخول المباشر:' : 'Login Portal:'}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#0f172a' }}>{window.location.origin}</span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handlePrintHandoverSlip}
+                  style={{ fontWeight: 700 }}
+                >
+                  🖨️ {isRtl ? 'طباعة / PDF' : 'Print PDF'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleDownloadHandoverSlip}
+                  style={{ fontWeight: 700 }}
+                >
+                  📥 {isRtl ? 'تنزيل .txt' : 'Download .txt'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={copyHandoverSlip}
+                  style={{ fontWeight: 800 }}
+                >
+                  📋 {isRtl ? 'نسخ النص' : 'Copy'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
