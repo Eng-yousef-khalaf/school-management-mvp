@@ -15,7 +15,6 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
   const toast = useToast();
   const { activeYear, allYears, selectedYearId, isArchiveView, setViewingYearId } = useAcademicYear();
   const { pendingNotices, unreadCount, showPopupForNotice } = useNotifications();
-  const [switching, setSwitching] = useState(false);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
   const notifDropdownRef = useRef(null);
 
@@ -30,22 +29,8 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleRoleChange = async (targetRole) => {
-    if (user?.role === targetRole || switching) return;
-    setSwitching(true);
-    try {
-      await switchPortalRole(targetRole);
-      if (onNavigate) onNavigate('dashboard');
-      toast.success(isRtl ? `تم التبديل إلى ${targetRole === 'ADMIN' ? 'بوابة المدير' : targetRole === 'STAFF' ? 'بوابة شؤون الطلاب' : 'بوابة المعلم'}` : `Switched to ${targetRole} Portal`);
-    } catch (err) {
-      toast.error(err.message || 'Failed to switch role');
-    } finally {
-      setSwitching(false);
-    }
-  };
-
   const roleColor = user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
-  const roleName = user?.role === 'ADMIN' ? (isRtl ? 'المدير' : 'Admin') : user?.role === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher');
+  const roleName = user?.role === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : user?.role === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher');
 
   return (
     <header className="topbar">
@@ -99,72 +84,21 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           </div>
         )}
 
-        {/* Quick Portal Role Switcher */}
+        {/* Read-Only Role Indicator Badge (Individual accounts secured by password) */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          background: '#f1f5f9',
-          padding: '3px',
+          gap: 6,
+          background: user?.role === 'ADMIN' ? 'rgba(79, 70, 229, 0.08)' : user?.role === 'STAFF' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(14, 165, 233, 0.08)',
+          color: user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#047857' : '#0284c7',
+          border: `1px solid ${user?.role === 'ADMIN' ? 'rgba(79, 70, 229, 0.2)' : user?.role === 'STAFF' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(14, 165, 233, 0.2)'}`,
+          padding: '5px 12px',
           borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-color)',
-          gap: '2px'
+          fontSize: '12px',
+          fontWeight: 800
         }}>
-          <button
-            type="button"
-            onClick={() => handleRoleChange('ADMIN')}
-            disabled={switching}
-            style={{
-              padding: '5px 10px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              background: user?.role === 'ADMIN' ? 'var(--primary)' : 'transparent',
-              color: user?.role === 'ADMIN' ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '11.5px',
-              fontWeight: user?.role === 'ADMIN' ? 800 : 600,
-              cursor: 'pointer',
-              transition: 'var(--transition)'
-            }}
-          >
-            👔 {isRtl ? 'المدير' : 'Admin'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleRoleChange('STAFF')}
-            disabled={switching}
-            style={{
-              padding: '5px 10px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              background: user?.role === 'STAFF' ? '#10b981' : 'transparent',
-              color: user?.role === 'STAFF' ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '11.5px',
-              fontWeight: user?.role === 'STAFF' ? 800 : 600,
-              cursor: 'pointer',
-              transition: 'var(--transition)'
-            }}
-          >
-            📋 {isRtl ? 'شؤون الطلاب' : 'Staff'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleRoleChange('TEACHER')}
-            disabled={switching}
-            style={{
-              padding: '5px 10px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              background: user?.role === 'TEACHER' ? '#0ea5e9' : 'transparent',
-              color: user?.role === 'TEACHER' ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '11.5px',
-              fontWeight: user?.role === 'TEACHER' ? 800 : 600,
-              cursor: 'pointer',
-              transition: 'var(--transition)'
-            }}
-          >
-            👨‍🏫 {isRtl ? 'المعلم' : 'Teacher'}
-          </button>
+          <span>{user?.role === 'ADMIN' ? '👔' : user?.role === 'STAFF' ? '📋' : '👨‍🏫'}</span>
+          <span>{roleName}</span>
         </div>
 
         {/* Notifications Center */}

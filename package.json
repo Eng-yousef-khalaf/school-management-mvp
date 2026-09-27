@@ -6,7 +6,7 @@
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "build": "npm run build --prefix frontend && npm run prisma:generate --prefix backend",
-    "build:render": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend && npm run prisma:supabase:generate --prefix backend",
+    "build:render": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend && npm run prisma:generate --prefix backend",
     "start": "npm start --prefix backend",
     "seed": "npm run seed --prefix backend",
     "dev:backend": "npm run dev --prefix backend",

@@ -7,42 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  STAFF
-  TEACHER
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum StudentStatus {
-  ACTIVE
-  INACTIVE
-  GRADUATED
-  WITHDRAWN
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-  EXCUSED
-}
-
 model User {
   id           Int        @id @default(autoincrement())
   email        String     @unique
   passwordHash String
   fullName     String
-  role         UserRole   @default(STAFF)
+  role         String     @default("STAFF")
   active       Boolean    @default(true)
   teacherId    Int?       @unique
   teacher      Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   auditLogs    AuditLog[]
+  recordedPayments Payment[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -58,6 +33,7 @@ model AcademicYear {
   active      Boolean       @default(false)
   classes     SchoolClass[]
   enrollments Enrollment[]
+  fees        StudentFee[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -84,23 +60,25 @@ model SchoolClass {
 }
 
 model Student {
-  id            Int           @id @default(autoincrement())
-  studentNumber String        @unique
+  id            Int          @id @default(autoincrement())
+  studentNumber String       @unique
   firstName     String
   middleName    String?
   lastName      String
-  gender        Gender?
+  gender        String?
   dateOfBirth   DateTime?
   phone         String?
   parentName    String?
   parentPhone   String?
   address       String?
-  status        StudentStatus @default(ACTIVE)
+  status        String       @default("ACTIVE")
   enrollments   Enrollment[]
   attendance    Attendance[]
   grades        Grade[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  fees          StudentFee[]
+  payments      Payment[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@index([studentNumber])
   @@index([lastName, firstName])
@@ -121,6 +99,7 @@ model Teacher {
   active       Boolean               @default(true)
   user         User?
   teacherLinks TeacherClassSubject[]
+  attendance   TeacherAttendance[]
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
 
@@ -129,6 +108,23 @@ model Teacher {
   @@index([firstName])
   @@index([lastName])
   @@index([active])
+}
+
+model TeacherAttendance {
+  id        Int      @id @default(autoincrement())
+  teacherId Int
+  date      DateTime
+  status    String   @default("PRESENT")
+  checkIn   String?
+  note      String?
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teacherId, date])
+  @@index([date])
+  @@index([teacherId])
+  @@index([status])
 }
 
 model Subject {
@@ -179,16 +175,16 @@ model Enrollment {
 }
 
 model Attendance {
-  id        Int              @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   studentId Int
   classId   Int?
   date      DateTime
-  status    AttendanceStatus
+  status    String       @default("PRESENT")
   note      String?
-  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  class     SchoolClass?     @relation(fields: [classId], references: [id], onDelete: SetNull)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class     SchoolClass? @relation(fields: [classId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@unique([studentId, date])
   @@index([date])
@@ -233,4 +229,56 @@ model AuditLog {
   @@index([action])
   @@index([entity])
   @@index([timestamp])
+}
+
+model StudentFee {
+  id             Int           @id @default(autoincrement())
+  studentId      Int
+  academicYearId Int?
+  totalAmount    Float         @default(1500)
+  discountAmount Float         @default(0)
+  paidAmount     Float         @default(0)
+  currency       String        @default("ILS")
+  dueDate        DateTime?
+  status         String        @default("UNPAID")
+  notes          String?
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  payments       Payment[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([studentId, academicYearId])
+  @@index([studentId])
+  @@index([status])
+  @@index([academicYearId])
+}
+
+model Payment {
+  id                Int         @id @default(autoincrement())
+  studentFeeId      Int?
+  studentId         Int
+  amount            Float
+  currency          String      @default("ILS")
+  method            String      // CASH, BANK_OF_PALESTINE, JAWWAL_PAY, PALPAY, SPONSOR_GRANT
+  status            String      @default("COMPLETED") // COMPLETED, PENDING_VERIFICATION, REJECTED
+  payerName         String?
+  payerRelationship String?     // FATHER, MOTHER, GUARDIAN, SPONSOR, SELF, OTHER
+  payerPhone        String?
+  transactionRef    String?
+  receiptNumber     String?     @unique
+  proofUrl          String?
+  notes             String?
+  recordedByUserId  Int?
+  recordedByUser    User?       @relation(fields: [recordedByUserId], references: [id], onDelete: SetNull)
+  studentFee        StudentFee? @relation(fields: [studentFeeId], references: [id], onDelete: SetNull)
+  student           Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([studentId])
+  @@index([method])
+  @@index([status])
+  @@index([receiptNumber])
+  @@index([createdAt])
 }

@@ -7,51 +7,85 @@ async function resetCleanSlate() {
   console.log('--- Starting 100% Clean Slate Reset ---');
 
   // 1. Clear all child & transaction tables first
-  console.log('Clearing grades...');
-  await prisma.grade.deleteMany({});
+  if (prisma.payment) {
+    console.log('Clearing payments...');
+    await prisma.payment.deleteMany({});
+  }
 
-  console.log('Clearing attendance...');
-  await prisma.attendance.deleteMany({});
+  if (prisma.studentFee) {
+    console.log('Clearing student fees...');
+    await prisma.studentFee.deleteMany({});
+  }
 
-  console.log('Clearing teacher attendance...');
-  await prisma.teacherAttendance.deleteMany({});
+  if (prisma.grade) {
+    console.log('Clearing grades...');
+    await prisma.grade.deleteMany({});
+  }
 
-  console.log('Clearing enrollments...');
-  await prisma.enrollment.deleteMany({});
+  if (prisma.attendance) {
+    console.log('Clearing attendance...');
+    await prisma.attendance.deleteMany({});
+  }
 
-  console.log('Clearing teacher class/subject links...');
-  await prisma.teacherClassSubject.deleteMany({});
+  if (prisma.teacherAttendance) {
+    console.log('Clearing teacher attendance...');
+    await prisma.teacherAttendance.deleteMany({});
+  }
 
-  console.log('Clearing classes...');
-  await prisma.schoolClass.deleteMany({});
+  if (prisma.enrollment) {
+    console.log('Clearing enrollments...');
+    await prisma.enrollment.deleteMany({});
+  }
 
-  console.log('Clearing subjects...');
-  await prisma.subject.deleteMany({});
+  if (prisma.teacherClassSubject) {
+    console.log('Clearing teacher class/subject links...');
+    await prisma.teacherClassSubject.deleteMany({});
+  }
 
-  console.log('Clearing students...');
-  await prisma.student.deleteMany({});
+  if (prisma.schoolClass) {
+    console.log('Clearing classes...');
+    await prisma.schoolClass.deleteMany({});
+  }
 
-  console.log('Clearing users...');
-  await prisma.user.deleteMany({});
+  if (prisma.subject) {
+    console.log('Clearing subjects...');
+    await prisma.subject.deleteMany({});
+  }
 
-  console.log('Clearing teachers...');
-  await prisma.teacher.deleteMany({});
+  if (prisma.student) {
+    console.log('Clearing students...');
+    await prisma.student.deleteMany({});
+  }
 
-  console.log('Clearing audit logs...');
-  await prisma.auditLog.deleteMany({});
+  if (prisma.user) {
+    console.log('Clearing users...');
+    await prisma.user.deleteMany({});
+  }
 
-  console.log('Clearing academic years...');
-  await prisma.academicYear.deleteMany({});
+  if (prisma.teacher) {
+    console.log('Clearing teachers...');
+    await prisma.teacher.deleteMany({});
+  }
 
-  // 2. Create the Single Admin Account
-  const adminPassword = 'Admin123!';
+  if (prisma.auditLog) {
+    console.log('Clearing audit logs...');
+    await prisma.auditLog.deleteMany({});
+  }
+
+  if (prisma.academicYear) {
+    console.log('Clearing academic years...');
+    await prisma.academicYear.deleteMany({});
+  }
+
+  // 2. Create the Single Admin Account (The Principal)
+  const adminPassword = 'ChangeMe123!';
   const passwordHash = await bcrypt.hash(adminPassword, 12);
 
   const admin = await prisma.user.create({
     data: {
       email: 'admin@school.local',
       passwordHash,
-      fullName: 'مدير المدرسة',
+      fullName: 'أ. عبد الرحمن خليل (المدير العام)',
       role: 'ADMIN',
       active: true
     }

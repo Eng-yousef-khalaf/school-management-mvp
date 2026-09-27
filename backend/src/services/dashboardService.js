@@ -85,15 +85,17 @@ async function getDashboardStats(query = {}, user = null) {
             subject: true
           }
         },
-        attendance: {
-          where: { date: today }
-        }
+        ...(prisma.teacherAttendance ? {
+          attendance: {
+            where: { date: today }
+          }
+        } : {})
       },
       orderBy: { createdAt: 'desc' }
     }),
-    prisma.teacherAttendance.findMany({
-      where: { date: today }
-    })
+    prisma.teacherAttendance
+      ? prisma.teacherAttendance.findMany({ where: { date: today } }).catch(() => [])
+      : Promise.resolve([])
   ]);
 
   // Overall Academic Standing
@@ -132,12 +134,14 @@ async function getDashboardStats(query = {}, user = null) {
   const sevenDaysAgo = new Date(today);
   sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 6);
 
-  const teacherTrendRecords = await prisma.teacherAttendance.findMany({
-    where: {
-      date: { gte: sevenDaysAgo }
-    },
-    select: { date: true, status: true }
-  });
+  const teacherTrendRecords = prisma.teacherAttendance
+    ? await prisma.teacherAttendance.findMany({
+        where: {
+          date: { gte: sevenDaysAgo }
+        },
+        select: { date: true, status: true }
+      }).catch(() => [])
+    : [];
 
   const teacherTrendMap = {};
   for (let i = 0; i < 7; i++) {
@@ -192,9 +196,10 @@ async function getDashboardStats(query = {}, user = null) {
   let assignedTeachersCount = 0;
 
   const teacherPerformanceList = allActiveTeachers.map(t => {
-    const classNames = [...new Set(t.teacherLinks.map(l => l.class.name))];
-    const subjectNames = [...new Set(t.teacherLinks.map(l => l.subject.name))];
-    const isPending = t.teacherLinks.length === 0;
+    const links = Array.isArray(t.teacherLinks) ? t.teacherLinks : [];
+    const classNames = [...new Set(links.map(l => l.class?.name).filter(Boolean))];
+    const subjectNames = [...new Set(links.map(l => l.subject?.name).filter(Boolean))];
+    const isPending = links.length === 0;
 
     if (isPending) {
       pendingTeachersList.push({
@@ -211,7 +216,7 @@ async function getDashboardStats(query = {}, user = null) {
       assignedTeachersCount++;
     }
 
-    const todayRecord = t.attendance[0];
+    const todayRecord = Array.isArray(t.attendance) ? t.attendance[0] : null;
     const attendanceStatus = todayRecord ? todayRecord.status : 'NOT_LOGGED';
 
     return {
@@ -223,7 +228,7 @@ async function getDashboardStats(query = {}, user = null) {
       classes: classNames,
       subjectsCount: subjectNames.length,
       subjects: subjectNames,
-      assignmentsCount: t.teacherLinks.length,
+      assignmentsCount: links.length,
       attendanceStatus,
       checkIn: todayRecord?.checkIn || null,
       isPending
@@ -231,7 +236,7 @@ async function getDashboardStats(query = {}, user = null) {
   });
 
   // Class Coverage
-  const classesCovered = classesWithCount.filter(c => c._count.teacherLinks > 0).length;
+  const classesCovered = classesWithCount.filter(c => (c._count?.teacherLinks || 0) > 0).length;
   const classCoverageRate = totalClasses > 0 ? Math.round((classesCovered / totalClasses) * 100) : 100;
 
   // Students by Class

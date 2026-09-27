@@ -165,36 +165,25 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Clean Segmented Role Tabs */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 8 }}>
-              {isRtl ? 'اختر بوابة الدخول السريع:' : 'Select Portal:'}
-            </div>
-            <div className="login-segmented-tabs">
-              <button
-                type="button"
-                className={`login-segmented-tab ${activeRole === 'ADMIN' ? 'active' : ''}`}
-                onClick={() => selectRole('ADMIN')}
-              >
-                <span>👔</span>
-                <span>{isRtl ? 'المدير' : 'Admin'}</span>
-              </button>
-              <button
-                type="button"
-                className={`login-segmented-tab ${activeRole === 'STAFF' ? 'active' : ''}`}
-                onClick={() => selectRole('STAFF')}
-              >
-                <span>📋</span>
-                <span>{isRtl ? 'شؤون الطلاب' : 'Staff'}</span>
-              </button>
-              <button
-                type="button"
-                className={`login-segmented-tab ${activeRole === 'TEACHER' ? 'active' : ''}`}
-                onClick={() => selectRole('TEACHER')}
-              >
-                <span>👨‍🏫</span>
-                <span>{isRtl ? 'المعلم' : 'Teacher'}</span>
-              </button>
+          {/* Sign In Header Info */}
+          <div style={{
+            background: 'rgba(79, 70, 229, 0.05)',
+            border: '1px solid rgba(79, 70, 229, 0.15)',
+            borderRadius: 'var(--radius-md)',
+            padding: '12px 16px',
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 24 }}>🔐</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>
+                {isRtl ? 'تسجيل الدخول للمنظومة' : 'Secure System Login'}
+              </div>
+              <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
+                {isRtl ? 'أدخل البريد الإلكتروني وكلمة المرور الخاصة بحسابك' : 'Enter your credentials to access your authorized portal'}
+              </div>
             </div>
           </div>
 
@@ -209,18 +198,13 @@ export default function Login() {
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@school.local"
+                placeholder="admin@school.local"
                 required
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <label className="form-label" style={{ margin: 0 }}>{t('passwordLabel')}</label>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
-                  Demo: ChangeMe123!
-                </span>
-              </div>
+              <label className="form-label" style={{ marginBottom: 6 }}>{t('passwordLabel')}</label>
               <input
                 type="password"
                 className="form-input"
@@ -236,9 +220,9 @@ export default function Login() {
               className="btn btn-primary btn-lg"
               style={{
                 width: '100%',
-                background: roleDetails[activeRole].color,
-                borderColor: roleDetails[activeRole].color,
-                boxShadow: `0 4px 14px ${roleDetails[activeRole].color}40`,
+                background: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)',
                 fontSize: '14px',
                 fontWeight: 800
               }}
@@ -248,7 +232,7 @@ export default function Login() {
                 <span>{t('signingIn')}...</span>
               ) : (
                 <span>
-                  {t('signInBtn')} • {roleDetails[activeRole].name}
+                  {isRtl ? 'تسجيل الدخول' : 'Sign In'} &larr;
                 </span>
               )}
             </button>
