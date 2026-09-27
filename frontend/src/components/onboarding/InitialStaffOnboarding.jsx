@@ -22,9 +22,10 @@ export default function InitialStaffOnboarding({ onComplete }) {
   const fetchMembers = async () => {
     try {
       setLoadingMembers(true);
-      const res = await api.get('/developer/onboarded-members').catch(() => null);
+      const res = await api.get('/developer/onboarded-members', { noCache: true }).catch(() => null);
       if (res && res.members) {
         setMembers(res.members);
+        localStorage.setItem('registered_school_staff', JSON.stringify(res.members));
       } else {
         const local = localStorage.getItem('registered_school_staff');
         if (local) setMembers(JSON.parse(local));
@@ -75,20 +76,34 @@ export default function InitialStaffOnboarding({ onComplete }) {
         });
         await fetchMembers();
       } else {
-        toast.error(res?.error || 'Failed to add member');
+        const errorText = res?.error || (isRtl ? 'حدث خطأ أثناء تسجيل العضو' : 'Failed to add member');
+        toast.error(errorText);
       }
     } catch (err) {
-      toast.error(err.message || 'Operation failed');
+      const msg = err.message || '';
+      if (msg.includes('مسجل مسبقاً') || msg.includes('already')) {
+        toast.info(isRtl ? 'هذا البريد الإلكتروني مسجل ومعتمد بالفعل في المنظومة!' : 'This email is already registered!');
+        await fetchMembers();
+      } else {
+        toast.error(msg || (isRtl ? 'فشل تسجيل العضو في المنظومة' : 'Operation failed'));
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleRemoveMember = (id) => {
-    const updated = members.filter(m => m.id !== id);
-    setMembers(updated);
-    localStorage.setItem('registered_school_staff', JSON.stringify(updated));
-    toast.info(isRtl ? 'تم حذف الحساب من القائمة' : 'Member removed');
+  const handleRemoveMember = async (id) => {
+    try {
+      await api.delete(`/developer/onboarded-members/${id}`).catch(() => {});
+      const updated = members.filter(m => m.id !== id);
+      setMembers(updated);
+      localStorage.setItem('registered_school_staff', JSON.stringify(updated));
+      toast.info(isRtl ? 'تم حذف الحساب من القائمة' : 'Member removed');
+    } catch {
+      const updated = members.filter(m => m.id !== id);
+      setMembers(updated);
+      localStorage.setItem('registered_school_staff', JSON.stringify(updated));
+    }
   };
 
   const handleFinishSetup = () => {

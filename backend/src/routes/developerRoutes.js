@@ -846,6 +846,31 @@ router.get('/onboarded-members', async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/developer/onboarded-members/:id
+ * Removes a staff or teacher account
+ */
+router.delete('/onboarded-members/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+    if (user.role === 'ADMIN') {
+      return res.status(400).json({ ok: false, error: 'Cannot delete admin' });
+    }
+    if (user.teacherId) {
+      await prisma.teacher.delete({ where: { id: user.teacherId } }).catch(() => {});
+    }
+    await prisma.user.delete({ where: { id: userId } }).catch(() => {});
+    return res.json({ ok: true, message: 'Member deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 module.exports = router;
+
 
 
