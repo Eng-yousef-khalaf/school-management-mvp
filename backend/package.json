@@ -7,7 +7,7 @@
     "start": "node src/server.js",
     "seed": "node prisma/seed.js",
     "db:reset": "node prisma/reset_clean_slate.js",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "node scripts/prisma-generate.js",
     "prisma:supabase:generate": "prisma generate --schema=prisma/schema.postgresql.prisma",
     "prisma:migrate": "prisma migrate dev",
     "prisma:supabase": "prisma db push --schema=prisma/schema.postgresql.prisma",
