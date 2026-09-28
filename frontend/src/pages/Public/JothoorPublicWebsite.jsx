@@ -156,6 +156,45 @@ export default function JothoorPublicWebsite({
     }
   ];
 
+  const schoolPhotoShowcase = [
+    {
+      title: 'الفصول الدراسية والتفاعل الصفي الذكي',
+      category: 'بيئة تعليمية نموذجية',
+      image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
+      description: 'فصول نموذجية حديثة مجهزة بأحدث الوسائل التفاعلية لتقديم تجربة تعليمية ممتعة ومحفزة للطلاب.'
+    },
+    {
+      title: 'مختبرات العلوم والتجارب المباشرة',
+      category: 'استكشاف وابتكار علمي',
+      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
+      description: 'تطبيق عملي للمفاهيم العلمية وتجارب مخبرية ترسخ الفهم النظري وتنمي روح البحث والاستكشاف.'
+    },
+    {
+      title: 'الروبوتات والذكاء الاصطناعي والبرمجة',
+      category: 'تكنولوجيا المستقبل (STEM)',
+      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+      description: 'تمكين أطفالنا وشبابنا من مهارات العصر وبناء نماذج روبوت ذكية تؤهلهم للمسابقات المحلية والدولية.'
+    },
+    {
+      title: 'مرحلة رياض الأطفال والتأسيس الإبداعي',
+      category: 'براعم جذور الغالية',
+      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80',
+      description: 'أجواء مبهجة وآمنة للأطفال الصغار تركز على التعلم النشط وتنمية الخيال والمشاعر الإيجابية.'
+    },
+    {
+      title: 'احتفالات تكريم أوائل الطلبة والمتفوقين',
+      category: 'حصاد الجد والاجتهاد',
+      image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+      description: 'تقدير دائم لجهود أبنائنا وبناتنا الأوائل وتكريمهم بحضور أولياء الأمور والهيئة التدريسية والإدارية.'
+    },
+    {
+      title: 'الأنشطة الرياضية والكشفية وروح الفريق',
+      category: 'طاقة، صحة، وانتماء',
+      image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80',
+      description: 'مساحات لممارسة الألعاب الجماعية والمسابقات التي تصقل اللياقة البدنية وتغرس العمل الجماعي.'
+    }
+  ];
+
   return (
     <div className="jothoor-public-root" dir="rtl" style={{ fontFamily: "'Cairo', 'Segoe UI', system-ui, sans-serif", background: '#f8fafc', color: '#1e293b' }}>
       
@@ -171,7 +210,7 @@ export default function JothoorPublicWebsite({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <a
-              href="https://www.facebook.com/jothoorschoolps/photos"
+              href="https://www.facebook.com/jothoorschoolps"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}
@@ -179,7 +218,14 @@ export default function JothoorPublicWebsite({
               <span>🌐</span> صفحتنا الرسمية على فيسبوك
             </a>
             <span style={{ opacity: 0.4 }}>•</span>
-            <span style={{ color: '#a7f3d0' }}>📞 هاتف / واتساب: 0599000000</span>
+            <a
+              href="https://wa.me/970567088815"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#34d399', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700 }}
+            >
+              <span>💬</span> واتساب: +970 567 088 815
+            </a>
           </div>
         </div>
       </div>
@@ -197,7 +243,9 @@ export default function JothoorPublicWebsite({
           
           {/* Brand Logo & Name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <SchoolLogo size={52} />
+            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <SchoolLogo size={52} />
+            </div>
             <div>
               <h1 style={{ fontSize: '19px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
                 مدرسة جذور النموذجية الخاصة
@@ -402,7 +450,9 @@ export default function JothoorPublicWebsite({
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-              <SchoolLogo size={68} />
+              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SchoolLogo size={68} />
+              </div>
               <div>
                 <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'block' }}>منظومة جذور الذكية</span>
                 <span style={{ fontSize: '18px', fontWeight: 900, color: '#f8fafc' }}>التعليم النموذجي الشامل</span>
@@ -784,7 +834,7 @@ export default function JothoorPublicWebsite({
                 </div>
 
                 <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.6, marginBottom: 12 }}>
-                  يمكنكم التحويل عبر: <strong>جوال باي (0599000000)</strong> أو <strong>بال باي (رمز 776201)</strong> أو <strong>بنك فلسطين (حساب المدرسة)</strong> ثم إدخال بيانات التحويل أدناه:
+                  يمكنكم التحويل عبر: <strong>جوال باي / بال باي (+970 567 088 815)</strong> أو <strong>بنك فلسطين (حساب المدرسة)</strong> ثم إدخال بيانات التحويل أدناه:
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
@@ -855,6 +905,31 @@ export default function JothoorPublicWebsite({
                         <span style={{ fontSize: 12, color: '#059669', fontWeight: 700 }}>✓ تم تحميل الإشعار بنجاح</span>
                       </div>
                     )}
+                  </div>
+
+                  <div style={{ gridColumn: '1 / -1', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                    <div style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>
+                      💡 للمساعدة في التحويل أو تأكيد الحوالة، تواصلوا مباشرة مع القبول والتسجيل:
+                    </div>
+                    <a
+                      href="https://wa.me/970567088815"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        background: '#22c55e',
+                        color: '#ffffff',
+                        padding: '6px 14px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <span>💬</span> واتساب: +970 567 088 815
+                    </a>
                   </div>
                 </div>
               </div>
@@ -939,51 +1014,149 @@ export default function JothoorPublicWebsite({
         </div>
       </section>
 
-      {/* 7. Photo Gallery Banner (Connecting to Facebook Album) */}
-      <section style={{ maxWidth: 1240, margin: '60px auto', padding: '0 20px' }}>
+      {/* 7. Comprehensive Visual Photo Gallery from School Life */}
+      <section style={{ maxWidth: 1240, margin: '64px auto', padding: '0 20px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: '#ffffff',
+            padding: '4px 16px',
+            borderRadius: 20,
+            fontSize: 12,
+            fontWeight: 800,
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)'
+          }}>
+            📸 معرض الصور والفعاليات المدرسية
+          </span>
+          <h3 style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px' }}>
+            جولة مصورة في أرجاء مدرسة جذور النموذجية الخاصة
+          </h3>
+          <p style={{ fontSize: 14, color: '#64748b', maxWidth: 650, margin: '0 auto', lineHeight: 1.6 }}>
+            نوثق بالصور والفيديو مسيرة أبنائنا وبناتنا اليومية في الغرف الصفية المتطورة، والأنشطة الإبداعية، والاحتفاء الدائم بالمتفوقين.
+          </p>
+        </div>
+
+        {/* Photographic Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+          {schoolPhotoShowcase.map((photo, idx) => (
+            <div
+              key={idx}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+              }}
+            >
+              {/* Photo Image Container */}
+              <div style={{ position: 'relative', width: '100%', height: 210, overflow: 'hidden', background: '#0f172a' }}>
+                <img
+                  src={photo.image}
+                  alt={photo.title}
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    transition: 'transform 0.5s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  top: 12,
+                  right: 12,
+                  background: 'rgba(15, 23, 42, 0.75)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#ffffff',
+                  fontSize: 11,
+                  fontWeight: 800,
+                  padding: '4px 10px',
+                  borderRadius: 12,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  {photo.category}
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <h4 style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', margin: '0 0 8px' }}>
+                  {photo.title}
+                </h4>
+                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, margin: 0, flex: 1 }}>
+                  {photo.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Facebook Link & Visual Invitation Banner */}
         <div style={{
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          marginTop: 36,
+          background: 'linear-gradient(135deg, #1877f2 0%, #0d5fc2 100%)',
           color: '#ffffff',
           borderRadius: '24px',
-          padding: '36px 32px',
+          padding: '32px 36px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 20,
-          boxShadow: '0 20px 40px -15px rgba(49, 46, 129, 0.4)'
+          gap: 22,
+          boxShadow: '0 16px 36px rgba(24, 119, 242, 0.28)'
         }}>
-          <div>
-            <span style={{ background: 'rgba(255,255,255,0.15)', color: '#c7d2fe', padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 700 }}>
-              📸 معرض الصور والفعاليات الرسمية
-            </span>
-            <h3 style={{ fontSize: 24, fontWeight: 900, margin: '10px 0 6px', color: '#ffffff' }}>
-              شاهد صور أنشطة المدرسة والصفوف وتكريم الطلبة
-            </h3>
-            <p style={{ margin: 0, fontSize: 13.5, color: '#e0e7ff', maxWidth: 540, lineHeight: 1.6 }}>
-              نوثق يومياً لحظات النجاح والتفوق، الأنشطة المنهجية واللامنهجية، والمخيمات الصيفية عبر ألبوماتنا الرسمية.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, maxWidth: 680 }}>
+            <div style={{
+              width: 60,
+              height: 60,
+              borderRadius: '50%',
+              background: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 32,
+              flexShrink: 0,
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)'
+            }}>
+              📘
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 900, color: '#ffffff' }}>
+                هل تود مشاهدة المزيد من صور وفيديوهات فعاليات المدرسة؟
+              </h4>
+              <p style={{ margin: 0, fontSize: 14, color: '#e0f2fe', lineHeight: 1.6 }}>
+                نوثق يومياً كافة ألبومات التخرج، الرحلات، البطولات الرياضية، ولقطات من داخل الغرف الصفية عبر صفحتنا الرسمية على فيسبوك.
+              </p>
+            </div>
           </div>
 
           <a
-            href="https://www.facebook.com/jothoorschoolps/photos"
+            href="https://www.facebook.com/jothoorschoolps"
             target="_blank"
             rel="noopener noreferrer"
             style={{
               background: '#ffffff',
-              color: '#1e1b4b',
-              padding: '14px 24px',
+              color: '#1877f2',
+              padding: '14px 28px',
               borderRadius: '14px',
               fontWeight: 900,
-              fontSize: 14,
+              fontSize: 15,
               textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 8,
-              boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
+              gap: 10,
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.15)',
+              transition: 'transform 0.2s ease'
             }}
           >
-            <span>🌐</span> تصفح معرض الصور الكامل على فيسبوك ←
+            <span>🌐</span> تصفح صفحتنا الرسمية على فيسبوك ←
           </a>
         </div>
       </section>
@@ -994,7 +1167,9 @@ export default function JothoorPublicWebsite({
           
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <SchoolLogo size={42} />
+              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SchoolLogo size={46} />
+              </div>
               <h4 style={{ color: '#ffffff', fontSize: 16, fontWeight: 800, margin: 0 }}>مدرسة جذور النموذجية الخاصة</h4>
             </div>
             <p style={{ fontSize: 12.5, lineHeight: 1.7, color: '#64748b' }}>
@@ -1030,17 +1205,24 @@ export default function JothoorPublicWebsite({
 
           <div>
             <h5 style={{ color: '#ffffff', fontSize: 14, fontWeight: 800, marginBottom: 12 }}>بيانات التواصل والاعتماد</h5>
-            <div style={{ fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 6, color: '#94a3b8' }}>
+            <div style={{ fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 8, color: '#94a3b8' }}>
               <span>📍 العنوان: غزة — دولة فلسطين</span>
-              <span>📞 هاتف الإدارة: 0599000000</span>
-              <span>💬 واتساب القبول والتسجيل: 0599000000</span>
+              <span>📞 هاتف الإدارة: +970 567 088 815</span>
               <a
-                href="https://www.facebook.com/jothoorschoolps/photos"
+                href="https://wa.me/970567088815"
                 target="_blank"
                 rel="noreferrer"
-                style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, marginTop: 4 }}
+                style={{ color: '#34d399', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                🔗 صفحة الفيسبوك: facebook.com/jothoorschoolps
+                <span>💬</span> واتساب القبول والتسجيل: +970 567 088 815
+              </a>
+              <a
+                href="https://www.facebook.com/jothoorschoolps"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <span>🌐</span> صفحة الفيسبوك: facebook.com/jothoorschoolps
               </a>
             </div>
           </div>

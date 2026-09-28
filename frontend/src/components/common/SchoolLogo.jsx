@@ -25,7 +25,17 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
           justifyContent: 'center',
           background: 'transparent',
           padding: 0,
-          border: 'none'
+          border: 'none',
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          maxWidth: size,
+          maxHeight: size,
+          flexShrink: 0,
+          aspectRatio: '1 / 1',
+          borderRadius: '50%',
+          overflow: 'hidden'
         }}
       >
         <img
@@ -33,11 +43,16 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
           alt={alt}
           onError={() => setImgError(true)}
           style={{
-            width: size,
-            height: size,
+            width: '100%',
+            height: '100%',
+            minWidth: '100%',
+            minHeight: '100%',
+            aspectRatio: '1 / 1',
             objectFit: 'contain',
             borderRadius: '50%',
-            filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25))',
+            display: 'block',
+            flexShrink: 0,
+            filter: 'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2))',
             imageRendering: '-webkit-optimize-contrast',
             background: 'transparent',
             border: 'none',
@@ -66,7 +81,13 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
         display: 'inline-flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        width: size,
+        height: size,
+        minWidth: size,
+        minHeight: size,
+        flexShrink: 0,
+        aspectRatio: '1 / 1'
       }}
     >
       <svg
