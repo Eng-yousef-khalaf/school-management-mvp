@@ -12,6 +12,7 @@ import EmptyState from '../../components/common/EmptyState';
 import AddEditStudentModal from './AddEditStudentModal';
 import ImportStudentsModal from './ImportStudentsModal';
 import BulkCertificatesModal from '../Reports/BulkCertificatesModal';
+import UserAvatar from '../../components/common/UserAvatar';
 import {
   SearchIcon,
   PlusIcon,
@@ -320,20 +321,14 @@ export default function StudentList({ onViewStudent }) {
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
-                          color: 'var(--primary-dark)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: 12
-                        }}>
-                          {s.firstName?.charAt(0) || 'S'}
-                        </div>
+                        <UserAvatar
+                          src={s.photoUrl || s.avatar}
+                          name={`${s.firstName} ${s.lastName}`}
+                          role="STUDENT"
+                          gender={s.gender}
+                          size={34}
+                          showRoleBadge={false}
+                        />
                         <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
                           {s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}
                         </span>

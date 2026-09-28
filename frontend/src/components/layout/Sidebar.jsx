@@ -20,6 +20,7 @@ import {
   LogoutIcon
 } from '../common/Icons';
 import SchoolLogo from '../common/SchoolLogo';
+import UserAvatar from '../common/UserAvatar';
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
   const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
@@ -38,6 +39,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'attendance', label: isRtl ? 'دفتر الحضور' : 'Class Attendance', icon: <AttendanceIcon />, section: 'daily' },
       { id: 'grades', label: isRtl ? 'رصد الدرجات' : 'Grades Entry', icon: <GradesIcon />, section: 'daily' },
       { id: 'grade-reports', label: isRtl ? 'كشف الدرجات' : 'Grade Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   } else if (user?.role === 'STAFF') {
@@ -53,6 +55,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'grade-reports', label: isRtl ? 'كشوف ونتائج الطلاب' : 'Grade Reports', icon: <ReportsIcon />, section: 'reports' },
       { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور' : 'Attendance Reports', icon: <ReportsIcon />, section: 'reports' },
       { id: 'reports', label: isRtl ? 'مركز التقارير الشامل' : 'Reports Hub', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   } else {
@@ -69,6 +72,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'academic-years', label: isRtl ? 'السنوات والتقويم' : 'Academic Years', icon: <AcademicYearIcon />, section: 'system' },
       { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والأمان' : 'Security Audit Trail', icon: <AuditLogsIcon />, section: 'system' },
       { id: 'reports', label: isRtl ? 'مركز التقارير' : 'Executive Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
       { id: 'settings', label: isRtl ? 'إعدادات النظام' : 'System Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   }
@@ -156,9 +160,13 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
         {/* User Badge & Logout */}
         <div className="sidebar-footer">
           <div className="user-profile-badge">
-            <div className="user-avatar" style={{ background: roleColor }}>
-              {user?.fullName?.charAt(0) || 'U'}
-            </div>
+            <UserAvatar
+              src={user?.avatar || user?.photoUrl}
+              name={user?.fullName}
+              role={user?.role}
+              size={38}
+              showRoleBadge={true}
+            />
             <div className="user-details">
               <div className="user-name" title={user?.fullName}>{user?.fullName || 'User'}</div>
               <div className="user-role-tag">{roleName}</div>

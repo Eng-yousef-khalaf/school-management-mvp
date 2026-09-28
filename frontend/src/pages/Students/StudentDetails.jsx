@@ -11,6 +11,7 @@ import SchoolLogo from '../../components/common/SchoolLogo';
 import UnicefLogo from '../../components/common/UnicefLogo';
 import RecordPaymentModal from '../Fees/RecordPaymentModal';
 import PaymentReceiptModal from '../Fees/PaymentReceiptModal';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
   const { canManageStudents, isStaff, isAdmin } = useAuth();
@@ -102,23 +103,14 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
       {/* Main Student Header Card - Hidden during print */}
       <div className="panel no-print" style={{ padding: 24, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-          <div
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--primary), #6366f1)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
-              fontWeight: 800,
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
-            }}
-          >
-            {student.firstName?.charAt(0)}
-          </div>
+          <UserAvatar
+            src={student.photoUrl || student.avatar}
+            name={`${student.firstName} ${student.lastName}`}
+            role="STUDENT"
+            gender={student.gender}
+            size={74}
+            showRoleBadge={true}
+          />
 
           <div style={{ flex: 1, minWidth: 240 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

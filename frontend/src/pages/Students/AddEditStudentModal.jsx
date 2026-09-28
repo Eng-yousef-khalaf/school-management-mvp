@@ -3,6 +3,7 @@ import Modal from '../../components/common/Modal';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function AddEditStudentModal({ isOpen, onClose, student, onSaved, classes = [] }) {
   const toast = useToast();
@@ -20,7 +21,8 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
     parentPhone: '',
     address: '',
     status: 'ACTIVE',
-    classId: ''
+    classId: '',
+    photoUrl: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,8 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
         parentPhone: student.parentPhone || '',
         address: student.address || '',
         status: student.status || 'ACTIVE',
-        classId: student.currentClassId || ''
+        classId: student.currentClassId || '',
+        photoUrl: student.photoUrl || student.avatar || ''
       });
     } else {
       setFormData({
@@ -55,11 +58,23 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
         parentPhone: '',
         address: '',
         status: 'ACTIVE',
-        classId: classes[0]?.id || ''
+        classId: classes[0]?.id || '',
+        photoUrl: ''
       });
     }
     setError('');
   }, [student, classes, isOpen]);
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      handleChange('photoUrl', uploadEvent.target.result);
+      toast.success('تم تحميل صورة الطالب بنجاح');
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -155,8 +170,53 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
         </div>
 
         <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--primary)', margin: '16px 0 12px' }}>
-          2. Personal Information
+          2. Personal Information & Photo
         </div>
+
+        {/* Student Photo Upload & Preview */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          background: '#f8fafc',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0',
+          marginBottom: 16
+        }}>
+          <UserAvatar
+            src={formData.photoUrl}
+            name={`${formData.firstName} ${formData.lastName}`}
+            role="STUDENT"
+            gender={formData.gender}
+            size={56}
+            showRoleBadge={true}
+          />
+          <div style={{ flex: 1 }}>
+            <label className="form-label" style={{ marginBottom: 4, fontWeight: 700 }}>
+              صورة الطالب الشخصية (Student Photo)
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                style={{ fontSize: 12 }}
+              />
+              {formData.photoUrl && (
+                <button
+                  type="button"
+                  onClick={() => handleChange('photoUrl', '')}
+                  className="btn btn-sm"
+                  style={{ color: '#ef4444', border: '1px solid #fecaca', background: '#fff', fontSize: 11 }}
+                >
+                  حذف الصورة
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="form-grid-3">
           <div className="form-group">
             <label className="form-label">First Name <span className="req">*</span></label>

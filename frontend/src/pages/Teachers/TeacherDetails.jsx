@@ -8,6 +8,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import { PlusIcon, TrashIcon, EditIcon } from '../../components/common/Icons';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function TeacherDetails({ teacherId, onBack, onEdit }) {
   const toast = useToast();
@@ -115,22 +116,13 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
       {/* Header Profile Panel */}
       <div className="panel" style={{ padding: 24, marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981, #06b6d4)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 24,
-              fontWeight: 800
-            }}
-          >
-            {teacher.firstName.charAt(0)}
-          </div>
+          <UserAvatar
+            src={teacher.photoUrl}
+            name={`${teacher.firstName} ${teacher.lastName}`}
+            role="TEACHER"
+            size={68}
+            showRoleBadge={true}
+          />
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>

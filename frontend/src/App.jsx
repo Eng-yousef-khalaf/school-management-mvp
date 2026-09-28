@@ -38,10 +38,22 @@ import DailyMotivationalModal from './components/common/DailyMotivationalModal';
 import FeeManagement from './pages/Fees/FeeManagement';
 import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
 import ParentInquiryPortal from './pages/Parent/ParentInquiryPortal';
+import JothoorPublicWebsite from './pages/Public/JothoorPublicWebsite';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole, logout } = useAuth();
   const { t, isRtl } = useLanguage();
+
+  const [showLoginScreen, setShowLoginScreen] = useState(() => {
+    const search = window.location.search.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    return (
+      path.includes('login') ||
+      hash.includes('login') ||
+      search.includes('portal=login')
+    );
+  });
 
   const [isParentInquiryPortal, setIsParentInquiryPortal] = useState(() => {
     const search = window.location.search.toLowerCase();
@@ -99,6 +111,15 @@ export default function App() {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [attendanceClassId, setAttendanceClassId] = useState('');
 
+  // Whenever authenticated user changes (login, logout, switch account), always reset to dashboard
+  useEffect(() => {
+    setCurrentPage('dashboard');
+    setSelectedStudentId(null);
+    setSelectedTeacherId(null);
+    setSelectedClassId(null);
+    setAttendanceClassId('');
+  }, [user?.id, user?.role]);
+
   // Auto-switch role or detect developer/parent portal
   useEffect(() => {
     const handleUrlRoute = () => {
@@ -115,10 +136,15 @@ export default function App() {
         search.includes('logout') ||
         search.includes('portal=login')
       ) {
-        if (user) {
+        setShowLoginScreen(true);
+        if (user && (path.includes('logout') || hash.includes('logout') || search.includes('logout'))) {
           logout();
         }
         return;
+      }
+
+      if (!hash && !search && (path === '/' || path === '')) {
+        setShowLoginScreen(false);
       }
 
       const isParentInq =
@@ -186,10 +212,7 @@ export default function App() {
     return (
       <ParentInquiryPortal
         onExitToSchool={() => {
-          window.location.hash = '';
-          window.location.search = '';
-          window.history.pushState({}, '', '/');
-          setIsParentInquiryPortal(false);
+          window.location.href = window.location.origin + '/';
         }}
         onNavigateToFees={() => {
           setIsParentInquiryPortal(false);
@@ -204,10 +227,7 @@ export default function App() {
     return (
       <ParentPaymentPortalStandalone
         onExitToSchool={() => {
-          window.location.hash = '';
-          window.location.search = '';
-          window.history.pushState({}, '', '/');
-          setIsParentPortal(false);
+          window.location.href = window.location.origin + '/';
         }}
       />
     );
@@ -218,10 +238,7 @@ export default function App() {
     return (
       <DeveloperPortalStandalone
         onExitToSchool={() => {
-          window.location.hash = '';
-          window.location.search = '';
-          window.history.pushState({}, '', '/');
-          setIsDeveloperPortal(false);
+          window.location.href = window.location.origin + '/';
         }}
       />
     );
@@ -240,7 +257,35 @@ export default function App() {
   }
 
   if (!user) {
-    return <Login />;
+    if (showLoginScreen) {
+      return (
+        <Login
+          onBackToWebsite={() => {
+            setShowLoginScreen(false);
+            window.location.hash = '';
+            if (window.history.pushState) {
+              window.history.pushState(null, '', window.location.pathname);
+            }
+          }}
+        />
+      );
+    }
+    return (
+      <JothoorPublicWebsite
+        onNavigateToLogin={() => {
+          setShowLoginScreen(true);
+          window.location.hash = 'login';
+        }}
+        onNavigateToInquiry={() => {
+          setIsParentInquiryPortal(true);
+          window.location.hash = 'inquiry';
+        }}
+        onNavigateToFees={() => {
+          setIsParentPortal(true);
+          window.location.hash = 'pay';
+        }}
+      />
+    );
   }
 
   const navigateTo = (pageId, params = {}) => {
@@ -308,6 +353,11 @@ export default function App() {
         };
       case 'settings':
         return { title: t('settingsTitle'), subtitle: t('settingsSubtitle') };
+      case 'public-website':
+        return {
+          title: isRtl ? 'الموقع التعريفي العام لمدرسة جذور' : 'Jothoor School Showcase Website',
+          subtitle: isRtl ? 'الموقع التعريفي، طلبات حجز المقاعد (20ش)، والخدمات العامة' : 'Official public landing page, 20 NIS admissions & portals'
+        };
       default:
         return { title: t('appTitle'), subtitle: t('appSubtitle') };
     }
@@ -333,9 +383,9 @@ export default function App() {
         )
       )}
 
-      {/* Student Directory - Strictly for Staff (and Teachers for their rosters) */}
+      {/* Student Directory - Accessible by Admin, Staff, and Teachers for their rosters */}
       {currentPage === 'students' && (
-        (isStaff || isTeacher) ? (
+        (isStaff || isTeacher || isAdmin) ? (
           <StudentList
             onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
           />
@@ -345,7 +395,7 @@ export default function App() {
       )}
 
       {currentPage === 'student-details' && (
-        (isStaff || isTeacher) ? (
+        (isStaff || isTeacher || isAdmin) ? (
           <StudentDetails
             studentId={selectedStudentId}
             onBack={() => navigateTo('students')}
@@ -406,9 +456,9 @@ export default function App() {
         />
       )}
 
-      {/* Subjects Catalog - Accessible by Admin and Staff */}
+      {/* Subjects Catalog - Accessible by Admin, Staff, and Teachers */}
       {currentPage === 'subjects' && (
-        (isAdmin || isStaff) ? (
+        (isAdmin || isStaff || isTeacher) ? (
           <SubjectList />
         ) : (
           <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
@@ -424,45 +474,45 @@ export default function App() {
         )
       )}
 
-      {/* Enrollment Management - Accessible by Staff */}
+      {/* Enrollment Management - Accessible by Staff & Admin */}
       {currentPage === 'enrollment' && (
-        isStaff ? (
+        (isStaff || isAdmin) ? (
           <EnrollmentManagement />
         ) : (
           <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
         )
       )}
 
-      {/* Student Attendance Sheet - Strictly for Teachers & Staff */}
+      {/* Student Attendance Sheet - Strictly for Teachers, Staff & Admin */}
       {currentPage === 'attendance' && (
-        (isTeacher || isStaff) ? (
+        (isTeacher || isStaff || isAdmin) ? (
           <AttendanceSheet initialClassId={attendanceClassId} />
         ) : (
           <AccessDenied requiredRole="TEACHER / STAFF" onBack={() => navigateTo('dashboard')} />
         )
       )}
 
-      {/* Student Attendance Reports - For Teachers & Staff */}
+      {/* Student Attendance Reports - For Teachers, Staff & Admin */}
       {currentPage === 'attendance-reports' && (
-        (isTeacher || isStaff) ? (
+        (isTeacher || isStaff || isAdmin) ? (
           <AttendanceReports />
         ) : (
           <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
         )
       )}
 
-      {/* Grade Entry - For Teachers & Staff */}
+      {/* Grade Entry - For Teachers, Staff & Admin */}
       {currentPage === 'grades' && (
-        (isTeacher || isStaff) ? (
+        (isTeacher || isStaff || isAdmin) ? (
           <GradeEntry />
         ) : (
           <AccessDenied requiredRole="TEACHER" onBack={() => navigateTo('dashboard')} />
         )
       )}
 
-      {/* Grade Reports */}
+      {/* Grade Reports - For Teachers, Staff & Admin */}
       {currentPage === 'grade-reports' && (
-        (isTeacher || isStaff) ? (
+        (isTeacher || isStaff || isAdmin) ? (
           <GradeReports />
         ) : (
           <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
@@ -514,6 +564,40 @@ export default function App() {
 
       {/* Settings - Accessible by all */}
       {currentPage === 'settings' && <SettingsPage />}
+
+      {/* Public Showcase Website Preview from within Admin/Staff/Teacher Layout */}
+      {currentPage === 'public-website' && (
+        <div style={{ margin: '-24px', position: 'relative' }}>
+          <div style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 1000,
+            background: 'linear-gradient(135deg, #065f46, #047857)',
+            color: '#fff',
+            padding: '10px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>
+              🌐 {isRtl ? 'أنت تتصفح حالياً الموقع العام لمدرسة جذور النموذجية كعضو في الكادر/الإدارة' : 'Browsing official school public landing page'}
+            </span>
+            <button
+              onClick={() => navigateTo('dashboard')}
+              className="btn btn-sm"
+              style={{ background: '#fff', color: '#065f46', fontWeight: 800, border: 'none' }}
+            >
+              {isRtl ? '← العودة للوحة الإدارة' : '← Return to Dashboard'}
+            </button>
+          </div>
+          <JothoorPublicWebsite
+            onNavigateToLogin={() => navigateTo('dashboard')}
+            onNavigateToInquiry={() => setIsParentInquiryPortal(true)}
+            onNavigateToFees={() => setIsParentPortal(true)}
+          />
+        </div>
+      )}
 
       {/* Editing student modal from details */}
       {editingStudentFromDetails && (

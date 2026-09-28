@@ -7,7 +7,7 @@ import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import ErrorAlert from '../components/common/ErrorAlert';
 import SchoolLogo from '../components/common/SchoolLogo';
 
-export default function Login() {
+export default function Login({ onBackToWebsite }) {
   const { login, loginAsDeveloper } = useAuth();
   const toast = useToast();
   const { t, isRtl } = useLanguage();
@@ -134,23 +134,41 @@ export default function Login() {
       <div className="login-form-side">
         <div style={{ width: '100%', maxWidth: '420px' }}>
           
-          {/* Top Bar: Code & Language Switcher */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: '11.5px',
-              fontWeight: 800,
-              color: 'var(--primary)',
-              background: 'var(--primary-light)',
-              padding: '4px 12px',
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid rgba(79, 70, 229, 0.15)'
-            }}>
-              <span>🏫</span>
-              <span>{config.schoolCode || 'MOE-SCH-2026'}</span>
-            </div>
+          {/* Top Bar: Code & Return to Public Website */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            {onBackToWebsite ? (
+              <button
+                type="button"
+                onClick={onBackToWebsite}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary)',
+                  fontWeight: 800,
+                  fontSize: '12.5px',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                <span>←</span>
+                <span>{isRtl ? 'العودة لموقع مدرسة جذور الرئيسي' : 'Back to Jothoor School Website'}</span>
+              </button>
+            ) : (
+              <a
+                href="/"
+                style={{
+                  color: 'var(--primary)',
+                  textDecoration: 'none',
+                  fontWeight: 800,
+                  fontSize: '12px'
+                }}
+              >
+                {isRtl ? '← موقع مدرسة جذور' : '← Jothoor School Website'}
+              </a>
+            )}
             <LanguageSwitcher />
           </div>
 

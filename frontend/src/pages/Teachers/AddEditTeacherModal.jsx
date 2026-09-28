@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import { PlusIcon, TrashIcon } from '../../components/common/Icons';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved }) {
   const toast = useToast();
@@ -19,6 +20,7 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
     email: '',
     specialty: '',
     active: true,
+    photoUrl: '',
     createUserAccount: false,
     userPassword: 'ChangeMe123!'
   });
@@ -69,6 +71,7 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
         email: teacher.email || '',
         specialty: teacher.specialty || '',
         active: teacher.active !== undefined ? teacher.active : true,
+        photoUrl: teacher.photoUrl || '',
         createUserAccount: false,
         userPassword: 'ChangeMe123!'
       });
@@ -100,6 +103,7 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
         email: '',
         specialty: '',
         active: true,
+        photoUrl: '',
         createUserAccount: true,
         userPassword: 'ChangeMe123!'
       });
@@ -110,6 +114,21 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يفضل اختيار صورة أقل من 2 ميجابايت' : 'Image is too large (max 2MB)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      handleChange('photoUrl', event.target.result);
+      toast.success(isRtl ? 'تم تحميل صورة المعلم بنجاح' : 'Teacher photo uploaded successfully');
+    };
+    reader.readAsDataURL(file);
   };
 
   // Add Assignment Pair
@@ -207,6 +226,49 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
           <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>
             📋 {isRtl ? 'البيانات الأساسية والوظيفية' : 'Personal & Employment Details'}
           </h4>
+
+          {/* Teacher Photo Upload & Preview */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            background: 'var(--card-bg, #ffffff)',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            border: '1px solid var(--border-color)',
+            marginBottom: 16
+          }}>
+            <UserAvatar
+              src={formData.photoUrl}
+              name={`${formData.firstName} ${formData.lastName}`}
+              role="TEACHER"
+              size={56}
+              showRoleBadge={true}
+            />
+            <div style={{ flex: 1 }}>
+              <label className="form-label" style={{ marginBottom: 4, fontWeight: 700 }}>
+                {isRtl ? 'صورة المعلم الشخصية (اختياري)' : 'Teacher Profile Photo (Optional)'}
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  style={{ fontSize: 12 }}
+                />
+                {formData.photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange('photoUrl', '')}
+                    className="btn btn-sm"
+                    style={{ color: '#ef4444', border: '1px solid #fecaca', background: '#fff', fontSize: 11 }}
+                  >
+                    {isRtl ? 'حذف الصورة' : 'Remove Photo'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="form-grid-2">
             <div className="form-group">

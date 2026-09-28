@@ -9,6 +9,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import AddEditUserModal from './AddEditUserModal';
 import { PlusIcon, EditIcon, TrashIcon, SearchIcon } from '../../components/common/Icons';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function UserList() {
   const toast = useToast();
@@ -173,7 +174,10 @@ export default function UserList() {
                 {users.map((u) => (
                   <tr key={u.id}>
                     <td>
-                      <strong style={{ fontSize: 14 }}>{u.fullName}</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <UserAvatar name={u.fullName} role={u.role} size={32} showRoleBadge={false} />
+                        <strong style={{ fontSize: 14 }}>{u.fullName}</strong>
+                      </div>
                     </td>
                     <td>{u.email}</td>
                     <td>

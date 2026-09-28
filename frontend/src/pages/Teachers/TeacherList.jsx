@@ -11,6 +11,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
 import AddEditTeacherModal from './AddEditTeacherModal';
 import TeacherRolloverModal from './TeacherRolloverModal';
+import UserAvatar from '../../components/common/UserAvatar';
 import {
   SearchIcon,
   PlusIcon,
@@ -233,12 +234,23 @@ export default function TeacherList({ onViewTeacher }) {
                       </strong>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 600 }}>{t.firstName} {t.lastName}</span>
-                      {t.user && (
-                        <span style={{ display: 'block', fontSize: 11, color: 'var(--success)' }}>
-                          ✓ {isRtl ? 'مرتبط بحساب نظام' : 'Linked User Account'}
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <UserAvatar
+                          src={t.photoUrl}
+                          name={`${t.firstName} ${t.lastName}`}
+                          role="TEACHER"
+                          size={34}
+                          showRoleBadge={false}
+                        />
+                        <div>
+                          <span style={{ fontWeight: 600 }}>{t.firstName} {t.lastName}</span>
+                          {t.user && (
+                            <span style={{ display: 'block', fontSize: 11, color: 'var(--success)' }}>
+                              ✓ {isRtl ? 'مرتبط بحساب نظام' : 'Linked User Account'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td>
                       <span className="badge" style={{ background: '#f1f5f9', color: 'var(--text-main)' }}>

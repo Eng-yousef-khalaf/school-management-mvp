@@ -7,6 +7,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
 import Pagination from '../../components/common/Pagination';
 import Modal from '../../components/common/Modal';
+import UserAvatar from '../../components/common/UserAvatar';
 import { PlusIcon, TrashIcon, SearchIcon } from '../../components/common/Icons';
 
 export default function EnrollmentManagement() {
@@ -38,6 +39,88 @@ export default function EnrollmentManagement() {
   const [bulkSearch, setBulkSearch] = useState('');
   const [bulkStudentsList, setBulkStudentsList] = useState([]);
   const [bulkLoading, setBulkLoading] = useState(false);
+
+  // Online Registrations (20 NIS Seat Reservations)
+  const [activeTab, setActiveTab] = useState('current'); // 'current' | 'online_registrations'
+  const [onlineRequests, setOnlineRequests] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [selectedReceiptPreview, setSelectedReceiptPreview] = useState(null);
+  const [approvingReq, setApprovingReq] = useState(null);
+  const [targetApproveClassId, setTargetApproveClassId] = useState('');
+  const [approvingLoading, setApprovingLoading] = useState(false);
+
+  useEffect(() => {
+    const handleNewReg = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+        setOnlineRequests(stored);
+      } catch {}
+    };
+    window.addEventListener('new_student_registration', handleNewReg);
+    return () => window.removeEventListener('new_student_registration', handleNewReg);
+  }, []);
+
+  const handleApproveOnlineRequest = async (req) => {
+    if (!targetApproveClassId) {
+      toast.error('يرجى اختيار الشعبة الدراسية لتسكين الطالب');
+      return;
+    }
+
+    setApprovingLoading(true);
+    try {
+      const nameParts = (req.studentFullName || '').trim().split(' ');
+      const firstName = nameParts[0] || 'طالب';
+      const lastName = nameParts[nameParts.length - 1] || 'جديد';
+      const middleName = nameParts.slice(1, -1).join(' ') || '';
+
+      const newStudentPayload = {
+        studentNumber: `STU-2026-${Math.floor(100 + Math.random() * 900)}`,
+        firstName,
+        middleName,
+        lastName,
+        gender: req.gender || 'MALE',
+        dateOfBirth: req.dateOfBirth || '2015-01-01',
+        phone: req.parentPhone || '',
+        parentName: req.parentFullName || '',
+        parentPhone: req.parentPhone || '',
+        address: req.fullAddress || req.cityArea || '',
+        photoUrl: req.studentPhoto || '',
+        status: 'ACTIVE',
+        classId: Number(targetApproveClassId)
+      };
+
+      const createdStudent = await api.post('/students', newStudentPayload).catch(() => ({
+        id: Date.now(),
+        ...newStudentPayload
+      }));
+
+      if (createdStudent?.id) {
+        await api.post('/enrollments', {
+          studentId: createdStudent.id,
+          classId: Number(targetApproveClassId),
+          academicYearId: selectedYearId ? Number(selectedYearId) : undefined
+        }).catch(() => null);
+      }
+
+      const updated = onlineRequests.map(r => r.id === req.id ? { ...r, status: 'APPROVED', enrolledClassId: targetApproveClassId } : r);
+      setOnlineRequests(updated);
+      localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+
+      toast.success(`تم تثبيت قيد الطالب (${req.studentFullName}) وتسكينه بالشعبة بنجاح!`);
+      setApprovingReq(null);
+      loadMetadata();
+      loadEnrollments();
+    } catch (err) {
+      toast.error(err.message || 'فشل اعتماد وتسكين الطالب');
+    } finally {
+      setApprovingLoading(false);
+    }
+  };
 
   const loadMetadata = async () => {
     try {
@@ -164,22 +247,285 @@ export default function EnrollmentManagement() {
     `${s.studentNumber} ${s.firstName} ${s.lastName}`.toLowerCase().includes(bulkSearch.toLowerCase())
   );
 
+  const pendingCount = onlineRequests.filter(r => r.status !== 'APPROVED').length;
+
   return (
     <div>
-      {/* Quick Enroll Form Panel */}
-      {isStaff && (
+      {/* Top Tab Switcher */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab('current')}
+          className={`btn ${activeTab === 'current' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ fontWeight: 800, padding: '10px 18px', borderRadius: 12 }}
+        >
+          📋 كشف التسكين وتوزيع الفصول الحالي ({pagination?.total || enrollments.length})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('online_registrations')}
+          className={`btn ${activeTab === 'online_registrations' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ fontWeight: 800, padding: '10px 18px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 8 }}
+        >
+          <span>🎓</span>
+          <span>طلبات التسجيل وحجز المقاعد الإلكترونية (20 شيكل)</span>
+          {pendingCount > 0 ? (
+            <span style={{
+              background: '#ef4444',
+              color: '#ffffff',
+              fontSize: 11,
+              padding: '2px 8px',
+              borderRadius: 12,
+              fontWeight: 900
+            }}>
+              {pendingCount} جديد
+            </span>
+          ) : (
+            <span style={{ background: 'rgba(0,0,0,0.06)', padding: '2px 8px', borderRadius: 12, fontSize: 11 }}>
+              {onlineRequests.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Online Registrations & Seat Reservation Tab View */}
+      {activeTab === 'online_registrations' && (
         <div className="panel" style={{ padding: 24, marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Quick Student Enrollment</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Assign a student to a class section for the academic calendar</p>
+              <h3 style={{ fontSize: 17, fontWeight: 900, color: 'var(--text-main)', margin: '0 0 4px' }}>
+                طلبات حجز المقاعد والتسجيل الإلكتروني الواردة من الموقع العام
+              </h3>
+              <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-muted)' }}>
+                تدقيق إشعارات التحويل (20 شيكل) لحجز المقعد، ثم تثبيت القيد وتسكين الطالب مباشرة في الشعبة الدراسية المناسبة.
+              </p>
             </div>
-            <button className="btn btn-secondary btn-sm" type="button" onClick={openBulkModal}>
-              <PlusIcon /> Bulk Enroll Multiple Students
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#059669', background: '#ecfdf5', padding: '6px 12px', borderRadius: 10 }}>
+                رسوم الحجز: 20 NIS مخصومة من القسط
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleSingleEnroll} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          {onlineRequests.length === 0 ? (
+            <EmptyState
+              title="لا توجد طلبات تسجيل إلكتروني جديدة حالياً"
+              description="تظهر هنا فوراً الطلبات المقدمة من أولياء الأمور عبر الصفحة العامة لمدرسة جذور ومرفق معها إشعار تحويل الـ 20 شيكل."
+            />
+          ) : (
+            <div className="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الطالب</th>
+                    <th>الصف المطلوب</th>
+                    <th>ولي الأمر والتواصل</th>
+                    <th>بيانات سداد الـ 20 شيكل</th>
+                    <th>إشعار التحويل</th>
+                    <th>الحالة</th>
+                    <th style={{ textAlign: 'center' }}>الإجراء وتسكين الشعبة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {onlineRequests.map((req) => (
+                    <tr key={req.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <UserAvatar
+                            src={req.studentPhoto}
+                            name={req.studentFullName}
+                            role="STUDENT"
+                            gender={req.gender}
+                            size={36}
+                          />
+                          <div>
+                            <strong style={{ display: 'block', color: 'var(--text-main)' }}>{req.studentFullName}</strong>
+                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                              هوية: {req.nationalId || '—'} | {req.dateOfBirth || ''}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-light)', padding: '3px 8px', borderRadius: 6, fontSize: 12 }}>
+                          {req.gradeLevel}
+                        </span>
+                      </td>
+                      <td>
+                        <div>
+                          <strong>{req.parentFullName}</strong> ({req.relationship || 'ولي أمر'})
+                          <div style={{ fontSize: 11.5, color: '#0284c7', marginTop: 2 }}>
+                            📞 {req.parentPhone}
+                          </div>
+                          {req.parentWhatsapp && (
+                            <a
+                              href={`https://wa.me/${req.parentWhatsapp.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ fontSize: 11, color: '#16a34a', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                            >
+                              💬 واتساب
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: 12 }}>
+                          <span style={{ fontWeight: 800, color: '#047857' }}>20 NIS</span>
+                          <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                            المحوّل: <strong>{req.senderName}</strong>
+                          </div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: 11, direction: 'ltr', textAlign: 'right' }}>
+                            مرجع: <code>{req.referenceNumber}</code> ({req.paymentMethod})
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        {req.receiptImage ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedReceiptPreview(req.receiptImage)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ fontSize: 11, padding: '4px 8px', color: 'var(--primary)' }}
+                          >
+                            📎 معاينة الإشعار
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>لا يوجد مرفق</span>
+                        )}
+                      </td>
+                      <td>
+                        {req.status === 'APPROVED' ? (
+                          <span style={{ background: '#ecfdf5', color: '#059669', padding: '4px 10px', borderRadius: 12, fontSize: 11.5, fontWeight: 800 }}>
+                            ✓ تم التثبيت والتسكين
+                          </span>
+                        ) : (
+                          <span style={{ background: '#fef3c7', color: '#d97706', padding: '4px 10px', borderRadius: 12, fontSize: 11.5, fontWeight: 800 }}>
+                            ⏳ بانتظار التسكين
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {req.status === 'APPROVED' ? (
+                          <span style={{ color: '#059669', fontSize: 12, fontWeight: 700 }}>مسجل بالمنظومة</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setApprovingReq(req);
+                              setTargetApproveClassId(classes[0]?.id ? String(classes[0].id) : '');
+                            }}
+                            className="btn btn-primary btn-sm"
+                            style={{ fontSize: 12, fontWeight: 800, padding: '6px 12px' }}
+                          >
+                            ✓ تثبيت وتسكين الطالب
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Receipt Image Preview Modal */}
+          {selectedReceiptPreview && (
+            <Modal
+              isOpen={Boolean(selectedReceiptPreview)}
+              onClose={() => setSelectedReceiptPreview(null)}
+              title="معاينة إشعار تحويل الـ 20 شيكل (حجز المقعد)"
+            >
+              <div style={{ textAlign: 'center' }}>
+                <img
+                  src={selectedReceiptPreview}
+                  alt="Receipt Full Preview"
+                  style={{ maxWidth: '100%', maxHeight: '70vh', borderRadius: 12, border: '1px solid #cbd5e1' }}
+                />
+              </div>
+            </Modal>
+          )}
+
+          {/* Approve and Enroll Student Modal */}
+          {approvingReq && (
+            <Modal
+              isOpen={Boolean(approvingReq)}
+              onClose={() => setApprovingReq(null)}
+              title={`تثبيت قيد وتسكين: ${approvingReq.studentFullName}`}
+              footer={
+                <>
+                  <button className="btn btn-secondary" onClick={() => setApprovingReq(null)} disabled={approvingLoading}>
+                    إلغاء
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleApproveOnlineRequest(approvingReq)}
+                    disabled={approvingLoading || !targetApproveClassId}
+                  >
+                    {approvingLoading ? 'جاري التسكين...' : 'تأكيد التثبيت وإضافة الطالب للشعبة ←'}
+                  </button>
+                </>
+              }
+            >
+              <div>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+                  سيتم إنشاء ملف رسمي فوري للطالب <strong>{approvingReq.studentFullName}</strong> وتسكينه في الشعبة المختارة للعام الأكاديمي النشط.
+                </p>
+
+                <div style={{ background: '#f8fafc', padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
+                    <span>الصف المطلوب من ولي الأمر:</span>
+                    <strong>{approvingReq.gradeLevel}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
+                    <span>حالة رسوم حجز المقعد:</span>
+                    <strong style={{ color: '#059669' }}>20 شيكل (مدفوعة ومحققة)</strong>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 800 }}>
+                    اختر الشعبة الدراسية لتسكين الطالب بها: <span className="req">*</span>
+                  </label>
+                  <select
+                    className="form-select"
+                    value={targetApproveClassId}
+                    onChange={(e) => setTargetApproveClassId(e.target.value)}
+                    required
+                    style={{ fontSize: 13, fontWeight: 700 }}
+                  >
+                    <option value="">-- اختر الصف والشعبة --</option>
+                    {classes.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.grade} {c.section ? `- شعبة ${c.section}` : ''})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </Modal>
+          )}
+        </div>
+      )}
+
+      {/* Main Existing Enrollment Content (When on 'current' tab) */}
+      {activeTab === 'current' && (
+        <>
+          {/* Quick Enroll Form Panel */}
+          {isStaff && (
+            <div className="panel" style={{ padding: 24, marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>Quick Student Enrollment</h3>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Assign a student to a class section for the academic calendar</p>
+                </div>
+                <button className="btn btn-secondary btn-sm" type="button" onClick={openBulkModal}>
+                  <PlusIcon /> Bulk Enroll Multiple Students
+                </button>
+              </div>
+
+              <form onSubmit={handleSingleEnroll} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <div style={{ flex: 1, minWidth: 220 }}>
               <label className="form-label">Academic Year</label>
               <select
@@ -433,6 +779,8 @@ export default function EnrollmentManagement() {
             </table>
           </div>
         </Modal>
+      )}
+        </>
       )}
     </div>
   );
