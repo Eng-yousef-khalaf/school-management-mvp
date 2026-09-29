@@ -16,6 +16,7 @@ import {
   ReportsIcon
 } from '../../components/common/Icons';
 import AddEditTeacherModal from '../Teachers/AddEditTeacherModal';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function StaffDashboard({ onNavigate }) {
   const { user } = useAuth();
@@ -101,19 +102,29 @@ export default function StaffDashboard({ onNavigate }) {
         flexWrap: 'wrap',
         gap: 12
       }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
-            <span>📋</span>
-            <span>{isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Portal'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <UserAvatar
+            src={user?.photoUrl || user?.teacher?.photoUrl}
+            name={user?.fullName || 'الكادر الإداري'}
+            role={user?.role || 'STAFF'}
+            size={58}
+            showRoleBadge={true}
+            style={{ border: '2.5px solid rgba(255,255,255,0.4)', boxShadow: '0 4px 14px rgba(0,0,0,0.15)' }}
+          />
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
+              <span>📋</span>
+              <span>{isRtl ? 'بوابة شؤون المعلمين والطلاب' : 'Faculty & Student Affairs Portal'}</span>
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
+              {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون المعلمين والطلاب)` : `Welcome, ${user?.fullName || ''} (Faculty & Student Affairs)`}
+            </h2>
+            <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
+              {isRtl
+                ? 'إدارة شؤون المعلمين وتوزيع الشعب والمناهج، تسجيل وتسكين الطلاب، ومتابعة سجلات الدوام الأكاديمي والنتائج'
+                : 'Faculty management, subject allocations, student admissions, attendance, and transcripts'}
+            </p>
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
-            {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون المعلمين والطلاب)` : `Welcome, ${user?.fullName || ''} (Faculty & Student Affairs)`}
-          </h2>
-          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
-            {isRtl
-              ? 'إدارة شؤون المعلمين وتوزيع الشعب والمناهج، تسجيل وتسكين الطلاب، ومتابعة سجلات الدوام الأكاديمي والنتائج'
-              : 'Faculty management, subject allocations, student admissions, attendance, and transcripts'}
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

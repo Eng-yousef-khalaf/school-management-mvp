@@ -7,6 +7,7 @@ import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { useNotifications } from '../../context/NotificationContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { AcademicYearIcon, LogoutIcon } from '../common/Icons';
+import UserAvatar from '../common/UserAvatar';
 
 export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNavigate }) {
   const { user, switchPortalRole, logout } = useAuth();
@@ -62,7 +63,7 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
         </div>
       </div>
 
-      {/* Right: Academic Year, Role Switcher, Notifications, Language */}
+      {/* Right: Academic Year, User Profile Chip, Notifications, Language */}
       <div className="topbar-right">
         {/* Academic Year Pill */}
         {activeYear && (
@@ -84,21 +85,37 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           </div>
         )}
 
-        {/* Read-Only Role Indicator Badge (Individual accounts secured by password) */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          background: user?.role === 'ADMIN' ? 'rgba(79, 70, 229, 0.08)' : user?.role === 'STAFF' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(14, 165, 233, 0.08)',
-          color: user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#047857' : '#0284c7',
-          border: `1px solid ${user?.role === 'ADMIN' ? 'rgba(79, 70, 229, 0.2)' : user?.role === 'STAFF' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(14, 165, 233, 0.2)'}`,
-          padding: '5px 12px',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '12px',
-          fontWeight: 800
-        }}>
-          <span>{user?.role === 'ADMIN' ? '👔' : user?.role === 'STAFF' ? '📋' : '👨‍🏫'}</span>
-          <span>{roleName}</span>
+        {/* User Profile Chip with Avatar */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 9,
+            background: 'var(--bg-main)',
+            border: '1px solid var(--border-color)',
+            padding: isRtl ? '3px 10px 3px 5px' : '3px 5px 3px 10px',
+            borderRadius: 'var(--radius-full)',
+            cursor: 'pointer',
+            transition: 'var(--transition)'
+          }}
+          onClick={() => onNavigate && onNavigate('settings')}
+          title={isRtl ? 'الملف الشخصي وإعدادات الحساب' : 'Account & Profile Settings'}
+        >
+          <UserAvatar
+            src={user?.photoUrl || user?.teacher?.photoUrl}
+            name={user?.fullName}
+            role={user?.role}
+            size={32}
+            showRoleBadge={false}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-main)' }}>
+              {user?.fullName || 'User'}
+            </span>
+            <span style={{ fontSize: 10, color: roleColor, fontWeight: 700 }}>
+              {roleName}
+            </span>
+          </div>
         </div>
 
         {/* Notifications Center */}

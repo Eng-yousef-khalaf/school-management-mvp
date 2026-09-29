@@ -567,7 +567,7 @@ router.get('/principal', async (req, res) => {
   try {
     const admin = await prisma.user.findFirst({
       where: { role: 'ADMIN' },
-      select: { id: true, fullName: true, email: true, role: true, createdAt: true }
+      select: { id: true, fullName: true, email: true, role: true, photoUrl: true, createdAt: true }
     });
 
     return res.json({
@@ -575,7 +575,8 @@ router.get('/principal', async (req, res) => {
       principal: admin || {
         fullName: 'أ. عبد الرحمن خليل (المدير العام)',
         email: 'admin@school.local',
-        role: 'ADMIN'
+        role: 'ADMIN',
+        photoUrl: null
       }
     });
   } catch (err) {
@@ -585,11 +586,11 @@ router.get('/principal', async (req, res) => {
 
 /**
  * POST /api/developer/update-principal
- * Developer tool to designate principal name, email and password for official handover
+ * Developer tool to designate principal name, email, password, and photo for official handover
  */
 router.post('/update-principal', async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, photoUrl } = req.body;
     if (!fullName || !fullName.trim()) {
       return res.status(400).json({ ok: false, error: 'Principal name is required' });
     }
@@ -606,6 +607,10 @@ router.post('/update-principal', async (req, res) => {
       fullName: cleanName,
       email: cleanEmail
     };
+
+    if (photoUrl !== undefined) {
+      updateData.photoUrl = photoUrl;
+    }
 
     if (password && password.trim()) {
       updateData.passwordHash = await bcrypt.hash(password.trim(), 12);
@@ -624,6 +629,7 @@ router.post('/update-principal', async (req, res) => {
           email: cleanEmail,
           passwordHash,
           role: 'ADMIN',
+          photoUrl: photoUrl || null,
           active: true
         }
       });
@@ -636,7 +642,8 @@ router.post('/update-principal', async (req, res) => {
         id: admin.id,
         fullName: admin.fullName,
         email: admin.email,
-        role: admin.role
+        role: admin.role,
+        photoUrl: admin.photoUrl
       }
     });
   } catch (err) {

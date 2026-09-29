@@ -3,6 +3,7 @@ import Modal from '../../components/common/Modal';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved, teachers = [] }) {
   const toast = useToast();
@@ -13,6 +14,7 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
     fullName: '',
     password: '',
     role: 'STAFF',
+    photoUrl: '',
     active: true,
     teacherId: ''
   });
@@ -27,6 +29,7 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
         fullName: targetUser.fullName || '',
         password: '',
         role: targetUser.role || 'STAFF',
+        photoUrl: targetUser.photoUrl || '',
         active: targetUser.active !== undefined ? targetUser.active : true,
         teacherId: targetUser.teacherId || ''
       });
@@ -36,12 +39,28 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
         fullName: '',
         password: 'ChangeMe123!',
         role: 'STAFF',
+        photoUrl: '',
         active: true,
         teacherId: ''
       });
     }
     setError('');
   }, [targetUser, isOpen]);
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning('حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      setFormData((prev) => ({ ...prev, photoUrl: uploadEvent.target.result }));
+      toast.success('تم تحميل صورة المستخدم بنجاح');
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +103,58 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
       {error && <ErrorAlert message={error} />}
 
       <form onSubmit={handleSubmit}>
+        {/* Photo Upload Section */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          background: 'var(--bg-main, #f8fafc)',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          border: '1px solid var(--border-color, #e2e8f0)',
+          marginBottom: 16
+        }}>
+          <UserAvatar
+            src={formData.photoUrl}
+            name={formData.fullName}
+            role={formData.role}
+            size={56}
+            showRoleBadge={true}
+          />
+          <div style={{ flex: 1 }}>
+            <label className="form-label" style={{ marginBottom: 4, fontWeight: 700 }}>
+              صورة المستخدم / الكادر الإداري
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                style={{ fontSize: 12 }}
+              />
+              {formData.photoUrl && (
+                <button
+                  type="button"
+                  onClick={() => setFormData(p => ({ ...p, photoUrl: '' }))}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#ef4444',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    fontWeight: 700
+                  }}
+                >
+                  حذف الصورة
+                </button>
+              )}
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
+              يتم حفظ الصورة بصورة دائمة وتظهر في كافة اللوحات والترويسة
+            </span>
+          </div>
+        </div>
+
         <div className="form-group">
           <label className="form-label">Full Name <span className="req">*</span></label>
           <input

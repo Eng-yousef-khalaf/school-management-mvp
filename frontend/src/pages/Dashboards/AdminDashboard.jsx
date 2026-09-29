@@ -8,6 +8,7 @@ import BarChart from '../../components/charts/BarChart';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
+import UserAvatar from '../../components/common/UserAvatar';
 import TeacherRolloverModal from '../Teachers/TeacherRolloverModal';
 import InitialStaffOnboarding from '../../components/onboarding/InitialStaffOnboarding';
 import {
@@ -107,19 +108,29 @@ export default function AdminDashboard({ onNavigate }) {
         flexWrap: 'wrap',
         gap: 12
       }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
-            <span>👔</span>
-            <span>{isRtl ? 'بوابة المدير العام (صلاحيات كاملة)' : 'Executive Admin Portal (Full Authority)'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <UserAvatar
+            src={user?.photoUrl}
+            name={user?.fullName || 'المدير العام'}
+            role="ADMIN"
+            size={58}
+            showRoleBadge={true}
+            style={{ border: '2.5px solid rgba(255,255,255,0.4)', boxShadow: '0 4px 14px rgba(0,0,0,0.2)' }}
+          />
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
+              <span>👔</span>
+              <span>{isRtl ? 'بوابة المدير العام (صلاحيات كاملة)' : 'Executive Admin Portal (Full Authority)'}</span>
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
+              {isRtl ? `مرحباً بك، مدير النظام (${user?.fullName || 'Administrator'})` : `Welcome, Administrator (${user?.fullName || 'Administrator'})`}
+            </h2>
+            <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
+              {isRtl
+                ? 'متابعة نسب حضور والتزام المعلمين، تقييم الأداء الأكاديمي وتغطية الشعب، وسجل التدقيق والأمان المؤسسي'
+                : 'Executive supervision over faculty daily attendance rates, teacher academic performance, and institutional security'}
+            </p>
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
-            {isRtl ? `مرحباً بك، مدير النظام (${user?.fullName || 'Administrator'})` : `Welcome, Administrator (${user?.fullName || 'Administrator'})`}
-          </h2>
-          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
-            {isRtl
-              ? 'متابعة نسب حضور والتزام المعلمين، تقييم الأداء الأكاديمي وتغطية الشعب، وسجل التدقيق والأمان المؤسسي'
-              : 'Executive supervision over faculty daily attendance rates, teacher academic performance, and institutional security'}
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

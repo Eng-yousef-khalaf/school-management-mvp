@@ -35,10 +35,11 @@ async function getUsers({ page = 1, limit = 20, q = '', role, active } = {}) {
         email: true,
         fullName: true,
         role: true,
+        photoUrl: true,
         active: true,
         teacherId: true,
         teacher: {
-          select: { employeeNo: true, firstName: true, lastName: true }
+          select: { employeeNo: true, firstName: true, lastName: true, photoUrl: true }
         },
         createdAt: true,
         updatedAt: true
@@ -67,6 +68,7 @@ async function getUserById(id) {
       email: true,
       fullName: true,
       role: true,
+      photoUrl: true,
       active: true,
       teacherId: true,
       teacher: true,
@@ -97,6 +99,7 @@ async function createUser(data, adminUser, req) {
       fullName: data.fullName.trim(),
       passwordHash,
       role: data.role || 'STAFF',
+      photoUrl: data.photoUrl ? data.photoUrl.trim() : null,
       active: data.active !== undefined ? Boolean(data.active) : true,
       teacherId: data.teacherId ? parseInt(data.teacherId, 10) : null
     },
@@ -105,6 +108,7 @@ async function createUser(data, adminUser, req) {
       email: true,
       fullName: true,
       role: true,
+      photoUrl: true,
       active: true,
       teacherId: true,
       createdAt: true
@@ -130,6 +134,7 @@ async function updateUser(id, data, adminUser, req) {
   if (data.email !== undefined) formatted.email = data.email.trim().toLowerCase();
   if (data.fullName !== undefined) formatted.fullName = data.fullName.trim();
   if (data.role !== undefined) formatted.role = data.role;
+  if (data.photoUrl !== undefined) formatted.photoUrl = data.photoUrl ? data.photoUrl.trim() : null;
   if (data.active !== undefined) formatted.active = Boolean(data.active);
   if (data.teacherId !== undefined) formatted.teacherId = data.teacherId ? parseInt(data.teacherId, 10) : null;
 
@@ -145,6 +150,7 @@ async function updateUser(id, data, adminUser, req) {
       email: true,
       fullName: true,
       role: true,
+      photoUrl: true,
       active: true,
       teacherId: true,
       updatedAt: true

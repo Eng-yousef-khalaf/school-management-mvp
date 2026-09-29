@@ -164,6 +164,7 @@ async function createTeacher(data, user, req) {
     phone: data.phone ? data.phone.trim() : null,
     email: data.email ? data.email.trim().toLowerCase() : null,
     specialty: data.specialty ? data.specialty.trim() : null,
+    photoUrl: data.photoUrl ? data.photoUrl.trim() : (data.avatar || null),
     active: data.active !== undefined ? Boolean(data.active) : true
   };
 
@@ -207,6 +208,7 @@ async function createTeacher(data, user, req) {
           passwordHash,
           fullName: `${teacher.firstName} ${teacher.lastName}`,
           role: 'TEACHER',
+          photoUrl: teacher.photoUrl,
           active: true,
           teacherId: teacher.id
         }
@@ -240,6 +242,13 @@ async function updateTeacher(id, data, user, req) {
   if (data.phone !== undefined) formatted.phone = data.phone ? data.phone.trim() : null;
   if (data.email !== undefined) formatted.email = data.email ? data.email.trim().toLowerCase() : null;
   if (data.specialty !== undefined) formatted.specialty = data.specialty ? data.specialty.trim() : null;
+  if (data.photoUrl !== undefined) {
+    formatted.photoUrl = data.photoUrl ? data.photoUrl.trim() : null;
+    await prisma.user.updateMany({
+      where: { teacherId },
+      data: { photoUrl: formatted.photoUrl }
+    });
+  }
   if (data.active !== undefined) {
     formatted.active = Boolean(data.active);
     // Also sync the linked User account active state

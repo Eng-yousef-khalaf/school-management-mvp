@@ -7,6 +7,7 @@ const { loginSchema } = require('../utils/validators');
 
 router.post('/login', validate(loginSchema), authController.login);
 router.get('/profile', authMiddleware, authController.getProfile);
+router.put('/profile', authMiddleware, authController.updateProfile);
 router.post('/change-password', authMiddleware, authController.changePassword);
 
 module.exports = router;

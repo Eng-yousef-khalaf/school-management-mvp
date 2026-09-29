@@ -16,6 +16,11 @@ export default function JothoorPublicWebsite({
   const [registerSuccessData, setRegisterSuccessData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Gallery Interactive States
+  const [galleryFilter, setGalleryFilter] = useState('ALL');
+  const [activeLightboxPhoto, setActiveLightboxPhoto] = useState(null);
+  const [failedImages, setFailedImages] = useState({});
+
   // Form State for new student registration (20 NIS Seat Reservation)
   const [formData, setFormData] = useState({
     studentFullName: '',
@@ -158,46 +163,74 @@ export default function JothoorPublicWebsite({
 
   const schoolPhotoShowcase = [
     {
+      id: 'classroom',
       title: 'الفصول الدراسية والتفاعل الصفي الذكي',
       category: 'بيئة تعليمية نموذجية',
-      image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
+      tag: 'ENVIRONMENT',
+      image: '/gallery/smart-classroom.jpg',
+      backupGradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)',
+      icon: '🖥️',
       description: 'فصول نموذجية حديثة مجهزة بأحدث الوسائل التفاعلية لتقديم تجربة تعليمية ممتعة ومحفزة للطلاب.'
     },
     {
+      id: 'science',
       title: 'مختبرات العلوم والتجارب المباشرة',
       category: 'استكشاف وابتكار علمي',
-      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
+      tag: 'STEM',
+      image: '/gallery/science-lab.jpg',
+      backupGradient: 'linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%)',
+      icon: '🔬',
       description: 'تطبيق عملي للمفاهيم العلمية وتجارب مخبرية ترسخ الفهم النظري وتنمي روح البحث والاستكشاف.'
     },
     {
+      id: 'robotics',
       title: 'الروبوتات والذكاء الاصطناعي والبرمجة',
       category: 'تكنولوجيا المستقبل (STEM)',
-      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+      tag: 'STEM',
+      image: '/gallery/robotics-stem.jpg',
+      backupGradient: 'linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #8b5cf6 100%)',
+      icon: '🤖',
       description: 'تمكين أطفالنا وشبابنا من مهارات العصر وبناء نماذج روبوت ذكية تؤهلهم للمسابقات المحلية والدولية.'
     },
     {
+      id: 'kindergarten',
       title: 'مرحلة رياض الأطفال والتأسيس الإبداعي',
       category: 'براعم جذور الغالية',
-      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80',
+      tag: 'KG',
+      image: '/gallery/kindergarten.jpg',
+      backupGradient: 'linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #f97316 100%)',
+      icon: '🎨',
       description: 'أجواء مبهجة وآمنة للأطفال الصغار تركز على التعلم النشط وتنمية الخيال والمشاعر الإيجابية.'
     },
     {
+      id: 'honor',
       title: 'احتفالات تكريم أوائل الطلبة والمتفوقين',
       category: 'حصاد الجد والاجتهاد',
-      image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+      tag: 'HONORS',
+      image: '/gallery/honor-awards.jpg',
+      backupGradient: 'linear-gradient(135deg, #831843 0%, #be185d 50%, #ec4899 100%)',
+      icon: '🏆',
       description: 'تقدير دائم لجهود أبنائنا وبناتنا الأوائل وتكريمهم بحضور أولياء الأمور والهيئة التدريسية والإدارية.'
     },
     {
+      id: 'sports',
       title: 'الأنشطة الرياضية والكشفية وروح الفريق',
       category: 'طاقة، صحة، وانتماء',
-      image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80',
+      tag: 'SPORTS',
+      image: '/gallery/sports-activity.jpg',
+      backupGradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #059669 100%)',
+      icon: '⚽',
       description: 'مساحات لممارسة الألعاب الجماعية والمسابقات التي تصقل اللياقة البدنية وتغرس العمل الجماعي.'
     }
   ];
 
+  const filteredShowcase = galleryFilter === 'ALL'
+    ? schoolPhotoShowcase
+    : schoolPhotoShowcase.filter(p => p.tag === galleryFilter);
+
   return (
     <div className="jothoor-public-root" dir="rtl" style={{ fontFamily: "'Cairo', 'Segoe UI', system-ui, sans-serif", background: '#f8fafc', color: '#1e293b' }}>
-      
+
       {/* 1. National Palestinian Solidarity Header */}
       <div style={{ background: '#090d16', color: '#cbd5e1', padding: '8px 16px', fontSize: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
@@ -240,7 +273,7 @@ export default function JothoorPublicWebsite({
         boxShadow: '0 4px 20px -2px rgba(0,0,0,0.06)'
       }}>
         <div style={{ maxWidth: 1240, margin: '0 auto', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          
+
           {/* Brand Logo & Name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -258,15 +291,15 @@ export default function JothoorPublicWebsite({
 
           {/* Quick Action Hub Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            
-            {/* 1. Register & Reserve Seat (20 NIS) */}
+
+            {/* 1. Register & Reserve Seat */}
             <button
               onClick={() => setIsRegisterModalOpen(true)}
               style={{
                 background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 color: '#ffffff',
                 border: 'none',
-                padding: '9px 16px',
+                padding: '9px 18px',
                 borderRadius: '12px',
                 fontWeight: 800,
                 fontSize: '13px',
@@ -279,8 +312,7 @@ export default function JothoorPublicWebsite({
               }}
             >
               <span>🎓</span>
-              <span>تسجيل طالب جديد (حجز مقعد 20ش)</span>
-              <span style={{ background: 'rgba(255,255,255,0.25)', padding: '2px 6px', borderRadius: 8, fontSize: '11px' }}>20 ₪</span>
+              <span>تسجيل طالب جديد (حجز مقعد)</span>
             </button>
 
             {/* 2. Pay Tuition Fees */}
@@ -363,7 +395,7 @@ export default function JothoorPublicWebsite({
         <div style={{ position: 'absolute', bottom: -100, left: -100, width: 450, height: 450, background: 'rgba(14, 165, 233, 0.2)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: 1240, margin: '0 auto', position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 40, alignItems: 'center' }}>
-          
+
           {/* Hero Left Content */}
           <div>
             <div style={{
@@ -415,7 +447,7 @@ export default function JothoorPublicWebsite({
                 }}
               >
                 <span>📝</span>
-                <span>سجّل ابنك الآن واحجز مقعداً (20 شيكل)</span>
+                <span>سجّل ابنك الآن واحجز مقعداً دراسياً</span>
               </button>
 
               <button
@@ -465,8 +497,8 @@ export default function JothoorPublicWebsite({
                 <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>نسبة النجاح والتفوق الأكاديمي</div>
               </div>
               <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#34d399' }}>20 ₪</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>رسوم رمزية لحجز المقعد المبدئي</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#34d399' }}>فصول ذكية</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>بيئة نموذجية وشاشات تفاعلية</div>
               </div>
               <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#fbbf24' }}>24/7</div>
@@ -601,7 +633,7 @@ export default function JothoorPublicWebsite({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
               <div>
                 <h3 style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  طلب تسجيل طالب جديد وحجز مقعد (20 شيكل)
+                  طلب تسجيل طالب جديد — حجز مقعد دراسي
                 </h3>
                 <p style={{ margin: '3px 0 0', fontSize: 12, color: '#64748b' }}>
                   مدرسة جذور النموذجية الخاصة — حجز المقعد الإلكتروني المعتمد
@@ -633,7 +665,7 @@ export default function JothoorPublicWebsite({
             </div>
 
             <form onSubmit={handleSubmitRegistration}>
-              
+
               {/* Section A: Student Personal Details */}
               <div style={{ marginBottom: 20 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 800, color: '#334155', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1016,87 +1048,339 @@ export default function JothoorPublicWebsite({
 
       {/* 7. Comprehensive Visual Photo Gallery from School Life */}
       <section style={{ maxWidth: 1240, margin: '64px auto', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+        <style>{`
+          .jothoor-gallery-card {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+          }
+          .jothoor-gallery-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px -8px rgba(16, 185, 129, 0.22), 0 0 0 1.5px #10b981 !important;
+          }
+          .jothoor-gallery-card:hover .gallery-img {
+            transform: scale(1.08);
+          }
+          .jothoor-gallery-card:hover .hover-overlay {
+            opacity: 1 !important;
+          }
+          .gallery-filter-pill {
+            transition: all 0.25s ease;
+          }
+          .gallery-filter-pill:hover {
+            transform: translateY(-2px);
+          }
+        `}</style>
+
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <span style={{
             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             color: '#ffffff',
-            padding: '4px 16px',
+            padding: '5px 18px',
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 800,
-            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)'
+            boxShadow: '0 2px 10px rgba(16, 185, 129, 0.28)',
+            display: 'inline-block'
           }}>
-            📸 معرض الصور والفعاليات المدرسية
+            📸 معرض الصور والفعاليات المدرسية الحية
           </span>
-          <h3 style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px' }}>
+          <h3 style={{ fontSize: 30, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px', letterSpacing: '-0.4px' }}>
             جولة مصورة في أرجاء مدرسة جذور النموذجية الخاصة
           </h3>
-          <p style={{ fontSize: 14, color: '#64748b', maxWidth: 650, margin: '0 auto', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: '#64748b', maxWidth: 660, margin: '0 auto', lineHeight: 1.6 }}>
             نوثق بالصور والفيديو مسيرة أبنائنا وبناتنا اليومية في الغرف الصفية المتطورة، والأنشطة الإبداعية، والاحتفاء الدائم بالمتفوقين.
           </p>
         </div>
 
+        {/* Interactive Filter Tabs */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 8,
+          marginBottom: 32
+        }}>
+          {[
+            { id: 'ALL', label: 'جميع الفعاليات (6)', icon: '🌟' },
+            { id: 'ENVIRONMENT', label: 'الفصول الذكية', icon: '🖥️' },
+            { id: 'STEM', label: 'العلوم والروبوتات', icon: '🔬' },
+            { id: 'KG', label: 'رياض الأطفال', icon: '🎨' },
+            { id: 'HONORS', label: 'تكريم المتفوقين', icon: '🏆' },
+            { id: 'SPORTS', label: 'الأنشطة والرياضة', icon: '⚽' },
+          ].map(tab => {
+            const isActive = galleryFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setGalleryFilter(tab.id)}
+                className="gallery-filter-pill"
+                style={{
+                  background: isActive ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#475569',
+                  border: isActive ? '1px solid #059669' : '1px solid #cbd5e1',
+                  padding: '8px 16px',
+                  borderRadius: 24,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: isActive ? '0 4px 14px rgba(16, 185, 129, 0.3)' : '0 1px 3px rgba(0,0,0,0.04)'
+                }}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Photographic Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
-          {schoolPhotoShowcase.map((photo, idx) => (
+          {filteredShowcase.map((photo) => {
+            const isFailed = failedImages[photo.id];
+            return (
+              <div
+                key={photo.id}
+                className="jothoor-gallery-card"
+                onClick={() => setActiveLightboxPhoto(photo)}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  position: 'relative'
+                }}
+              >
+                {/* Photo Image Container */}
+                <div style={{ position: 'relative', width: '100%', height: 220, overflow: 'hidden', background: '#0f172a' }}>
+                  {!isFailed ? (
+                    <img
+                      src={photo.image}
+                      alt={photo.title}
+                      loading="lazy"
+                      className="gallery-img"
+                      onError={() => setFailedImages(prev => ({ ...prev, [photo.id]: true }))}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                        transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                      }}
+                    />
+                  ) : (
+                    /* High-Aesthetic Resilient Visual Fallback */
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      background: photo.backupGradient,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 20,
+                      color: '#ffffff',
+                      textAlign: 'center'
+                    }}>
+                      <span style={{ fontSize: 48, marginBottom: 8, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>
+                        {photo.icon}
+                      </span>
+                      <strong style={{ fontSize: 15, fontWeight: 900, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>
+                        {photo.title}
+                      </strong>
+                      <span style={{ fontSize: 11, opacity: 0.85, marginTop: 4 }}>
+                        مدرسة جذور النموذجية الخاصة
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Category Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: 12,
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    zIndex: 2
+                  }}>
+                    {photo.category}
+                  </div>
+
+                  {/* Hover Inspect Overlay */}
+                  <div
+                    className="hover-overlay"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'rgba(15, 23, 42, 0.45)',
+                      backdropFilter: 'blur(2px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease',
+                      zIndex: 3
+                    }}
+                  >
+                    <span style={{
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      padding: '8px 16px',
+                      borderRadius: 20,
+                      fontSize: 12,
+                      fontWeight: 900,
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}>
+                      <span>🔍</span> انقر للمعاينة والتفاصيل
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', margin: '0 0 8px' }}>
+                    {photo.title}
+                  </h4>
+                  <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, margin: 0, flex: 1 }}>
+                    {photo.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Lightbox High-Res Interactive Modal */}
+        {activeLightboxPhoto && (
+          <div
+            onClick={() => setActiveLightboxPhoto(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.88)',
+              backdropFilter: 'blur(10px)',
+              zIndex: 99999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              animation: 'fadeIn 0.2s ease'
+            }}
+          >
             <div
-              key={idx}
+              onClick={(e) => e.stopPropagation()}
               style={{
                 background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '20px',
+                borderRadius: 24,
+                maxWidth: 780,
+                width: '100%',
                 overflow: 'hidden',
-                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+                boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
               }}
             >
-              {/* Photo Image Container */}
-              <div style={{ position: 'relative', width: '100%', height: 210, overflow: 'hidden', background: '#0f172a' }}>
-                <img
-                  src={photo.image}
-                  alt={photo.title}
-                  loading="lazy"
+              {/* Image Preview Container */}
+              <div style={{ position: 'relative', width: '100%', height: 380, background: '#090d16', overflow: 'hidden' }}>
+                {!failedImages[activeLightboxPhoto.id] ? (
+                  <img
+                    src={activeLightboxPhoto.image}
+                    alt={activeLightboxPhoto.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: activeLightboxPhoto.backupGradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <span style={{ fontSize: 64 }}>{activeLightboxPhoto.icon}</span>
+                    <h3 style={{ margin: '12px 0 0', fontSize: 20, fontWeight: 900 }}>{activeLightboxPhoto.title}</h3>
+                  </div>
+                )}
+                <button
+                  onClick={() => setActiveLightboxPhoto(null)}
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                    transition: 'transform 0.5s ease'
+                    position: 'absolute',
+                    top: 16,
+                    left: 16,
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    width: 38,
+                    height: 38,
+                    borderRadius: '50%',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backdropFilter: 'blur(6px)'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-                />
+                >
+                  ✕
+                </button>
                 <div style={{
                   position: 'absolute',
-                  top: 12,
-                  right: 12,
-                  background: 'rgba(15, 23, 42, 0.75)',
-                  backdropFilter: 'blur(8px)',
+                  top: 16,
+                  right: 16,
+                  background: 'rgba(5, 150, 105, 0.9)',
                   color: '#ffffff',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 800,
-                  padding: '4px 10px',
-                  borderRadius: 12,
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  padding: '5px 12px',
+                  borderRadius: 14,
+                  backdropFilter: 'blur(6px)'
                 }}>
-                  {photo.category}
+                  {activeLightboxPhoto.category}
                 </div>
               </div>
 
-              {/* Card Body */}
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <h4 style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', margin: '0 0 8px' }}>
-                  {photo.title}
-                </h4>
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, margin: 0, flex: 1 }}>
-                  {photo.description}
+              {/* Modal Body */}
+              <div style={{ padding: '24px 28px' }}>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', margin: '0 0 10px' }}>
+                  {activeLightboxPhoto.title}
+                </h3>
+                <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: '0 0 20px' }}>
+                  {activeLightboxPhoto.description}
                 </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 16, flexWrap: 'wrap', gap: 12 }}>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>
+                    🏫 مدرسة جذور النموذجية الخاصة — غزة، فلسطين
+                  </span>
+                  <button
+                    onClick={() => {
+                      setActiveLightboxPhoto(null);
+                      setIsRegisterModalOpen(true);
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: 12,
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🎓 حجز مقعد وتسجيل إلكتروني الآن
+                  </button>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Facebook Link & Visual Invitation Banner */}
         <div style={{
@@ -1164,7 +1448,7 @@ export default function JothoorPublicWebsite({
       {/* 8. Comprehensive Footer */}
       <footer style={{ background: '#090d16', color: '#94a3b8', padding: '48px 20px 24px', borderTop: '1px solid #1e293b' }}>
         <div style={{ maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 32, marginBottom: 36 }}>
-          
+
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1182,7 +1466,7 @@ export default function JothoorPublicWebsite({
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <li>
                 <button onClick={() => setIsRegisterModalOpen(true)} style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: 0, fontWeight: 700 }}>
-                  • حجز مقعد وتسجيل طالب جديد (20ش)
+                  • حجز مقعد وتسجيل طالب جديد
                 </button>
               </li>
               <li>

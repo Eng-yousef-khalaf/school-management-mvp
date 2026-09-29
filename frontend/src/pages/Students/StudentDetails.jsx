@@ -55,6 +55,27 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
     window.print();
   };
 
+  const handleQuickPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning('حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (uploadEvent) => {
+      const dataUrl = uploadEvent.target.result;
+      try {
+        await api.put(`/students/${student.id}`, { photoUrl: dataUrl });
+        setStudent((prev) => ({ ...prev, photoUrl: dataUrl }));
+        toast.success(isRtl ? 'تم حفظ وتحديث صورة الطالب بنجاح! 📸' : 'Student photo updated successfully!');
+      } catch (err) {
+        toast.error(err.message || 'فشل تحديث الصورة');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadStudent} />;
   if (!student) return null;
@@ -103,14 +124,39 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
       {/* Main Student Header Card - Hidden during print */}
       <div className="panel no-print" style={{ padding: 24, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-          <UserAvatar
-            src={student.photoUrl || student.avatar}
-            name={`${student.firstName} ${student.lastName}`}
-            role="STUDENT"
-            gender={student.gender}
-            size={74}
-            showRoleBadge={true}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <UserAvatar
+              src={student.photoUrl || student.avatar}
+              name={`${student.firstName} ${student.lastName}`}
+              role="STUDENT"
+              gender={student.gender}
+              size={78}
+              showRoleBadge={true}
+            />
+            {canManageStudents && (
+              <label style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--primary)',
+                cursor: 'pointer',
+                padding: '3px 8px',
+                background: 'var(--bg-main)',
+                borderRadius: 12,
+                border: '1px solid var(--border-color)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4
+              }} title={isRtl ? 'رفع أو تحديث صورة الطالب لاحقاً' : 'Upload student photo'}>
+                <span>📷 {isRtl ? (student.photoUrl ? 'تحديث الصورة' : 'إرفاق صورة') : 'Photo'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleQuickPhotoUpload}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            )}
+          </div>
 
           <div style={{ flex: 1, minWidth: 240 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

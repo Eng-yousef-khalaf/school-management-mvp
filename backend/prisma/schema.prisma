@@ -13,6 +13,7 @@ model User {
   passwordHash String
   fullName     String
   role         String     @default("STAFF")
+  photoUrl     String?
   active       Boolean    @default(true)
   teacherId    Int?       @unique
   teacher      Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
@@ -71,6 +72,7 @@ model Student {
   parentName    String?
   parentPhone   String?
   address       String?
+  photoUrl      String?
   status        String       @default("ACTIVE")
   enrollments   Enrollment[]
   attendance    Attendance[]
@@ -96,6 +98,7 @@ model Teacher {
   phone        String?
   email        String?
   specialty    String?
+  photoUrl     String?
   active       Boolean               @default(true)
   user         User?
   teacherLinks TeacherClassSubject[]

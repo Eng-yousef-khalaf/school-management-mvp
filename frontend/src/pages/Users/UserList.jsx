@@ -175,7 +175,7 @@ export default function UserList() {
                   <tr key={u.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <UserAvatar name={u.fullName} role={u.role} size={32} showRoleBadge={false} />
+                        <UserAvatar src={u.photoUrl || u.teacher?.photoUrl} name={u.fullName} role={u.role} size={36} showRoleBadge={false} />
                         <strong style={{ fontSize: 14 }}>{u.fullName}</strong>
                       </div>
                     </td>

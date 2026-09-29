@@ -291,6 +291,7 @@ async function createStudent(data, user, req) {
     parentName: data.parentName ? data.parentName.trim() : null,
     parentPhone: data.parentPhone ? data.parentPhone.trim() : null,
     address: data.address ? data.address.trim() : null,
+    photoUrl: data.photoUrl ? data.photoUrl.trim() : (data.avatar || null),
     status: data.status || 'ACTIVE'
   };
 
@@ -334,6 +335,7 @@ async function updateStudent(id, data, user, req) {
   if (data.parentName !== undefined) formattedData.parentName = data.parentName ? data.parentName.trim() : null;
   if (data.parentPhone !== undefined) formattedData.parentPhone = data.parentPhone ? data.parentPhone.trim() : null;
   if (data.address !== undefined) formattedData.address = data.address ? data.address.trim() : null;
+  if (data.photoUrl !== undefined) formattedData.photoUrl = data.photoUrl ? data.photoUrl.trim() : null;
   if (data.status !== undefined) formattedData.status = data.status;
 
   const updated = await prisma.student.update({

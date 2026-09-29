@@ -123,7 +123,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [principalForm, setPrincipalForm] = useState({
     fullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
     email: 'admin@school.local',
-    password: 'ChangeMe123!'
+    password: 'ChangeMe123!',
+    photoUrl: localStorage.getItem('school_principal_photo') || ''
   });
   const [isSavingPrincipal, setIsSavingPrincipal] = useState(false);
 
@@ -135,6 +136,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     adminFullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
     adminEmail: 'admin@school.local',
     adminPassword: 'ChangeMe123!',
+    adminPhotoUrl: localStorage.getItem('school_principal_photo') || '',
   });
 
   // DB Maintenance States
@@ -224,14 +226,35 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           ...prev,
           fullName: res.principal.fullName,
           email: res.principal.email || prev.email,
+          photoUrl: res.principal.photoUrl || prev.photoUrl || ''
         }));
         setHandoverData((prev) => ({
           ...prev,
           adminFullName: res.principal.fullName,
           adminEmail: res.principal.email || prev.adminEmail,
+          adminPhotoUrl: res.principal.photoUrl || ''
         }));
+        if (res.principal.photoUrl) {
+          localStorage.setItem('school_principal_photo', res.principal.photoUrl);
+        }
       }
     } catch {}
+  };
+
+  const handlePrincipalPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(isRtl ? 'حجم الصورة يتجاوز 5 ميجابايت' : 'Image exceeds 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const dataUrl = uploadEvent.target.result;
+      setPrincipalForm(prev => ({ ...prev, photoUrl: dataUrl }));
+      toast.success(isRtl ? 'تم تحميل صورة المدير بنجاح!' : 'Principal photo loaded!');
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
@@ -253,6 +276,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         fullName: cleanName,
         email: cleanEmail,
         password: principalForm.password.trim() || undefined,
+        photoUrl: principalForm.photoUrl || null
       });
 
       if (res?.ok) {
@@ -261,11 +285,16 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           adminFullName: cleanName,
           adminEmail: cleanEmail,
           adminPassword: principalForm.password.trim() || prev.adminPassword,
+          adminPhotoUrl: principalForm.photoUrl || ''
         }));
         localStorage.setItem('school_principal_name', cleanName);
+        if (principalForm.photoUrl) {
+          localStorage.setItem('school_principal_photo', principalForm.photoUrl);
+        }
         localStorage.setItem('school_principal_info', JSON.stringify({
           fullName: cleanName,
           email: cleanEmail,
+          photoUrl: principalForm.photoUrl
         }));
 
         const curUser = sessionStorage.getItem('user');
@@ -275,6 +304,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             if (u.role === 'ADMIN') {
               u.fullName = cleanName;
               u.email = cleanEmail;
+              u.photoUrl = principalForm.photoUrl;
               sessionStorage.setItem('user', JSON.stringify(u));
               localStorage.setItem('user', JSON.stringify(u));
             }
@@ -284,8 +314,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         window.dispatchEvent(new Event('principal-updated'));
         toast.success(
           isRtl
-            ? `تم تثبيت اسم المدير (${cleanName}) بنجاح! يظهر اسمه الآن في كامل أرجاء المنظومة.`
-            : `Principal name (${cleanName}) saved & updated system-wide!`
+            ? `تم تثبيت بيانات وصورة المدير (${cleanName}) بنجاح! تظهر الآن في كامل أرجاء المنظومة.`
+            : `Principal details & photo (${cleanName}) saved & updated system-wide!`
         );
       }
     } catch (err) {
@@ -998,6 +1028,57 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
             </p>
 
             <form onSubmit={handleSavePrincipal} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Principal Photo Upload Box */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                background: 'var(--bg-main)',
+                padding: '14px 18px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)'
+              }}>
+                <UserAvatar
+                  src={principalForm.photoUrl}
+                  name={principalForm.fullName}
+                  role="ADMIN"
+                  size={64}
+                  showRoleBadge={true}
+                />
+                <div style={{ flex: 1 }}>
+                  <label className="form-label" style={{ fontWeight: 800, fontSize: 13, marginBottom: 4 }}>
+                    {isRtl ? 'صورة مدير المدرسة الرسمية:' : 'Official Principal Portrait:'}
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePrincipalPhotoUpload}
+                      style={{ fontSize: 12 }}
+                    />
+                    {principalForm.photoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setPrincipalForm(p => ({ ...p, photoUrl: '' }))}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ef4444',
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          fontWeight: 700
+                        }}
+                      >
+                        {isRtl ? 'حذف الصورة' : 'Remove'}
+                      </button>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                    {isRtl ? 'بصفتك مهندس النظام، هذه الصورة تُعتمد رسمياً للمدير في الترويسة وبطاقة الاعتماد.' : 'Set officially by System Engineer for the Principal.'}
+                  </span>
+                </div>
+              </div>
+
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
                   {isRtl ? 'اسم مدير المدرسة الكامل (مع اللقب الرسمي):' : 'Principal Full Name & Official Title:'}

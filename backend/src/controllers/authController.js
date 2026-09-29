@@ -55,11 +55,13 @@ async function login(req, res, next) {
         email: user.email,
         fullName: user.fullName,
         role: user.role,
+        photoUrl: user.photoUrl || user.teacher?.photoUrl || null,
         teacherId: user.teacherId,
         teacher: user.teacher ? {
           id: user.teacher.id,
           employeeNo: user.teacher.employeeNo,
-          specialty: user.teacher.specialty
+          specialty: user.teacher.specialty,
+          photoUrl: user.teacher.photoUrl
         } : null
       }
     });
@@ -77,6 +79,7 @@ async function getProfile(req, res, next) {
         email: true,
         fullName: true,
         role: true,
+        photoUrl: true,
         active: true,
         teacherId: true,
         teacher: true,
@@ -84,6 +87,40 @@ async function getProfile(req, res, next) {
       }
     });
     res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateProfile(req, res, next) {
+  try {
+    const { fullName, photoUrl } = req.body;
+    const dataToUpdate = {};
+    if (fullName && fullName.trim()) dataToUpdate.fullName = fullName.trim();
+    if (photoUrl !== undefined) dataToUpdate.photoUrl = photoUrl;
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data: dataToUpdate,
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        photoUrl: true,
+        teacherId: true,
+        active: true
+      }
+    });
+
+    if (updated.teacherId && photoUrl !== undefined) {
+      await prisma.teacher.update({
+        where: { id: updated.teacherId },
+        data: { photoUrl }
+      });
+    }
+
+    res.json(updated);
   } catch (err) {
     next(err);
   }

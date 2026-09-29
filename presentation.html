@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>منظومة الإدارة المدرسية والأكاديمية الذكية - Smart School OS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+    @page {
+      size: A4;
+      margin: 14mm 12mm 14mm 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #1e293b;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .header-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0369a1 100%);
+      color: #ffffff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.15);
+    }
+
+    .header-title h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .header-title p {
+      margin: 0;
+      font-size: 13px;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .badge-pill {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-align: center;
+    }
+
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .section-card.primary {
+      border-right: 4px solid #2563eb;
+    }
+
+    .section-card.emerald {
+      border-right: 4px solid #059669;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .elevator-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #166534;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 800;
+      padding: 9px 12px;
+      text-align: right;
+      border: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 9px 12px;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .feature-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .feature-item h4 {
+      margin: 0 0 6px 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feature-item ul {
+      margin: 0;
+      padding-right: 18px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .feature-item li {
+      margin-bottom: 4px;
+    }
+
+    .roi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .roi-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .roi-number {
+      font-size: 16px;
+      font-weight: 900;
+      color: #059669;
+      margin-bottom: 4px;
+    }
+
+    .roi-text {
+      font-size: 11px;
+      color: #475569;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .speech-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 12.5px;
+      color: #1e40af;
+      line-height: 1.6;
+      font-style: normal;
+    }
+
+    .footer-bar {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <div class="header-title">
+      <h1>🏫 منظومة الإدارة المدرسية والأكاديمية الذكية</h1>
+      <p>Smart School Operating System &bull; حل سحابي متكامل للمؤسسات التعليمية</p>
+    </div>
+    <div class="badge-pill">
+      نسخة العرض التنفيذي المعتمدة<br>
+      <span style="font-size: 10px; color: #ffffff;">م. يوسف خلف (Lead Engineer)</span>
+    </div>
+  </div>
+
+  <!-- Executive Pitch -->
+  <div class="section-card primary">
+    <div class="section-title">
+      <span>🚀</span>
+      <span>النبذة التنفيذية (Elevator Pitch)</span>
+    </div>
+    <div class="elevator-box">
+      "منظومة سحابية متقدمة مصممة خصيصاً لإدارة المدارس والمنشآت التعليمية بكفاءة 100% وبدون أوراق. تجمع بين الإدارة الأكاديمية الصارمة، الرصد المالي الدقيق، وبوابة استعلام فورية وشفافة لأولياء الأمور، مع قاعدة بيانات مستقلة ونظام أمني متكامل يمنع تداخل الصلاحيات ويضمن استقلالية بيانات المدرسة بالكامل."
+    </div>
+  </div>
+
+  <!-- Competitive Edge Table -->
+  <div class="section-card emerald">
+    <div class="section-title">
+      <span>💎</span>
+      <span>نقاط القوة التنافسية وما يُميز المنظومة عن غيرها</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 22%;">المعيار</th>
+          <th style="width: 39%;">الأنظمة المدرسية التقليدية</th>
+          <th style="width: 39%; background: #ecfdf5; color: #065f46;">منظومتنا الذكية (Smart School OS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>تجربة الاستخدام (UI/UX)</strong></td>
+          <td>واجهات قديمة ومعقدة تتطلب تدريباً وتسبب أخطاء بشرية متكررة.</td>
+          <td style="color: #047857; font-weight: 700;">واجهة عصرية تفاعلية وسلسة جداً بنظام مؤشرات مرئي مريح وفوري.</td>
+        </tr>
+        <tr>
+          <td><strong>بوابة أولياء الأمور</strong></td>
+          <td>تتطلب حسابات معقدة وكلمات سر تُنسى، أو مجموعات واتساب عشوائية.</td>
+          <td style="color: #047857; font-weight: 700;">استعلام فوري وآمن بالمعرف الشخصي للطالب فقط لضمان الخصوصية والسرعة.</td>
+        </tr>
+        <tr>
+          <td><strong>استقلالية البيانات</strong></td>
+          <td>سيرفرات مشتركة وبطيئة ومعرضة لتسريب البيانات بين المدارس.</td>
+          <td style="color: #047857; font-weight: 700;">قاعدة بيانات سحابية مستقلة (Dedicated PostgreSQL) خاصة بكل مدرسة.</td>
+        </tr>
+        <tr>
+          <td><strong>الترقية السنوية للطلاب</strong></td>
+          <td>عمل يدوي مضنٍ ومربك يستغرق أسابيع في نهاية كل عام دراسي.</td>
+          <td style="color: #047857; font-weight: 700;">ترقية آلية ذكية بضغطة زر تنقل الطلاب للمراحل التالية مع سجل الخريجين.</td>
+        </tr>
+        <tr>
+          <td><strong>أدوات الصيانة والمطور</strong></td>
+          <td>غياب أدوات المراقبة وصعوبة أخذ النسخ الاحتياطية بدون فني خارجي.</td>
+          <td style="color: #047857; font-weight: 700;">لوحة تحكم للمطور لتصدير النسخ (SQL/JSON)، مسح الكاش، وترميم الجداول.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Core Modules -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🧩</span>
+      <span>المحاور والوحدات التشغيلية للمنظومة</span>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-item">
+        <h4>👨‍💼 لوحة الإدارة العامة والمدير</h4>
+        <ul>
+          <li><strong>إعداد الكادر فور التشغيل:</strong> واجهة مخصصة لاعتماد وتفعيل حسابات المعلمين والإداريين.</li>
+          <li><strong>إدارة الطلاب والشُعب:</strong> تسجيل، توزيع، ومتابعة السجلات التراكمية.</li>
+          <li><strong>إحصائيات حية:</strong> نسب الحضور اليومي، الإنذارات الأكاديمية، والتقارير الوزارية.</li>
+        </ul>
+      </div>
+
+      <div class="feature-item">
+        <h4>👨‍🏫 لوحة المعلم ورصد الحضور والدرجات</h4>
+        <ul>
+          <li><strong>رصد الحضور بنقرة واحدة:</strong> (حاضر / غائب / مبرر / متأخر) لكل حصة.</li>
+          <li><strong>دفتر الدرجات الإلكتروني:</strong> حساب تلقائي لمعدلات الاختبارات والأنشطة والنهائي.</li>
+          <li><strong>تقارير سلوكية:</strong> رصد ملاحظات مباشرة ترسل لسجل الطالب فوراً.</li>
+        </ul>
+      </div>
+
+      <div class="feature-item">
+        <h4>👨‍👩‍👧‍👦 بوابة أولياء الأمور<br>الذكية العامة</h4>
+        <ul>
+          <li><strong>استعلام بالرمز السري للطالب:</strong> بدون الحاجة لإنشاء حسابات أو تذكر كلمات سر.</li>
+          <li><strong>عرض شامل:</strong> كشف العلامات، سجل الغياب التفصيلي، والملاحظات الإدارية.</li>
+          <li><strong>الوضع المالي:</strong> استعراض الأقساط المستحقة والمسددة بكل شفافية.</li>
+        </ul>
+      </div>
+
+      <div class="feature-item">
+        <h4>💳 الإدارة المالية والأقساط</h4>
+        <ul>
+          <li><strong>سندات قبض إلكترونية:</strong> إصدار وطباعة الإيصالات الرسمية برقم متسلسل.</li>
+          <li><strong>خطط الأقساط:</strong> جدولة ميسرة مع إشعارات آلية بالمبالغ المستحقة.</li>
+          <li><strong>تقارير السيولة:</strong> تقرير فوري للإيرادات والديون المتبقية بدقة متناهية.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Economic ROI -->
+  <div class="section-card emerald">
+    <div class="section-title">
+      <span>📈</span>
+      <span>العائد الاستثماري والقيمة الاقتصادية للمدرسة (ROI)</span>
+    </div>
+    <div class="roi-grid">
+      <div class="roi-card">
+        <div class="roi-number">80% توفير</div>
+        <div class="roi-text">في التكاليف الورقية، الطباعة، ودفاتر التحضير والرصد اليدوي.</div>
+      </div>
+      <div class="roi-card">
+        <div class="roi-number">0% أخطاء</div>
+        <div class="roi-text">في احتساب المعدلات التراكمية وترتيب أوائل الطلبة تلقائياً.</div>
+      </div>
+      <div class="roi-card">
+        <div class="roi-number">100% شفافية</div>
+        <div class="roi-text">ثقة عالية لدى أولياء الأمور بمتابعة أبنائهم لحظة بلحظة.</div>
+      </div>
+      <div class="roi-card">
+        <div class="roi-number">أمان سحابي</div>
+        <div class="roi-text">بيانات مشفرة ومحفوظة سحابياً ولا تضيع بتعطل أجهزة الحواسيب.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-bar">
+    <div>تم إعداد هذه الوثيقة بواسطة: <strong>م. يوسف خلف &bull; مطور ومهندس المنظومة</strong></div>
+    <div>جاهز للاستخدام الميداني الكامل &bull; خريف 2026</div>
+  </div>
+
+</body>
+</html>

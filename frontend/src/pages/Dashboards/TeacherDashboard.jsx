@@ -12,6 +12,7 @@ import {
   AttendanceIcon,
   GradesIcon
 } from '../../components/common/Icons';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function TeacherDashboard({ onNavigate }) {
   const { user } = useAuth();
@@ -65,19 +66,29 @@ export default function TeacherDashboard({ onNavigate }) {
         flexWrap: 'wrap',
         gap: 12
       }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
-            <span>👨‍🏫</span>
-            <span>{isRtl ? 'بوابة المعلم المعتمدة' : 'Official Teacher Portal'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <UserAvatar
+            src={user?.photoUrl || user?.teacher?.photoUrl}
+            name={user?.fullName || 'المعلم'}
+            role="TEACHER"
+            size={58}
+            showRoleBadge={true}
+            style={{ border: '2.5px solid rgba(255,255,255,0.4)', boxShadow: '0 4px 14px rgba(0,0,0,0.15)' }}
+          />
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '2px 10px', borderRadius: '14px', fontSize: 11.5, fontWeight: 700, marginBottom: 4 }}>
+              <span>👨‍🏫</span>
+              <span>{isRtl ? 'بوابة المعلم المعتمدة' : 'Official Teacher Portal'}</span>
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
+              {isRtl ? `أهلاً بك، أستاذ ${user?.fullName || ''}` : `Welcome back, Instructor ${user?.fullName || ''}`}
+            </h2>
+            <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
+              {isRtl
+                ? 'مساحة العمل المخصصة لمتابعة صفوفك، رصد الحضور اليومي، وإدخال درجات وتقييمات الطلاب'
+                : 'Your dedicated workspace for managing assigned classes, recording daily attendance, and submitting exam grades'}
+            </p>
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: '-0.3px' }}>
-            {isRtl ? `أهلاً بك، أستاذ ${user?.fullName || ''}` : `Welcome back, Instructor ${user?.fullName || ''}`}
-          </h2>
-          <p style={{ margin: '3px 0 0', opacity: 0.9, fontSize: 12 }}>
-            {isRtl
-              ? 'مساحة العمل المخصصة لمتابعة صفوفك، رصد الحضور اليومي، وإدخال درجات وتقييمات الطلاب'
-              : 'Your dedicated workspace for managing assigned classes, recording daily attendance, and submitting exam grades'}
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
