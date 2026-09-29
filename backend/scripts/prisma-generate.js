@@ -13,6 +13,20 @@ console.log(`[Prisma Generate] Target DB type: ${isPostgres ? 'PostgreSQL (Cloud
 console.log(`[Prisma Generate] Using schema: ${schemaPath}`);
 
 try {
+  if (isPostgres && dbUrl) {
+    try {
+      console.log('[Prisma DB Push] Ensuring PostgreSQL database schema is synchronized...');
+      execSync(`npx prisma db push --schema="${schemaPath}" --accept-data-loss`, {
+        stdio: 'inherit',
+        cwd: path.resolve(__dirname, '..'),
+        env: process.env
+      });
+      console.log('✓ PostgreSQL schema synchronized successfully.');
+    } catch (pushErr) {
+      console.warn('⚠️ [Prisma DB Push] Schema push notice:', pushErr.message);
+    }
+  }
+
   execSync(`npx prisma generate --schema="${schemaPath}"`, {
     stdio: 'inherit',
     cwd: path.resolve(__dirname, '..'),

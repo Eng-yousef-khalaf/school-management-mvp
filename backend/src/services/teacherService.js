@@ -424,10 +424,12 @@ async function getTeacherAttendanceToday(targetDate) {
         }
       },
       orderBy: { lastName: 'asc' }
-    }),
-    prisma.teacherAttendance.findMany({
-      where: { date: d }
-    })
+    }).catch(() => []),
+    prisma.teacherAttendance
+      ? prisma.teacherAttendance.findMany({
+          where: { date: d }
+        }).catch(() => [])
+      : Promise.resolve([])
   ]);
 
   const attMap = new Map();

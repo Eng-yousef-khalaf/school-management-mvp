@@ -78,7 +78,18 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
 
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadStudent} />;
-  if (!student) return null;
+  if (!studentId || !student) {
+    return (
+      <div className="panel" style={{ padding: 40, textAlign: 'center', margin: '20px 0' }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-muted)' }}>
+          {isRtl ? 'لم يتم العثور على سجل الطالب أو تم مسح المعرف.' : 'No student record found.'}
+        </p>
+        <button className="btn btn-primary btn-sm" onClick={onBack} style={{ marginTop: 12 }}>
+          {isRtl ? '← العودة لقائمة الطلاب' : '← Back to Students'}
+        </button>
+      </div>
+    );
+  }
 
   const { attendanceSummary, subjectSummary, overallAverage } = student;
 

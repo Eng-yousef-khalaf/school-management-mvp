@@ -117,7 +117,18 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
 
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadTeacher} />;
-  if (!teacher) return null;
+  if (!teacherId || !teacher) {
+    return (
+      <div className="panel" style={{ padding: 40, textAlign: 'center', margin: '20px 0' }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-muted)' }}>
+          {isRtl ? 'لم يتم العثور على سجل المعلم أو تم مسح المعرف.' : 'No faculty record found.'}
+        </p>
+        <button className="btn btn-primary btn-sm" onClick={onBack} style={{ marginTop: 12 }}>
+          {isRtl ? '← العودة لقائمة المعلمين' : '← Back to Teachers'}
+        </button>
+      </div>
+    );
+  }
 
   const canEdit = isStaff || isAdmin;
 

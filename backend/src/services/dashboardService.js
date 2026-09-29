@@ -23,80 +23,104 @@ async function getDashboardStats(query = {}, user = null) {
   const targetYearClassFilter = targetYear ? { academicYearId: targetYear.id } : {};
   const targetYearLinkFilter = targetYear ? { class: { academicYearId: targetYear.id } } : {};
 
-  const [
-    totalStudents,
-    activeStudents,
-    totalTeachers,
-    totalStaff,
-    totalClasses,
-    totalSubjects,
-    todayAttendanceRecords,
-    genderGroup,
-    classesWithCount,
-    allGrades,
-    recentAuditLogs,
-    allActiveTeachers,
-    todayTeacherAttendanceRecords
-  ] = await Promise.all([
-    prisma.student.count(),
-    prisma.student.count({ where: { status: 'ACTIVE' } }),
-    prisma.teacher.count({ where: { active: true } }),
-    prisma.user.count({ where: { role: 'STAFF', active: true } }),
-    prisma.schoolClass.count({ where: targetYearClassFilter }),
-    prisma.subject.count({ where: { active: true } }),
-    prisma.attendance.findMany({
-      where: { date: today, ...(targetYear ? { class: { academicYearId: targetYear.id } } : {}) },
-      select: { status: true }
-    }),
-    prisma.student.groupBy({
-      by: ['gender'],
-      _count: { id: true },
-      where: { status: 'ACTIVE' }
-    }),
-    prisma.schoolClass.findMany({
-      where: targetYearClassFilter,
-      include: {
-        _count: {
-          select: { enrollments: true, teacherLinks: true }
-        }
-      },
-      orderBy: { name: 'asc' }
-    }),
-    prisma.grade.findMany({
-      where: targetYear ? { class: { academicYearId: targetYear.id } } : {},
-      select: { score: true, maxScore: true, subjectId: true, classId: true }
-    }),
-    prisma.auditLog.findMany({
-      take: 8,
-      orderBy: { timestamp: 'desc' },
-      include: {
-        user: {
-          select: { fullName: true, role: true }
-        }
-      }
-    }),
-    prisma.teacher.findMany({
-      where: isArchiveMode ? {} : { active: true },
-      include: {
-        teacherLinks: {
-          where: targetYearLinkFilter,
-          include: {
-            class: true,
-            subject: true
+  let totalStudents = 0, activeStudents = 0, totalTeachers = 0, totalStaff = 0, totalClasses = 0, totalSubjects = 0;
+  let todayAttendanceRecords = [], genderGroup = [], classesWithCount = [], allGrades = [], recentAuditLogs = [];
+  let allActiveTeachers = [], todayTeacherAttendanceRecords = [];
+
+  try {
+    [
+      totalStudents,
+      activeStudents,
+      totalTeachers,
+      totalStaff,
+      totalClasses,
+      totalSubjects,
+      todayAttendanceRecords,
+      genderGroup,
+      classesWithCount,
+      allGrades,
+      recentAuditLogs
+    ] = await Promise.all([
+      prisma.student.count().catch(() => 0),
+      prisma.student.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
+      prisma.teacher.count({ where: { active: true } }).catch(() => 0),
+      prisma.user.count({ where: { role: 'STAFF', active: true } }).catch(() => 0),
+      prisma.schoolClass.count({ where: targetYearClassFilter }).catch(() => 0),
+      prisma.subject.count({ where: { active: true } }).catch(() => 0),
+      prisma.attendance.findMany({
+        where: { date: today, ...(targetYear ? { class: { academicYearId: targetYear.id } } : {}) },
+        select: { status: true }
+      }).catch(() => []),
+      prisma.student.groupBy({
+        by: ['gender'],
+        _count: { id: true },
+        where: { status: 'ACTIVE' }
+      }).catch(() => []),
+      prisma.schoolClass.findMany({
+        where: targetYearClassFilter,
+        include: {
+          _count: {
+            select: { enrollments: true, teacherLinks: true }
           }
         },
-        ...(prisma.teacherAttendance ? {
+        orderBy: { name: 'asc' }
+      }).catch(() => []),
+      prisma.grade.findMany({
+        where: targetYear ? { class: { academicYearId: targetYear.id } } : {},
+        select: { score: true, maxScore: true, subjectId: true, classId: true }
+      }).catch(() => []),
+      prisma.auditLog.findMany({
+        take: 8,
+        orderBy: { timestamp: 'desc' },
+        include: {
+          user: {
+            select: { fullName: true, role: true }
+          }
+        }
+      }).catch(() => [])
+    ]);
+
+    // Resilient teacher query that works whether teacher attendance relation exists or not
+    try {
+      allActiveTeachers = await prisma.teacher.findMany({
+        where: isArchiveMode ? {} : { active: true },
+        include: {
+          teacherLinks: {
+            where: targetYearLinkFilter,
+            include: {
+              class: true,
+              subject: true
+            }
+          },
           attendance: {
             where: { date: today }
           }
-        } : {})
-      },
-      orderBy: { createdAt: 'desc' }
-    }),
-    prisma.teacherAttendance
-      ? prisma.teacherAttendance.findMany({ where: { date: today } }).catch(() => [])
-      : Promise.resolve([])
-  ]);
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch {
+      // Fallback query without attendance relation
+      allActiveTeachers = await prisma.teacher.findMany({
+        where: isArchiveMode ? {} : { active: true },
+        include: {
+          teacherLinks: {
+            where: targetYearLinkFilter,
+            include: {
+              class: true,
+              subject: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      }).catch(() => []);
+    }
+
+    if (prisma.teacherAttendance) {
+      todayTeacherAttendanceRecords = await prisma.teacherAttendance.findMany({ where: { date: today } }).catch(() => []);
+    }
+  } catch (metricsErr) {
+    console.warn('Dashboard metrics partial error handled safely:', metricsErr.message);
+  }
 
   // Overall Academic Standing
   let overallGradeAverage = 85;

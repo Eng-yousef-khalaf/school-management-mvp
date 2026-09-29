@@ -39,6 +39,7 @@ import FeeManagement from './pages/Fees/FeeManagement';
 import ParentPaymentPortalStandalone from './pages/Fees/ParentPaymentPortalStandalone';
 import ParentInquiryPortal from './pages/Parent/ParentInquiryPortal';
 import JothoorPublicWebsite from './pages/Public/JothoorPublicWebsite';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 export default function App() {
   const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole, logout } = useAuth();
@@ -120,6 +121,16 @@ export default function App() {
     setAttendanceClassId('');
   }, [user?.id, user?.role]);
 
+  // Clean #login hash if user is already authenticated
+  useEffect(() => {
+    if (user && (window.location.hash.includes('login') || window.location.hash === '#login')) {
+      window.location.hash = '';
+      if (window.history.pushState) {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+    }
+  }, [user]);
+
   // Auto-switch role or detect developer/parent portal
   useEffect(() => {
     const handleUrlRoute = () => {
@@ -129,17 +140,23 @@ export default function App() {
 
       // Check if user requested explicit login or logout via URL
       if (
-        path.includes('login') ||
         path.includes('logout') ||
-        hash.includes('login') ||
         hash.includes('logout') ||
-        search.includes('logout') ||
-        search.includes('portal=login')
+        search.includes('logout')
+      ) {
+        if (user) logout();
+        setShowLoginScreen(true);
+        return;
+      }
+
+      if (
+        !user && (
+          path.includes('login') ||
+          hash.includes('login') ||
+          search.includes('portal=login')
+        )
       ) {
         setShowLoginScreen(true);
-        if (user && (path.includes('logout') || hash.includes('logout') || search.includes('logout'))) {
-          logout();
-        }
         return;
       }
 
@@ -212,11 +229,23 @@ export default function App() {
     return (
       <ParentInquiryPortal
         onExitToSchool={() => {
-          window.location.href = window.location.origin + '/';
+          setIsParentInquiryPortal(false);
+          setIsParentPortal(false);
+          setIsDeveloperPortal(false);
+          window.location.hash = '';
+          if (window.history.pushState) {
+            window.history.pushState(null, '', window.location.pathname.replace(/(\/inquiry|\/parents).*$/, '') || '/');
+          }
+          if (user) {
+            setCurrentPage('dashboard');
+          } else {
+            setShowLoginScreen(true);
+          }
         }}
         onNavigateToFees={() => {
           setIsParentInquiryPortal(false);
           setIsParentPortal(true);
+          window.location.hash = 'pay';
         }}
       />
     );
@@ -227,7 +256,18 @@ export default function App() {
     return (
       <ParentPaymentPortalStandalone
         onExitToSchool={() => {
-          window.location.href = window.location.origin + '/';
+          setIsParentPortal(false);
+          setIsParentInquiryPortal(false);
+          setIsDeveloperPortal(false);
+          window.location.hash = '';
+          if (window.history.pushState) {
+            window.history.pushState(null, '', window.location.pathname.replace(/(\/pay|\/parent-pay).*$/, '') || '/');
+          }
+          if (user) {
+            setCurrentPage('dashboard');
+          } else {
+            setShowLoginScreen(true);
+          }
         }}
       />
     );
@@ -238,7 +278,18 @@ export default function App() {
     return (
       <DeveloperPortalStandalone
         onExitToSchool={() => {
-          window.location.href = window.location.origin + '/';
+          setIsDeveloperPortal(false);
+          setIsParentInquiryPortal(false);
+          setIsParentPortal(false);
+          window.location.hash = '';
+          if (window.history.pushState) {
+            window.history.pushState(null, '', window.location.pathname.replace(/(\/developer|\/dev-hub).*$/, '') || '/');
+          }
+          if (user) {
+            setCurrentPage('dashboard');
+          } else {
+            setShowLoginScreen(true);
+          }
         }}
       />
     );
@@ -372,7 +423,8 @@ export default function App() {
       pageTitle={title}
       pageSubtitle={subtitle}
     >
-      {/* Role-Specific Dashboards */}
+      <ErrorBoundary onReset={() => navigateTo('dashboard')}>
+        {/* Role-Specific Dashboards */}
       {currentPage === 'dashboard' && (
         isTeacher ? (
           <TeacherDashboard onNavigate={navigateTo} />
@@ -625,6 +677,7 @@ export default function App() {
 
       {/* Daily Motivational & Welcoming Modal for Admin, Staff & Teachers */}
       <DailyMotivationalModal />
+      </ErrorBoundary>
     </MainLayout>
   );
 }
