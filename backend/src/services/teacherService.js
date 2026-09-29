@@ -244,10 +244,19 @@ async function updateTeacher(id, data, user, req) {
   if (data.specialty !== undefined) formatted.specialty = data.specialty ? data.specialty.trim() : null;
   if (data.photoUrl !== undefined) {
     formatted.photoUrl = data.photoUrl ? data.photoUrl.trim() : null;
-    await prisma.user.updateMany({
-      where: { teacherId },
-      data: { photoUrl: formatted.photoUrl }
-    });
+    try {
+      await prisma.user.updateMany({
+        where: {
+          OR: [
+            { teacherId },
+            ...(formatted.email ? [{ email: formatted.email }] : [])
+          ]
+        },
+        data: { photoUrl: formatted.photoUrl }
+      });
+    } catch (e) {
+      console.warn('Could not sync teacher photo to user record:', e.message);
+    }
   }
   if (data.active !== undefined) {
     formatted.active = Boolean(data.active);

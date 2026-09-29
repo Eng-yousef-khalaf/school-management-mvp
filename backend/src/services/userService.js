@@ -157,6 +157,17 @@ async function updateUser(id, data, adminUser, req) {
     }
   });
 
+  if (data.photoUrl !== undefined && updated.teacherId) {
+    try {
+      await prisma.teacher.update({
+        where: { id: updated.teacherId },
+        data: { photoUrl: formatted.photoUrl }
+      });
+    } catch (e) {
+      console.warn('Could not sync photo to teacher record:', e.message);
+    }
+  }
+
   await logAudit({
     userId: adminUser?.id,
     action: 'UPDATE_USER',

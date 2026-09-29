@@ -8,6 +8,7 @@ import Badge from '../../components/common/Badge';
 import { PageLoader } from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
 import SchoolLogo from '../../components/common/SchoolLogo';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function DeveloperFleetDashboard({ onNavigate }) {
   const { t, isRtl } = useLanguage();
@@ -241,20 +242,17 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     } catch {}
   };
 
-  const handlePrincipalPhotoUpload = (e) => {
+  const handlePrincipalPhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(isRtl ? 'حجم الصورة يتجاوز 5 ميجابايت' : 'Image exceeds 5MB');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const dataUrl = uploadEvent.target.result;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
       setPrincipalForm(prev => ({ ...prev, photoUrl: dataUrl }));
-      toast.success(isRtl ? 'تم تحميل صورة المدير بنجاح!' : 'Principal photo loaded!');
-    };
-    reader.readAsDataURL(file);
+      toast.success(isRtl ? 'تم تحميل ومعالجة صورة المدير بنجاح! 📸' : 'Principal photo loaded!');
+    } catch (err) {
+      console.error('Failed to compress principal photo:', err);
+      toast.error(isRtl ? 'تعذر معالجة الصورة، يرجى اختيار ملف صالح' : 'Failed to process image');
+    }
   };
 
   useEffect(() => {

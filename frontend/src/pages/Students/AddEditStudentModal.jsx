@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function AddEditStudentModal({ isOpen, onClose, student, onSaved, classes = [] }) {
   const toast = useToast();
@@ -65,15 +66,17 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
     setError('');
   }, [student, classes, isOpen]);
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      handleChange('photoUrl', uploadEvent.target.result);
-      toast.success('تم تحميل صورة الطالب بنجاح');
-    };
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      handleChange('photoUrl', dataUrl);
+      toast.success('تم تحميل ومعالجة صورة الطالب بنجاح 📸');
+    } catch (err) {
+      console.error('Failed to compress student photo', err);
+      toast.error('تعذر معالجة الصورة، يرجى اختيار ملف صورة صالح');
+    }
   };
 
   const handleChange = (field, value) => {

@@ -16,8 +16,9 @@ const studentSchema = z.object({
   parentName: z.string().optional().nullable(),
   parentPhone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
+  photoUrl: z.string().optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'GRADUATED', 'WITHDRAWN']).default('ACTIVE')
-});
+}).passthrough();
 
 const teacherSchema = z.object({
   employeeNo: z.string().min(1, 'Employee number is required'),
@@ -26,6 +27,7 @@ const teacherSchema = z.object({
   phone: z.string().optional().nullable(),
   email: z.string().email('Invalid email address').optional().nullable().or(z.literal('')),
   specialty: z.string().optional().nullable(),
+  photoUrl: z.string().optional().nullable(),
   active: z.boolean().default(true),
   assignments: z.array(z.object({
     classId: z.coerce.number().int().positive(),
@@ -33,7 +35,7 @@ const teacherSchema = z.object({
   })).optional(),
   createUserAccount: z.boolean().optional(),
   userPassword: z.string().min(1).optional()
-});
+}).passthrough();
 
 const classSchema = z.object({
   name: z.string().min(1, 'Class name is required'),
@@ -103,12 +105,13 @@ const userSchema = z.object({
   fullName: z.string().min(1, 'الاسم الكامل مطلوب (Full name is required)'),
   password: z.string().min(3, 'كلمة المرور يجب ألا تقل عن 3 خانات').optional().or(z.literal('')),
   role: z.enum(['ADMIN', 'STAFF', 'TEACHER']).default('STAFF'),
+  photoUrl: z.string().optional().nullable(),
   active: z.boolean().default(true),
   teacherId: z.preprocess(
     (val) => (val === '' || val === null || val === undefined ? null : Number(val)),
     z.number().int().positive().nullable().optional()
   )
-});
+}).passthrough();
 
 module.exports = {
   loginSchema,

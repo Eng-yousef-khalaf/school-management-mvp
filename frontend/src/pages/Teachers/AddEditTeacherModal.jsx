@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import { PlusIcon, TrashIcon } from '../../components/common/Icons';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved }) {
   const toast = useToast();
@@ -116,19 +117,17 @@ export default function AddEditTeacherModal({ isOpen, onClose, teacher, onSaved 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يفضل اختيار صورة أقل من 2 ميجابايت' : 'Image is too large (max 2MB)');
-      return;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      handleChange('photoUrl', dataUrl);
+      toast.success(isRtl ? 'تم تحميل ومعالجة صورة المعلم بنجاح 📸' : 'Teacher photo uploaded successfully');
+    } catch (err) {
+      console.error('Failed to compress teacher photo', err);
+      toast.error(isRtl ? 'تعذر معالجة ملف الصورة، يرجى اختيار صورة صالحة' : 'Failed to process image');
     }
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      handleChange('photoUrl', event.target.result);
-      toast.success(isRtl ? 'تم تحميل صورة المعلم بنجاح' : 'Teacher photo uploaded successfully');
-    };
-    reader.readAsDataURL(file);
   };
 
   // Add Assignment Pair

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * Universal UserAvatar component for Students, Teachers, Staff, and Principals.
@@ -15,6 +15,10 @@ export default function UserAvatar({
   showRoleBadge = false
 }) {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   const cleanRole = (role || 'STUDENT').toUpperCase();
   const cleanGender = (gender || 'MALE').toUpperCase();

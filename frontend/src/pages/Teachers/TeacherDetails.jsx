@@ -9,6 +9,7 @@ import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import { PlusIcon, TrashIcon, EditIcon } from '../../components/common/Icons';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function TeacherDetails({ teacherId, onBack, onEdit }) {
   const toast = useToast();
@@ -94,25 +95,17 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
     }
   };
 
-  const handleQuickPhotoUpload = (e) => {
+  const handleQuickPhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت' : 'Image is too large (max 5MB)');
-      return;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      await api.put(`/teachers/${teacher.id}`, { photoUrl: dataUrl });
+      setTeacher(prev => ({ ...prev, photoUrl: dataUrl }));
+      toast.success(isRtl ? 'تم حفظ وتحديث صورة المعلم بنجاح! 📸' : 'Teacher photo updated successfully!');
+    } catch (err) {
+      toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
     }
-    const reader = new FileReader();
-    reader.onload = async (uploadEvent) => {
-      const dataUrl = uploadEvent.target.result;
-      try {
-        await api.put(`/teachers/${teacher.id}`, { photoUrl: dataUrl });
-        setTeacher(prev => ({ ...prev, photoUrl: dataUrl }));
-        toast.success(isRtl ? 'تم حفظ وتحديث صورة المعلم بنجاح! 📸' : 'Teacher photo updated successfully!');
-      } catch (err) {
-        toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   if (loading) return <PageLoader text={t('loading')} />;

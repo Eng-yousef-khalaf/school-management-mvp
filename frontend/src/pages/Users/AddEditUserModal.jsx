@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved, teachers = [] }) {
   const toast = useToast();
@@ -47,19 +48,17 @@ export default function AddEditUserModal({ isOpen, onClose, targetUser, onSaved,
     setError('');
   }, [targetUser, isOpen]);
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning('حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت');
-      return;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      setFormData((prev) => ({ ...prev, photoUrl: dataUrl }));
+      toast.success('تم تحميل ومعالجة صورة المستخدم بنجاح 📸');
+    } catch (err) {
+      console.error('Failed to compress user photo', err);
+      toast.error('تعذر معالجة الصورة، يرجى اختيار ملف صورة صالح');
     }
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      setFormData((prev) => ({ ...prev, photoUrl: uploadEvent.target.result }));
-      toast.success('تم تحميل صورة المستخدم بنجاح');
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {

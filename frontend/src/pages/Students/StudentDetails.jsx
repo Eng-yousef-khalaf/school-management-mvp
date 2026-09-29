@@ -12,6 +12,7 @@ import UnicefLogo from '../../components/common/UnicefLogo';
 import RecordPaymentModal from '../Fees/RecordPaymentModal';
 import PaymentReceiptModal from '../Fees/PaymentReceiptModal';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
   const { canManageStudents, isStaff, isAdmin } = useAuth();
@@ -58,22 +59,14 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
   const handleQuickPhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning('حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت');
-      return;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      await api.put(`/students/${student.id}`, { photoUrl: dataUrl });
+      setStudent((prev) => ({ ...prev, photoUrl: dataUrl }));
+      toast.success(isRtl ? 'تم حفظ وتحديث صورة الطالب بنجاح! 📸' : 'Student photo updated successfully!');
+    } catch (err) {
+      toast.error(err.message || 'فشل تحديث الصورة');
     }
-    const reader = new FileReader();
-    reader.onload = async (uploadEvent) => {
-      const dataUrl = uploadEvent.target.result;
-      try {
-        await api.put(`/students/${student.id}`, { photoUrl: dataUrl });
-        setStudent((prev) => ({ ...prev, photoUrl: dataUrl }));
-        toast.success(isRtl ? 'تم حفظ وتحديث صورة الطالب بنجاح! 📸' : 'Student photo updated successfully!');
-      } catch (err) {
-        toast.error(err.message || 'فشل تحديث الصورة');
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   if (loading) return <PageLoader text={t('loading')} />;

@@ -8,6 +8,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import SchoolLogo from '../../components/common/SchoolLogo';
 import UserAvatar from '../../components/common/UserAvatar';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function SettingsPage() {
   const { user, isAdmin, updateUser } = useAuth();
@@ -22,30 +23,22 @@ export default function SettingsPage() {
   const [error, setError] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  const handleProfilePhotoUpload = (e) => {
+  const handleProfilePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت' : 'Image is too large (max 5MB)');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = async (uploadEvent) => {
-      const dataUrl = uploadEvent.target.result;
-      setUploadingPhoto(true);
-      try {
-        await api.put('/auth/profile', { photoUrl: dataUrl });
-        if (updateUser) {
-          updateUser({ photoUrl: dataUrl });
-        }
-        toast.success(isRtl ? 'تم تحديث صورتك الشخصية بنجاح! 📸' : 'Profile photo updated successfully!');
-      } catch (err) {
-        toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
-      } finally {
-        setUploadingPhoto(false);
+    setUploadingPhoto(true);
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      await api.put('/auth/profile', { photoUrl: dataUrl });
+      if (updateUser) {
+        updateUser({ photoUrl: dataUrl });
       }
-    };
-    reader.readAsDataURL(file);
+      toast.success(isRtl ? 'تم تحديث صورتك الشخصية بنجاح! 📸' : 'Profile photo updated successfully!');
+    } catch (err) {
+      toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const handleRemoveProfilePhoto = async () => {
