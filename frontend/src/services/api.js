@@ -187,6 +187,17 @@ export async function request(path, options = {}) {
         const errData = await response.json();
         errorMsg = errData.error || errData.message || errorMsg;
       } catch {}
+
+      if (response.status === 401) {
+        // Clear stale token so the application is not perpetually locked
+        try {
+          sessionStorage.removeItem('token');
+          localStorage.removeItem('token');
+        } catch {}
+        if (typeof errorMsg === 'string' && (errorMsg.includes('Invalid authentication token') || errorMsg.includes('Token has expired') || errorMsg.includes('User no longer exists'))) {
+          errorMsg = 'انتهت صلاحية الجلسة، يرجى إعادة المحاولة أو تسجيل الدخول مجدداً.';
+        }
+      }
       throw new Error(errorMsg);
     }
 

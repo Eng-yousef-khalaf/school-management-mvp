@@ -94,6 +94,27 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
     }
   };
 
+  const handleQuickPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت' : 'Image is too large (max 5MB)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (uploadEvent) => {
+      const dataUrl = uploadEvent.target.result;
+      try {
+        await api.put(`/teachers/${teacher.id}`, { photoUrl: dataUrl });
+        setTeacher(prev => ({ ...prev, photoUrl: dataUrl }));
+        toast.success(isRtl ? 'تم حفظ وتحديث صورة المعلم بنجاح! 📸' : 'Teacher photo updated successfully!');
+      } catch (err) {
+        toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   if (loading) return <PageLoader text={t('loading')} />;
   if (error) return <ErrorAlert message={error} onRetry={loadTeacher} />;
   if (!teacher) return null;
@@ -116,13 +137,38 @@ export default function TeacherDetails({ teacherId, onBack, onEdit }) {
       {/* Header Profile Panel */}
       <div className="panel" style={{ padding: 24, marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-          <UserAvatar
-            src={teacher.photoUrl}
-            name={`${teacher.firstName} ${teacher.lastName}`}
-            role="TEACHER"
-            size={68}
-            showRoleBadge={true}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <UserAvatar
+              src={teacher.photoUrl}
+              name={`${teacher.firstName} ${teacher.lastName}`}
+              role="TEACHER"
+              size={78}
+              showRoleBadge={true}
+            />
+            {canEdit && (
+              <label style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--primary)',
+                cursor: 'pointer',
+                padding: '3px 8px',
+                background: 'var(--bg-main)',
+                borderRadius: 12,
+                border: '1px solid var(--border-color)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4
+              }} title={isRtl ? 'رفع أو تحديث صورة المعلم' : 'Upload teacher photo'}>
+                <span>📷 {isRtl ? (teacher.photoUrl ? 'تحديث الصورة' : 'إرفاق صورة') : 'Photo'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleQuickPhotoUpload}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            )}
+          </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>

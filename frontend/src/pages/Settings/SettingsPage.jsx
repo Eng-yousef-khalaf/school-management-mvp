@@ -7,9 +7,10 @@ import api from '../../services/api';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import SchoolLogo from '../../components/common/SchoolLogo';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function SettingsPage() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, updateUser } = useAuth();
   const { config, updateSchoolBranding, updateSchoolConfig, resetSchoolBranding } = useSchoolConfig();
   const { isRtl } = useLanguage();
   const toast = useToast();
@@ -19,7 +20,48 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
+  const handleProfilePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning(isRtl ? 'حجم الصورة كبير جداً، يرجى اختيار ملف أقل من 5 ميجابايت' : 'Image is too large (max 5MB)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (uploadEvent) => {
+      const dataUrl = uploadEvent.target.result;
+      setUploadingPhoto(true);
+      try {
+        await api.put('/auth/profile', { photoUrl: dataUrl });
+        if (updateUser) {
+          updateUser({ photoUrl: dataUrl });
+        }
+        toast.success(isRtl ? 'تم تحديث صورتك الشخصية بنجاح! 📸' : 'Profile photo updated successfully!');
+      } catch (err) {
+        toast.error(err.message || (isRtl ? 'فشل تحديث الصورة' : 'Failed to update photo'));
+      } finally {
+        setUploadingPhoto(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveProfilePhoto = async () => {
+    setUploadingPhoto(true);
+    try {
+      await api.put('/auth/profile', { photoUrl: null });
+      if (updateUser) {
+        updateUser({ photoUrl: null });
+      }
+      toast.success(isRtl ? 'تم حذف الصورة الشخصية' : 'Profile photo removed');
+    } catch (err) {
+      toast.error(err.message || 'Failed to remove photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -58,6 +100,63 @@ export default function SettingsPage() {
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
           {isRtl ? 'الملف الشخصي والبيانات المعتمدة' : 'Authenticated Profile'}
         </h3>
+
+        {/* Profile Photo Upload Card */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+          background: 'var(--bg-main)',
+          padding: '16px 20px',
+          borderRadius: '16px',
+          border: '1px solid var(--border-color)',
+          marginBottom: 20,
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <UserAvatar
+              src={user?.photoUrl || user?.teacher?.photoUrl}
+              name={user?.fullName}
+              role={user?.role}
+              size={76}
+              showRoleBadge={true}
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h4 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800 }}>
+              {user?.fullName}
+            </h4>
+            <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--text-muted)' }}>
+              {isRtl
+                ? 'يمكنك هنا رفع أو تحديث صورتك الشخصية لتظهر في الشريط العلوي وكشوفات الحساب.'
+                : 'Upload or update your personal verified photo to display in the topbar and account profiles.'}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <label className="btn btn-primary btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>📷 {uploadingPhoto ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? 'رفع / تغيير صورتي الشخصية' : 'Upload / Change Photo')}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePhotoUpload}
+                  disabled={uploadingPhoto}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              {(user?.photoUrl || user?.teacher?.photoUrl) && (
+                <button
+                  type="button"
+                  onClick={handleRemoveProfilePhoto}
+                  className="btn btn-secondary btn-sm"
+                  style={{ color: '#ef4444', borderColor: '#fecaca' }}
+                  disabled={uploadingPhoto}
+                >
+                  {isRtl ? 'حذف الصورة' : 'Remove Photo'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, fontSize: 14 }}>
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 12 }}>{isRtl ? 'الاسم الكامل' : 'FULL NAME'}</span>

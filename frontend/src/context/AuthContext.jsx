@@ -308,6 +308,18 @@ export function AuthProvider({ children }) {
   const canManageAcademicYears = user?.role === 'ADMIN' || user?.isDeveloper;
   const isAdminReadOnly = user?.role === 'ADMIN' && !user?.isDeveloper;
 
+  const updateUser = useCallback((updatedData) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const merged = { ...prev, ...updatedData };
+      try {
+        sessionStorage.setItem('user', JSON.stringify(merged));
+        localStorage.setItem('user', JSON.stringify(merged));
+      } catch {}
+      return merged;
+    });
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -318,6 +330,7 @@ export function AuthProvider({ children }) {
         logout,
         switchPortalRole,
         fetchProfile,
+        updateUser,
         isAdmin,
         isStaff,
         isTeacher,
