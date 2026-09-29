@@ -21,6 +21,11 @@ export default function JothoorPublicWebsite({
   const [activeLightboxPhoto, setActiveLightboxPhoto] = useState(null);
   const [failedImages, setFailedImages] = useState({});
 
+  // Offerings / Features Interactive States
+  const [featureCategory, setFeatureCategory] = useState('ALL');
+  const [selectedOfferingModal, setSelectedOfferingModal] = useState(null);
+  const [hoveredCardId, setHoveredCardId] = useState(null);
+
   // Form State for new student registration (20 NIS Seat Reservation)
   const [formData, setFormData] = useState({
     studentFullName: '',
@@ -116,50 +121,114 @@ export default function JothoorPublicWebsite({
     }
   };
 
-  const schoolGalleryImages = [
+  const schoolOfferings = [
     {
-      title: 'الصفوف النموذجية الذكية',
-      desc: 'قاعات دراسية مجهزة بشاشات تفاعلية ووسائل تعليمية متطورة لتنمية مهارات التفكير.',
+      id: 'smart-classes',
+      category: 'TECH',
+      categoryLabel: 'تكنولوجيا التعليم',
+      title: 'الصفوف النموذجية الذكية التفاعلية',
+      desc: 'قاعات دراسية مكيفة ومجهزة بأحدث الشاشات التفاعلية الذكية 4K وأنظمة الصوت الرقمية لدمج الطالب بالدرس نشطاً وفاعلاً.',
       icon: '🖥️',
-      color: '#3b82f6',
-      badge: 'فصول ذكية'
+      color: '#2563eb',
+      gradient: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
+      badge: 'فصول تفاعلية 4K',
+      highlights: [
+        'شاشات تفاعلية ذكية متصلة بالمناهج الرقمية',
+        'كثافة صفية نموذجية تضمن أقصى درجات التركيز',
+        'استراتيجيات التعلم التفاعلي والتفكير الناقد'
+      ],
+      fullDetails: 'صُممت الفصول الدراسية في مدرسة جذور بأحدث المعايير الهندسية والتربوية، مع إضاءة صحية مدروسة وأجهزة عرض متطورة تمكن المعلم من تقديم دروس مشوقة تجعل استيعاب المادة العلمية سهلاً وممتعاً بعيداً عن التلقين التقليدي.'
     },
     {
-      title: 'المختبرات العلمية والتكنولوجية',
-      desc: 'مختبرات علوم وحاسوب متقدمة وروبوتات لاكتشاف المواهب العلمية وتطبيق التجارب عملياً.',
+      id: 'stem-labs',
+      category: 'SCIENCE',
+      categoryLabel: 'العلوم والابتكار',
+      title: 'المختبرات العلمية والروبوتات والذكاء الاصطناعي',
+      desc: 'مختبرات علوم حديثة وتجارب كيميائية وفيزيائية آمنة مع قاعات برمجة وروبوتات لاكتشاف علماء ومبتكري المستقبل.',
       icon: '🔬',
-      color: '#10b981',
-      badge: 'تجارب وروبوتات'
+      color: '#059669',
+      gradient: 'linear-gradient(135deg, #047857 0%, #10b981 100%)',
+      badge: 'تجارب STEM حية',
+      highlights: [
+        'تطبيق عملي فوري بعد كل وحدة علمية مقررة',
+        'برمجة الروبوتات والذكاء الاصطناعي للناشئين',
+        'معايير سلامة وأمان مخبرية رفيعة المستوى'
+      ],
+      fullDetails: 'نوفر للطالب بيئة استكشافية حقيقية تتجاوز الحفظ النظري، حيث يجري الطالب التجارب بنفسه تحت إشراف نخبة من أساتذة العلوم، بالإضافة لنادي الروبوتات المدرسية المخصص لتأهيل الطلاب للمسابقات المحلية والدولية.'
     },
     {
-      title: 'مرحلة رياض الأطفال والتأسيس',
-      desc: 'بيئة مرحة ومحفزة للأطفال بأحدث أساليب المنتسوري والتعلم باللعب وغرس الأخلاق.',
+      id: 'kindergarten',
+      category: 'KG',
+      categoryLabel: 'الطفولة المبكرة',
+      title: 'مرحلة رياض الأطفال والتأسيس الإبداعي',
+      desc: 'حاضنة تربوية دافئة للأطفال بأحدث أساليب المنتسوري، تركز على بناء الشخصية، الطلاقة اللغوية، وغرس الأخلاق والقيم.',
       icon: '🎨',
-      color: '#f59e0b',
-      badge: 'تأسيس نموذجي'
+      color: '#d97706',
+      gradient: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+      badge: 'تأسيس منتسوري',
+      highlights: [
+        'أركان حسية متطورة لتنمية الذكاء والإدراك',
+        'برنامج مكثف للغة العربية والإنجليزية وحفظ القرآن',
+        'بيئة آمنة مبهجة وألعاب تربوية هادفة'
+      ],
+      fullDetails: 'تعتبر مرحلة الروضة والتمهيدي في جذور اللبنة الأساسية في رحلة الطالب، حيث نعتمد مبدأ التعلم باللعب وبناء الثقة بالنفس، مع متابعة يومية دقيقة لصحة الطفل ونموه الحركي واللغوي والاجتماعي.'
     },
     {
-      title: 'الأنشطة الرياضية والكشفية',
-      desc: 'ملاعب ومساحات آمنة تعزز اللياقة البدنية وروح الفريق والمنافسة الشريفة بين الطلاب.',
+      id: 'sports',
+      category: 'SPORTS',
+      categoryLabel: 'الرياضة والأنشطة',
+      title: 'الأنشطة الرياضية والكشفية وبناء الشخصية',
+      desc: 'ملاعب ومساحات آمنة تعزز اللياقة البدنية وروح الفريق والمنافسة الشريفة بين الطلاب بإشراف مدربين مؤهلين.',
       icon: '⚽',
-      color: '#8b5cf6',
-      badge: 'لياقة وأنشطة'
+      color: '#7c3aed',
+      gradient: 'linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%)',
+      badge: 'لياقة وبطولات',
+      highlights: [
+        'ملاعب عشبية ومساحات رياضية آمنة ومظللة',
+        'فرق كشفية ودوريات رياضية مدرسية منتظمة',
+        'صقل المهارات القيادية وروح التعاون والمسؤولية'
+      ],
+      fullDetails: 'نؤمن أن العقل السليم في الجسم السليم، لذا تخصص المدرسة حصصاً وأنشطة رياضية متنوعة في كرة القدم، السلة، والجمباز، مع بطولات فصلية تشجع الطلاب على التفوق الرياضي كجزء من تفوقهم الدراسي.'
     },
     {
-      title: 'مهرجانات تكريم أوائل الطلبة',
-      desc: 'احتفاء دائم بالمتفوقين ورعاية الموهوبين بشهادات وجوائز تقديرية رفيعة المستوى.',
+      id: 'honors',
+      category: 'EXCELLENCE',
+      categoryLabel: 'التفوق والتميز',
+      title: 'رعاية الموهوبين واحتفالات تكريم الأوائل',
+      desc: 'منظومة تحفيز متواصلة تحتفي بالمتميزين وتقدم برامج إثرائية خاصة للطلبة الموهوبين في كافة الحقول العلمية والأدبية.',
       icon: '🏆',
-      color: '#ec4899',
-      badge: 'تفوق واعتزاز'
+      color: '#db2777',
+      gradient: 'linear-gradient(135deg, #be185d 0%, #ec4899 100%)',
+      badge: 'لوحة الشرف الدائمة',
+      highlights: [
+        'خطط إثرائية للمتفوقين ومسابقات سنوية',
+        'مهرجانات تكريم فصلي بحضور أولياء الأمور',
+        'شهادات وجوائز تقديرية ومنح تميز دراسية'
+      ],
+      fullDetails: 'التفوق في مدرسة جذور ليس مجرد علامة في شهادة، بل هو ثقافة متكاملة، حيث يتم تكريم الطالب أسبوعياً وفصلياً أمام زملائه وعائلته لتشجيعه على المضي قدماً في طريق النجاح والريادة.'
     },
     {
-      title: 'الإرشاد التربوي والمتابعة الفردية',
-      desc: 'كوادر إرشادية متخصصة تهتم بالجانب النفسي وبناء الشخصية القيادية المتوازنة.',
+      id: 'guidance',
+      category: 'CARE',
+      categoryLabel: 'الرعاية التربوية',
+      title: 'الإرشاد التربوي والنفسي والمتابعة الفردية',
+      desc: 'كوادر إرشادية متخصصة تهتم بالجانب النفسي وبناء الشخصية المتوازنة، مع قناة تواصل وتحديث مباشر وفوري لولي الأمر.',
       icon: '🌱',
-      color: '#06b6d4',
-      badge: 'رعاية شاملة'
+      color: '#0891b2',
+      gradient: 'linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)',
+      badge: 'رعاية شاملة 1:1',
+      highlights: [
+        'مرشد تربوي ونفسي متفرغ لكل مرحلة دراسية',
+        'تقارير دورية شفافة لولي الأمر عبر المنصة',
+        'تعديل سلوكي وتوجيه إيجابي يعزز الاستقرار النفسي'
+      ],
+      fullDetails: 'تحرص جذور على احتضان كل طالب كحالة خاصة، وتقديم الدعم الإرشادي والنفسي لمساعدته على تخطي أي صعوبات تعليمية أو تحديات تواجهه، لبناء شخصية متزنة واثقة بنفسها وبمستقبلها.'
     }
   ];
+
+  const filteredOfferings = featureCategory === 'ALL'
+    ? schoolOfferings
+    : schoolOfferings.filter(item => item.category === featureCategory);
 
   const schoolPhotoShowcase = [
     {
@@ -230,6 +299,137 @@ export default function JothoorPublicWebsite({
 
   return (
     <div className="jothoor-public-root" dir="rtl" style={{ fontFamily: "'Cairo', 'Segoe UI', system-ui, sans-serif", background: '#f8fafc', color: '#1e293b' }}>
+
+      {/* Dynamic Global Animations & Styling */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+        .jothoor-public-root {
+          font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        @keyframes auroraBreath {
+          0%, 100% { transform: scale(1) translate(0px, 0px); opacity: 0.32; }
+          50% { transform: scale(1.18) translate(-25px, 20px); opacity: 0.55; }
+        }
+
+        @keyframes heroFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulseDot {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.4); opacity: 0.45; }
+        }
+
+        @keyframes shimmerSlide {
+          0% { transform: translateX(120%); }
+          100% { transform: translateX(-120%); }
+        }
+
+        @keyframes gentleGlow {
+          0%, 100% { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+          50% { filter: drop-shadow(0 0 16px rgba(16, 185, 129, 0.7)); }
+        }
+
+        .hero-live-badge {
+          box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+          animation: heroFloat 4.5s ease-in-out infinite;
+        }
+
+        .hero-pulse-dot {
+          display: inline-block;
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 8px #10b981;
+          animation: pulseDot 1.8s infinite ease-in-out;
+        }
+
+        .jothoor-shimmer-btn {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .jothoor-shimmer-btn:hover {
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 14px 32px rgba(16, 185, 129, 0.48) !important;
+        }
+        .jothoor-shimmer-btn::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+          transform: skewX(-20deg);
+          animation: shimmerSlide 3.2s infinite;
+        }
+
+        .jothoor-hero-card {
+          animation: heroFloat 5.5s ease-in-out infinite;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .jothoor-hero-card:hover {
+          box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.65), 0 0 0 1.5px rgba(56, 189, 248, 0.45) !important;
+        }
+
+        .jothoor-stat-item {
+          transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .jothoor-stat-item:hover {
+          transform: translateY(-4px) scale(1.02);
+          background: rgba(255, 255, 255, 0.12) !important;
+          border-color: rgba(56, 189, 248, 0.55) !important;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        /* Offering Feature Card */
+        .jothoor-offering-card {
+          position: relative;
+          background: #ffffff;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 22px;
+          padding: 26px;
+          display: flex;
+          flex-direction: column;
+          cursor: pointer;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+        }
+        .jothoor-offering-card:hover {
+          transform: translateY(-8px);
+          border-color: #10b981;
+          box-shadow: 0 22px 42px -10px rgba(16, 185, 129, 0.22), 0 0 0 1.5px #10b981;
+        }
+        .jothoor-offering-card:hover .offering-icon-wrap {
+          transform: scale(1.12) rotate(-5deg);
+        }
+        .jothoor-offering-card:hover .offering-arrow {
+          transform: translateX(-6px);
+          color: #059669;
+        }
+
+        .offering-filter-pill {
+          transition: all 0.25s ease;
+        }
+        .offering-filter-pill:hover {
+          transform: translateY(-2px);
+        }
+
+        .trust-pillar-card {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .trust-pillar-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 16px 30px -8px rgba(0, 0, 0, 0.08);
+          border-color: #059669 !important;
+        }
+      `}</style>
 
       {/* 1. National Palestinian Solidarity Header */}
       <div style={{ background: '#090d16', color: '#cbd5e1', padding: '8px 16px', fontSize: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -382,48 +582,48 @@ export default function JothoorPublicWebsite({
         </div>
       </header>
 
-      {/* 3. Hero Section (Rich Aesthetics & Slogan) */}
+      {/* 3. Hero Section (Rich Aesthetics, Aurora Glow & Slogan) */}
       <section style={{
-        background: 'linear-gradient(135deg, #090e1a 0%, #0f172a 50%, #1e1b4b 100%)',
+        background: 'radial-gradient(circle at 18% 25%, rgba(16, 185, 129, 0.28) 0%, transparent 45%), radial-gradient(circle at 82% 75%, rgba(56, 189, 248, 0.24) 0%, transparent 50%), radial-gradient(circle at 50% 40%, rgba(99, 102, 241, 0.16) 0%, transparent 55%), linear-gradient(145deg, #070d18 0%, #0d192e 50%, #081e18 100%)',
         color: '#ffffff',
-        padding: '64px 20px 80px',
+        padding: '70px 20px 88px',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Ambient Glows */}
-        <div style={{ position: 'absolute', top: -100, right: -100, width: 450, height: 450, background: 'rgba(79, 70, 229, 0.25)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -100, left: -100, width: 450, height: 450, background: 'rgba(14, 165, 233, 0.2)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none' }} />
+        {/* Floating Ambient Aurora Orbs */}
+        <div style={{ position: 'absolute', top: -80, right: -60, width: 460, height: 460, background: 'rgba(16, 185, 129, 0.3)', borderRadius: '50%', filter: 'blur(95px)', pointerEvents: 'none', animation: 'auroraBreath 8s infinite ease-in-out' }} />
+        <div style={{ position: 'absolute', bottom: -90, left: -60, width: 480, height: 480, background: 'rgba(56, 189, 248, 0.24)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', animation: 'auroraBreath 10s infinite ease-in-out reverse' }} />
 
         <div style={{ maxWidth: 1240, margin: '0 auto', position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 40, alignItems: 'center' }}>
 
           {/* Hero Left Content */}
           <div>
-            <div style={{
+            <div className="hero-live-badge" style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 8,
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.18)',
-              padding: '6px 14px',
-              borderRadius: '20px',
+              gap: 9,
+              background: 'rgba(16, 185, 129, 0.14)',
+              border: '1px solid rgba(16, 185, 129, 0.45)',
+              padding: '7px 16px',
+              borderRadius: '24px',
               fontSize: '13px',
-              fontWeight: 700,
-              color: '#a5b4fc',
-              marginBottom: 18
+              fontWeight: 800,
+              color: '#34d399',
+              marginBottom: 20
             }}>
-              <span>🌟</span>
+              <span className="hero-pulse-dot" />
               <span>فتح باب التسجيل وحجز المقاعد للعام الدراسي 2026/2027</span>
             </div>
 
-            <h2 style={{ fontSize: '38px', fontWeight: 900, lineHeight: 1.25, letterSpacing: '-0.8px', margin: '0 0 16px', color: '#ffffff' }}>
+            <h2 style={{ fontSize: '40px', fontWeight: 900, lineHeight: 1.25, letterSpacing: '-0.8px', margin: '0 0 16px', color: '#ffffff' }}>
               مدرسة جذور النموذجية الخاصة
             </h2>
 
-            <p style={{ fontSize: '20px', fontWeight: 700, color: '#38bdf8', margin: '0 0 18px', lineHeight: 1.4 }}>
+            <p style={{ fontSize: '21px', fontWeight: 800, color: '#38bdf8', margin: '0 0 18px', lineHeight: 1.4 }}>
               "جذورٌ أصيلة.. تعليمٌ نموذجي.. وجيلٌ يبني المستقبل"
             </p>
 
-            <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.8, margin: '0 0 28px', maxWidth: 560 }}>
+            <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.85, margin: '0 0 28px', maxWidth: 560 }}>
               نرحب بكم في الصرح التربوي الرائد الذي يجمع بين أصالة القيم الإسلامية والوطنية، وأحدث معايير التعليم العصري التفاعلي. نوفر لأبنائنا الطلبة بيئة آمنة ملهمة تحفز الإبداع وتصقل المواهب ليكونوا قادة الغد.
             </p>
 
@@ -431,11 +631,12 @@ export default function JothoorPublicWebsite({
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setIsRegisterModalOpen(true)}
+                className="jothoor-shimmer-btn"
                 style={{
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '14px 26px',
+                  padding: '14px 28px',
                   borderRadius: '14px',
                   fontWeight: 800,
                   fontSize: '15px',
@@ -453,7 +654,7 @@ export default function JothoorPublicWebsite({
               <button
                 onClick={onNavigateToInquiry}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.12)',
+                  background: 'rgba(255, 255, 255, 0.1)',
                   color: '#ffffff',
                   border: '1px solid rgba(255, 255, 255, 0.25)',
                   padding: '14px 22px',
@@ -463,8 +664,12 @@ export default function JothoorPublicWebsite({
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 8
+                  gap: 8,
+                  backdropFilter: 'blur(8px)',
+                  transition: 'all 0.25s ease'
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; }}
               >
                 <span>🔍</span>
                 <span>استعلام ولي الأمر عن الطالب</span>
@@ -472,53 +677,72 @@ export default function JothoorPublicWebsite({
             </div>
           </div>
 
-          {/* Hero Right Visual Card */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: '24px',
+          {/* Hero Right Visual Card (Interactive Bento Panel) */}
+          <div className="jothoor-hero-card" style={{
+            background: 'rgba(15, 23, 42, 0.65)',
+            border: '1px solid rgba(255, 255, 255, 0.16)',
+            borderRadius: '26px',
             padding: '28px',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)'
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.55)',
+            position: 'relative'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-              <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <SchoolLogo size={68} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ flexShrink: 0 }}>
+                  <SchoolLogo size={62} />
+                </div>
+                <div>
+                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'block' }}>منظومة جذور الذكية</span>
+                  <span style={{ fontSize: '18px', fontWeight: 900, color: '#f8fafc' }}>التعليم النموذجي الشامل</span>
+                </div>
               </div>
-              <div>
-                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'block' }}>منظومة جذور الذكية</span>
-                <span style={{ fontSize: '18px', fontWeight: 900, color: '#f8fafc' }}>التعليم النموذجي الشامل</span>
-              </div>
+              <span style={{
+                background: 'rgba(16, 185, 129, 0.2)',
+                color: '#34d399',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                padding: '4px 10px',
+                borderRadius: 14,
+                fontSize: 11,
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5
+              }}>
+                <span className="hero-pulse-dot" style={{ width: 6, height: 6 }} />
+                مباشر
+              </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
-              <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="jothoor-stat-item" style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 16, padding: '16px', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#38bdf8' }}>100%</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>نسبة النجاح والتفوق الأكاديمي</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4, fontWeight: 600 }}>نسبة النجاح والتفوق الأكاديمي</div>
               </div>
-              <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="jothoor-stat-item" style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 16, padding: '16px', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#34d399' }}>فصول ذكية</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>بيئة نموذجية وشاشات تفاعلية</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4, fontWeight: 600 }}>بيئة نموذجية وشاشات 4K</div>
               </div>
-              <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="jothoor-stat-item" style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 16, padding: '16px', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#fbbf24' }}>24/7</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>متابعة إلكترونية فورية لولي الأمر</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4, fontWeight: 600 }}>متابعة إلكترونية لولي الأمر</div>
               </div>
-              <div style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 14, padding: 14, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="jothoor-stat-item" style={{ background: 'rgba(255, 255, 255, 0.06)', borderRadius: 16, padding: '16px', border: '1px solid rgba(255, 255, 255, 0.09)' }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#a78bfa' }}>نخبة</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>كادر تعليمي وتربوي معتمد</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4, fontWeight: 600 }}>كادر تعليمي وتربوي معتمد</div>
               </div>
             </div>
 
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ marginTop: 22, paddingTop: 16, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 12, color: '#94a3b8' }}>📍 غزة - فلسطين</span>
               <a
                 href="https://www.facebook.com/jothoorschoolps/photos"
                 target="_blank"
                 rel="noreferrer"
-                style={{ color: '#60a5fa', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}
+                style={{ color: '#60a5fa', fontSize: 12, fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
               >
-                تصفح ألبومات المدرسة بالصور ←
+                <span>تصفح ألبومات المدرسة بالصور</span>
+                <span>←</span>
               </a>
             </div>
           </div>
@@ -998,51 +1222,355 @@ export default function JothoorPublicWebsite({
         </div>
       )}
 
-      {/* 6. What Jothoor Offers (الميزات والمناهج والأنشطة) */}
-      <section style={{ maxWidth: 1240, margin: '60px auto 0', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 800 }}>
-            بيئة تربوية تفاعلية متكاملة
+      {/* 6. What Jothoor Offers (Interactive Dynamic Educational Programs) */}
+      <section style={{ maxWidth: 1240, margin: '70px auto 0', padding: '0 20px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+            color: '#3730a3',
+            padding: '6px 18px',
+            borderRadius: 24,
+            fontSize: 12.5,
+            fontWeight: 800,
+            display: 'inline-block',
+            boxShadow: '0 2px 10px rgba(99, 102, 241, 0.15)'
+          }}>
+            🌟 بيئة تربوية تفاعلية متكاملة
           </span>
-          <h3 style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', margin: '12px 0 6px' }}>
+          <h3 style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px', letterSpacing: '-0.4px' }}>
             ماذا تقدم مدرسة جذور النموذجية الخاصة؟
           </h3>
-          <p style={{ fontSize: 14, color: '#64748b', maxWidth: 600, margin: '0 auto' }}>
-            نصمم تجربة تعليمية نموذجية ترتقي بشخصية الطالب معرفياً، قيمياً، وعملياً من خلال برامج نوعية معتمدة.
+          <p style={{ fontSize: 14.5, color: '#64748b', maxWidth: 640, margin: '0 auto', lineHeight: 1.7 }}>
+            نصمم تجربة تعليمية حديثة وممتعة ترتقي بشخصية الطالب معرفياً، قيمياً، وعملياً من خلال 6 ركائز تربوية معتمدة تضمن له التفوق والريادة.
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 20 }}>
-          {schoolGalleryImages.map((item, idx) => (
+        {/* Interactive Offering Filter Tabs */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 8,
+          marginBottom: 32
+        }}>
+          {[
+            { id: 'ALL', label: 'جميع البرامج (6)', icon: '🌟' },
+            { id: 'TECH', label: 'الفصول الذكية', icon: '🖥️' },
+            { id: 'SCIENCE', label: 'العلوم وSTEM', icon: '🔬' },
+            { id: 'KG', label: 'رياض الأطفال', icon: '🎨' },
+            { id: 'SPORTS', label: 'الرياضة والأنشطة', icon: '⚽' },
+            { id: 'EXCELLENCE', label: 'التفوق ورعاية الموهوبين', icon: '🏆' },
+            { id: 'CARE', label: 'الإرشاد والمتابعة', icon: '🌱' },
+          ].map(tab => {
+            const isActive = featureCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setFeatureCategory(tab.id)}
+                className="offering-filter-pill"
+                style={{
+                  background: isActive ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#475569',
+                  border: isActive ? '1px solid #059669' : '1px solid #cbd5e1',
+                  padding: '8px 16px',
+                  borderRadius: 24,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: isActive ? '0 4px 14px rgba(16, 185, 129, 0.3)' : '0 1px 3px rgba(0,0,0,0.04)'
+                }}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Interactive Offerings Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+          {filteredOfferings.map((item) => (
             <div
-              key={idx}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12,
-                boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-              }}
+              key={item.id}
+              className="jothoor-offering-card"
+              onClick={() => setSelectedOfferingModal(item)}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 32 }}>{item.icon}</span>
-                <span style={{ background: `${item.color}15`, color: item.color, padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 800 }}>
+              {/* Top Colored Accent Bar */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 4,
+                background: item.gradient,
+                borderRadius: '20px 20px 0 0'
+              }} />
+
+              {/* Card Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div
+                  className="offering-icon-wrap"
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 16,
+                    background: `${item.color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 26,
+                    transition: 'all 0.35s ease',
+                    boxShadow: `0 4px 12px ${item.color}20`
+                  }}
+                >
+                  {item.icon}
+                </div>
+                <span style={{
+                  background: `${item.color}15`,
+                  color: item.color,
+                  border: `1px solid ${item.color}30`,
+                  padding: '4px 12px',
+                  borderRadius: 14,
+                  fontSize: 11.5,
+                  fontWeight: 800
+                }}>
                   {item.badge}
                 </span>
               </div>
-              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+
+              {/* Card Title & Description */}
+              <h4 style={{ fontSize: 17, fontWeight: 900, color: '#0f172a', margin: '0 0 10px', lineHeight: 1.4 }}>
                 {item.title}
               </h4>
-              <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, margin: '0 0 16px', flex: 1 }}>
                 {item.desc}
               </p>
+
+              {/* Concrete Feature Bullet Points */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '14px 0', borderTop: '1px solid #f1f5f9', paddingTop: 14 }}>
+                {item.highlights.map((h, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#334155' }}>
+                    <span style={{ color: '#10b981', fontWeight: 900, fontSize: 14 }}>✓</span>
+                    <span>{h}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Interactive Modal Action Trigger */}
+              <div style={{
+                marginTop: 'auto',
+                paddingTop: 12,
+                borderTop: '1px solid #f1f5f9',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ color: item.color, fontWeight: 800, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span>اكتشف تفاصيل هذا المسار التربوي</span>
+                  <span className="offering-arrow">←</span>
+                </span>
+                <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>انقر للمعاينة</span>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* Feature Detail Interactive Modal */}
+        {selectedOfferingModal && (
+          <div
+            onClick={() => setSelectedOfferingModal(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.85)',
+              backdropFilter: 'blur(10px)',
+              zIndex: 99999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: '#ffffff',
+                borderRadius: 24,
+                maxWidth: 620,
+                width: '100%',
+                padding: '28px',
+                boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                position: 'relative'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{
+                    width: 58,
+                    height: 58,
+                    borderRadius: 18,
+                    background: `${selectedOfferingModal.color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 30,
+                    boxShadow: `0 4px 14px ${selectedOfferingModal.color}25`
+                  }}>
+                    {selectedOfferingModal.icon}
+                  </div>
+                  <div>
+                    <span style={{ fontSize: 12, color: selectedOfferingModal.color, fontWeight: 800, display: 'block' }}>
+                      {selectedOfferingModal.categoryLabel}
+                    </span>
+                    <h3 style={{ fontSize: 19, fontWeight: 900, color: '#0f172a', margin: '2px 0 0' }}>
+                      {selectedOfferingModal.title}
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedOfferingModal(null)}
+                  style={{
+                    background: '#f1f5f9',
+                    border: 'none',
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#64748b'
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ background: '#f8fafc', borderRadius: 16, padding: '16px 20px', border: '1px solid #e2e8f0', marginBottom: 20 }}>
+                <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.8, margin: 0 }}>
+                  {selectedOfferingModal.fullDetails}
+                </p>
+              </div>
+
+              <h5 style={{ fontSize: 13, fontWeight: 900, color: '#0f172a', margin: '0 0 10px' }}>
+                المميزات العملية التي يحصل عليها الطالب:
+              </h5>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+                {selectedOfferingModal.highlights.map((h, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    background: '#ecfdf5',
+                    border: '1px solid #a7f3d0',
+                    padding: '10px 14px',
+                    borderRadius: 12,
+                    fontSize: 13,
+                    color: '#065f46',
+                    fontWeight: 700
+                  }}>
+                    <span style={{ color: '#059669', fontSize: 16 }}>✓</span>
+                    <span>{h}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                <a
+                  href="https://wa.me/970567088815"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    background: '#f0fdf4',
+                    color: '#16a34a',
+                    border: '1px solid #bbf7d0',
+                    padding: '10px 18px',
+                    borderRadius: 12,
+                    fontWeight: 800,
+                    fontSize: 13,
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <span>💬</span> استفسار عبر واتساب
+                </a>
+                <button
+                  onClick={() => {
+                    setSelectedOfferingModal(null);
+                    setIsRegisterModalOpen(true);
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '10px 22px',
+                    borderRadius: 12,
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+                  }}
+                >
+                  🎓 حجز مقعد وتسجيل الآن
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Why Parents Choose Jothoor (4 Trust Pillars) */}
+        <div style={{
+          marginTop: 56,
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #eff6ff 100%)',
+          borderRadius: 24,
+          padding: '36px 30px',
+          border: '1.5px solid #d1fae5'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <span style={{ background: '#10b981', color: '#ffffff', padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 800 }}>
+              معايير الجودة والاعتماد
+            </span>
+            <h4 style={{ fontSize: 24, fontWeight: 900, color: '#064e3b', margin: '10px 0 6px' }}>
+              لماذا يفضل أولياء الأمور مدرسة جذور النموذجية الخاصة؟
+            </h4>
+            <p style={{ fontSize: 13.5, color: '#047857', margin: 0 }}>
+              نضع مصلحة الطالب ومستقبله في صميم كل قرار، مع شراكة حقيقية ومستمرة مع الأسرة.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
+            {[
+              { icon: '👨‍🏫', title: 'كادر نخبوي معتمد', desc: 'معلمون ذوو كفاءة عالية وخبرات تربوية معتمدة يخضعون لتطوير مهني دائم.' },
+              { icon: '📱', title: 'منظومة متابعة ذكية', desc: 'إشعارات فورية لولي الأمر بالحضور والغياب، الملاحظات، والنتائج عبر المنصة.' },
+              { icon: '🛡️', title: 'بيئة آمنة وصحية', desc: 'غرف صفية مكيفة، ملاعب مظللة آمنة، وإشراف متواصل على مدار اليوم الدراسي.' },
+              { icon: '📖', title: 'غرس الأخلاق والقيم', desc: 'توازن دقيق يجمع بين التطور التكنولوجي وبين القيم الوطنية والإسلامية وحفظ القرآن.' }
+            ].map((pillar, i) => (
+              <div
+                key={i}
+                className="trust-pillar-card"
+                style={{
+                  background: '#ffffff',
+                  borderRadius: 18,
+                  padding: 20,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
+                }}
+              >
+                <div style={{ fontSize: 32, marginBottom: 10 }}>{pillar.icon}</div>
+                <h5 style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', margin: '0 0 6px' }}>{pillar.title}</h5>
+                <p style={{ fontSize: 12.5, color: '#64748b', lineHeight: 1.6, margin: 0 }}>{pillar.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
