@@ -3,20 +3,27 @@ import { useNotifications } from '../../context/NotificationContext';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function IncomingTransferPopup({ currentPage, onNavigate }) {
-  const { activePopupNotice, dismissPopup, unreadCount, isStaffOnly } = useNotifications();
+  const { activePopupNotice, dismissPopup, unreadCount, isStaffOnly, isStaffOrAdmin } = useNotifications();
   const { isRtl } = useLanguage();
 
-  if (!activePopupNotice || !isStaffOnly) return null;
+  const canSeeNotices = isStaffOrAdmin !== undefined ? isStaffOrAdmin : isStaffOnly;
+  if (!activePopupNotice || !canSeeNotices) return null;
 
   const notice = activePopupNotice;
+  const isRegistration = notice.noticeType === 'REGISTRATION';
+
   const isBankOfPalestine = notice.method === 'BANK_OF_PALESTINE';
   const isJawwal = notice.method === 'JAWWAL_PAY';
-  const methodLabel = isBankOfPalestine ? 'بنك فلسطين' : isJawwal ? 'جوال باي' : notice.method === 'PALPAY' ? 'بال باي' : notice.method;
+  const methodLabel = isBankOfPalestine ? 'بنك فلسطين' : isJawwal ? 'جوال باي' : notice.method === 'PALPAY' ? 'بال باي' : (notice.method || 'بوابة التسجيل');
 
-  const handleGoToFees = () => {
+  const handleActionClick = () => {
     dismissPopup(notice.id);
     if (onNavigate) {
-      onNavigate('fees');
+      if (isRegistration) {
+        onNavigate('enrollment');
+      } else {
+        onNavigate('fees');
+      }
     }
   };
 
@@ -28,10 +35,12 @@ export default function IncomingTransferPopup({ currentPage, onNavigate }) {
         left: isRtl ? '24px' : 'auto',
         right: isRtl ? 'auto' : '24px',
         zIndex: 9999,
-        maxWidth: '430px',
+        maxWidth: '440px',
         width: 'calc(100vw - 48px)',
-        background: 'linear-gradient(135deg, #091a2b 0%, #062438 100%)',
-        border: '2px solid #38bdf8',
+        background: isRegistration
+          ? 'linear-gradient(135deg, #131d36 0%, #0f2744 100%)'
+          : 'linear-gradient(135deg, #091a2b 0%, #062438 100%)',
+        border: isRegistration ? '2px solid #60a5fa' : '2px solid #38bdf8',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.35)',
         color: '#ffffff',
@@ -46,31 +55,33 @@ export default function IncomingTransferPopup({ currentPage, onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span
             style={{
-              background: '#0284c7',
+              background: isRegistration ? '#2563eb' : '#0284c7',
               color: '#ffffff',
-              width: 32,
-              height: 32,
+              width: 34,
+              height: 34,
               borderRadius: '50%',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 16,
-              boxShadow: '0 0 12px #38bdf8'
+              fontSize: 17,
+              boxShadow: isRegistration ? '0 0 12px #60a5fa' : '0 0 12px #38bdf8'
             }}
           >
-            🔔
+            {isRegistration ? '🎓' : '🔔'}
           </span>
           <div>
             <h4 style={{ margin: 0, fontSize: 14.5, fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>{isRtl ? 'إشعار تحويل مالي جديد وارد!' : 'New Payment Notice Received!'}</span>
+              <span>{isRegistration ? (isRtl ? 'طلب تسجيل طالب جديد وارد الآن!' : 'New Student Registration Received!') : (isRtl ? 'إشعار تحويل مالي جديد وارد!' : 'New Payment Notice Received!')}</span>
               {unreadCount > 1 && (
                 <span style={{ background: '#ea580c', fontSize: 11, padding: '1px 6px', borderRadius: 10 }}>
                   +{unreadCount - 1}
                 </span>
               )}
             </h4>
-            <span style={{ fontSize: 11.5, color: '#7dd3fc' }}>
-              {isRtl ? 'تم إرسال إشعار سداد من ولي الأمر بانتظار الاعتماد' : 'Submitted by parent for staff approval'}
+            <span style={{ fontSize: 11.5, color: isRegistration ? '#93c5fd' : '#7dd3fc' }}>
+              {isRegistration
+                ? (isRtl ? 'تم تقديم طلب تسجيل من البوابة الإلكترونية بانتظار الاعتماد وتوزيع الصف' : 'Submitted online for enrollment approval')
+                : (isRtl ? 'تم إرسال إشعار سداد من ولي الأمر بانتظار الاعتماد' : 'Submitted by parent for staff approval')}
             </span>
           </div>
         </div>
@@ -115,30 +126,31 @@ export default function IncomingTransferPopup({ currentPage, onNavigate }) {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <span style={{ color: '#94a3b8', fontSize: 11, display: 'block' }}>{isRtl ? 'اسم الطالب المستفيد:' : 'Student:'}</span>
+            <span style={{ color: '#94a3b8', fontSize: 11, display: 'block' }}>{isRtl ? 'اسم الطالب:' : 'Student:'}</span>
             <strong style={{ fontSize: 14, color: '#ffffff' }}>{notice.studentName}</strong>{' '}
-            <code style={{ fontSize: 11, color: '#38bdf8' }}>({notice.studentNumber})</code>
+            {notice.nationalId && <code style={{ fontSize: 11, color: '#38bdf8' }}>({notice.nationalId})</code>}
+            {notice.studentNumber && <code style={{ fontSize: 11, color: '#38bdf8' }}>({notice.studentNumber})</code>}
           </div>
           <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
-            <span style={{ color: '#94a3b8', fontSize: 11, display: 'block' }}>{isRtl ? 'المبلغ:' : 'Amount:'}</span>
-            <span style={{ fontSize: 17, fontWeight: 900, color: '#34d399' }}>{notice.amount} ₪</span>
+            <span style={{ color: '#94a3b8', fontSize: 11, display: 'block' }}>{isRegistration ? (isRtl ? 'رسوم حجز المقعد:' : 'Deposit:') : (isRtl ? 'المبلغ:' : 'Amount:')}</span>
+            <span style={{ fontSize: 17, fontWeight: 900, color: '#34d399' }}>{notice.amount || notice.registrationFee || 20} ₪</span>
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 6, marginTop: 2 }}>
           <span style={{ color: '#cbd5e1' }}>
-            <strong>{isRtl ? 'القناة:' : 'Channel:'}</strong>{' '}
-            <span style={{ color: '#38bdf8', fontWeight: 700 }}>{methodLabel}</span>
+            <strong>{isRegistration ? (isRtl ? 'المرحلة:' : 'Grade:') : (isRtl ? 'القناة:' : 'Channel:')}</strong>{' '}
+            <span style={{ color: '#38bdf8', fontWeight: 700 }}>{isRegistration ? (notice.gradeLevel || 'غير محدد') : methodLabel}</span>
           </span>
           <span style={{ color: '#cbd5e1' }}>
-            <strong>{isRtl ? 'رقم العملية:' : 'Ref:'}</strong>{' '}
+            <strong>{isRegistration ? (isRtl ? 'هاتف ولي الأمر:' : 'Phone:') : (isRtl ? 'رقم العملية:' : 'Ref:')}</strong>{' '}
             <code style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '1px 5px', borderRadius: 4, fontWeight: 800 }}>
-              {notice.transactionRef}
+              {isRegistration ? (notice.parentPhone || 'غير متوفر') : notice.transactionRef}
             </code>
           </span>
         </div>
 
-        {notice.payerName && (
+        {notice.payerName && !isRegistration && (
           <div style={{ fontSize: 11.5, color: '#94a3b8' }}>
             {isRtl ? 'المرسل:' : 'Payer:'} <span style={{ color: '#ffffff' }}>{notice.payerName}</span> {notice.payerPhone ? `(${notice.payerPhone})` : ''}
           </div>
@@ -149,10 +161,12 @@ export default function IncomingTransferPopup({ currentPage, onNavigate }) {
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button
           type="button"
-          onClick={handleGoToFees}
+          onClick={handleActionClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            background: isRegistration
+              ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+              : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             color: '#ffffff',
             border: 'none',
             borderRadius: '8px',
@@ -164,11 +178,11 @@ export default function IncomingTransferPopup({ currentPage, onNavigate }) {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 6,
-            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+            boxShadow: isRegistration ? '0 4px 14px rgba(37, 99, 235, 0.4)' : '0 4px 14px rgba(16, 185, 129, 0.4)'
           }}
         >
-          <span>👁️</span>
-          <span>{isRtl ? 'الانتقال للاعتماد والمطابقة الآن' : 'Review & 1-Click Approve'}</span>
+          <span>{isRegistration ? '📋' : '👁️'}</span>
+          <span>{isRegistration ? (isRtl ? 'معاينة واعتماد طلب التسجيل الآن' : 'Review & Approve Registration') : (isRtl ? 'الانتقال للاعتماد والمطابقة الآن' : 'Review & 1-Click Approve')}</span>
         </button>
 
         <button

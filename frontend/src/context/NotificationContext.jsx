@@ -45,6 +45,7 @@ export function playChimeSound() {
 export function NotificationProvider({ children }) {
   const { user } = useAuth();
   const [pendingNotices, setPendingNotices] = useState([]);
+  const [pendingRegistrations, setPendingRegistrations] = useState([]);
   const [activePopupNotice, setActivePopupNotice] = useState(null);
   const [dismissedIds, setDismissedIds] = useState(() => {
     try {
@@ -56,16 +57,19 @@ export function NotificationProvider({ children }) {
   });
 
   const prevNoticeIdsRef = useRef(new Set());
-  const isStaffOnly = user?.role === 'STAFF';
+  const prevRegIdsRef = useRef(new Set());
+  const canReceiveAlerts = user?.role === 'STAFF' || user?.role === 'ADMIN' || user?.isDeveloper;
 
   const fetchNotices = useCallback(async () => {
-    if (!isStaffOnly) {
+    if (!canReceiveAlerts) {
       setPendingNotices([]);
+      setPendingRegistrations([]);
       setActivePopupNotice(null);
       return;
     }
+
+    // 1. Fetch pending fee transfers
     try {
-      // Read from API or fallback to localStorage
       let list = [];
       try {
         const res = await api.get('/fees/pending-notices');
@@ -80,18 +84,16 @@ export function NotificationProvider({ children }) {
 
       setPendingNotices(list);
 
-      // Check for newly arrived notices that weren't in previous set and not dismissed
       const currentIds = new Set(list.map(n => n.id));
       const newlyArrived = list.find(n => !prevNoticeIdsRef.current.has(n.id) && !dismissedIds.includes(n.id));
 
       if (newlyArrived) {
-        setActivePopupNotice(newlyArrived);
+        setActivePopupNotice({ ...newlyArrived, noticeType: 'PAYMENT' });
         playChimeSound();
       } else if (list.length > 0 && !activePopupNotice) {
-        // If there's an un-dismissed pending notice, show it
         const firstUndismissed = list.find(n => !dismissedIds.includes(n.id));
         if (firstUndismissed) {
-          setActivePopupNotice(firstUndismissed);
+          setActivePopupNotice({ ...firstUndismissed, noticeType: 'PAYMENT' });
         }
       }
 
@@ -99,7 +101,43 @@ export function NotificationProvider({ children }) {
     } catch (err) {
       console.warn('Error fetching pending notices:', err);
     }
-  }, [isStaffOnly, dismissedIds, activePopupNotice]);
+
+    // 2. Fetch pending online student registrations
+    try {
+      let regList = [];
+      try {
+        const res = await api.get('/students/registrations/all');
+        regList = Array.isArray(res) ? res.filter(r => r.status === 'PENDING_APPROVAL') : [];
+      } catch {
+        const raw = localStorage.getItem('jothoor_online_registrations');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          regList = parsed.filter(r => r.status === 'PENDING_APPROVAL');
+        }
+      }
+
+      setPendingRegistrations(regList);
+
+      const currentRegIds = new Set(regList.map(r => r.registrationNumber || r.id));
+      const newlyArrivedReg = regList.find(r => {
+        const idKey = r.registrationNumber || r.id;
+        return !prevRegIdsRef.current.has(idKey) && !dismissedIds.includes(idKey);
+      });
+
+      if (newlyArrivedReg && !activePopupNotice) {
+        setActivePopupNotice({
+          ...newlyArrivedReg,
+          id: newlyArrivedReg.registrationNumber || newlyArrivedReg.id,
+          noticeType: 'REGISTRATION'
+        });
+        playChimeSound();
+      }
+
+      prevRegIdsRef.current = currentRegIds;
+    } catch (err) {
+      console.warn('Error fetching online registrations:', err);
+    }
+  }, [canReceiveAlerts, dismissedIds, activePopupNotice]);
 
   useEffect(() => {
     fetchNotices();
@@ -107,7 +145,7 @@ export function NotificationProvider({ children }) {
 
   // Real-time multi-tab and poll listener
   useEffect(() => {
-    if (!isStaffOnly) return;
+    if (!canReceiveAlerts) return;
 
     const handleSync = () => {
       fetchNotices();
@@ -115,6 +153,7 @@ export function NotificationProvider({ children }) {
 
     window.addEventListener('storage', handleSync);
     window.addEventListener('payment_notice_updated', handleSync);
+    window.addEventListener('new_student_registration', handleSync);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') fetchNotices();
     });
@@ -123,9 +162,10 @@ export function NotificationProvider({ children }) {
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('payment_notice_updated', handleSync);
+      window.removeEventListener('new_student_registration', handleSync);
       clearInterval(timer);
     };
-  }, [isStaffOnly, fetchNotices]);
+  }, [canReceiveAlerts, fetchNotices]);
 
   const dismissPopup = (noticeId) => {
     if (!noticeId) {
@@ -141,22 +181,27 @@ export function NotificationProvider({ children }) {
   };
 
   const showPopupForNotice = (notice) => {
-    if (!isStaffOnly) return;
+    if (!canReceiveAlerts) return;
     setActivePopupNotice(notice);
     playChimeSound();
   };
 
+  const pendingRegistrationsCount = pendingRegistrations.length;
+  const unreadCount = pendingNotices.length + pendingRegistrationsCount;
+
   return (
     <NotificationContext.Provider
       value={{
-        pendingNotices: isStaffOnly ? pendingNotices : [],
-        unreadCount: isStaffOnly ? pendingNotices.length : 0,
-        activePopupNotice: isStaffOnly ? activePopupNotice : null,
+        pendingNotices: canReceiveAlerts ? pendingNotices : [],
+        pendingRegistrations: canReceiveAlerts ? pendingRegistrations : [],
+        pendingRegistrationsCount: canReceiveAlerts ? pendingRegistrationsCount : 0,
+        unreadCount: canReceiveAlerts ? unreadCount : 0,
+        activePopupNotice: canReceiveAlerts ? activePopupNotice : null,
         dismissPopup,
         showPopupForNotice,
         refreshNotices: fetchNotices,
         playChime: playChimeSound,
-        isStaffOnly
+        isStaffOnly: canReceiveAlerts
       }}
     >
       {children}

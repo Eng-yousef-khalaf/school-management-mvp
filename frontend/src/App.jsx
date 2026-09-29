@@ -440,6 +440,7 @@ export default function App() {
         (isStaff || isTeacher || isAdmin) ? (
           <StudentList
             onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
+            onNavigate={navigateTo}
           />
         ) : (
           <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />

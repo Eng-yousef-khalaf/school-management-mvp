@@ -8,6 +8,8 @@ import Badge from '../../components/common/Badge';
 import { PageLoader } from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
 import SchoolLogo from '../../components/common/SchoolLogo';
+import UserAvatar from '../../components/common/UserAvatar';
+import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function DeveloperFleetDashboard({ onNavigate }) {
@@ -262,19 +264,21 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
   const handleSavePrincipal = async (e) => {
     e?.preventDefault?.();
-    if (!principalForm.fullName.trim()) {
+    const cleanName = (principalForm?.fullName || '').trim();
+    const cleanEmail = (principalForm?.email || '').trim();
+    const cleanPass = (principalForm?.password || '').trim();
+
+    if (!cleanName) {
       toast.error(isRtl ? 'يرجى إدخال اسم مدير المدرسة' : 'Principal full name is required');
       return;
     }
     try {
       setIsSavingPrincipal(true);
-      const cleanName = principalForm.fullName.trim();
-      const cleanEmail = principalForm.email.trim();
       const res = await api.post('/developer/update-principal', {
         fullName: cleanName,
         email: cleanEmail,
-        password: principalForm.password.trim() || undefined,
-        photoUrl: principalForm.photoUrl || null
+        password: cleanPass || undefined,
+        photoUrl: principalForm?.photoUrl || null
       });
 
       if (res?.ok) {
@@ -282,8 +286,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           ...prev,
           adminFullName: cleanName,
           adminEmail: cleanEmail,
-          adminPassword: principalForm.password.trim() || prev.adminPassword,
-          adminPhotoUrl: principalForm.photoUrl || ''
+          adminPassword: cleanPass || prev.adminPassword,
+          adminPhotoUrl: principalForm?.photoUrl || ''
         }));
         localStorage.setItem('school_principal_name', cleanName);
         if (principalForm.photoUrl) {
@@ -626,7 +630,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const storagePercent = stats.fleetStoragePercent || Math.round((storageUsed / storageLimit) * 100);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <ErrorBoundary>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Top Banner: Dark Executive System Engineering Header */}
       <div
         style={{
@@ -927,14 +932,17 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                 type="button"
                 className="btn btn-sm"
                 onClick={() => {
+                  const pName = (principalForm?.fullName || '').trim();
+                  const pEmail = (principalForm?.email || '').trim();
+                  const pPass = (principalForm?.password || '').trim();
                   setHandoverData({
                     schoolNameAr: brandForm.schoolNameAr || config.schoolNameAr,
                     schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
                     schoolCode: brandForm.schoolCode || config.schoolCode,
                     domainUrl: window.location.origin,
-                    adminFullName: principalForm.fullName.trim() || handoverData.adminFullName,
-                    adminEmail: principalForm.email.trim() || handoverData.adminEmail,
-                    adminPassword: principalForm.password.trim() || handoverData.adminPassword,
+                    adminFullName: pName || handoverData.adminFullName,
+                    adminEmail: pEmail || handoverData.adminEmail,
+                    adminPassword: pPass || handoverData.adminPassword,
                   });
                   setIsHandoverModalOpen(true);
                 }}
@@ -1137,14 +1145,17 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   type="button"
                   className="btn btn-success"
                   onClick={() => {
+                    const pName = (principalForm?.fullName || '').trim();
+                    const pEmail = (principalForm?.email || '').trim();
+                    const pPass = (principalForm?.password || '').trim();
                     setHandoverData({
                       schoolNameAr: brandForm.schoolNameAr || config.schoolNameAr,
                       schoolNameEn: brandForm.schoolNameEn || config.schoolNameEn,
                       schoolCode: brandForm.schoolCode || config.schoolCode,
                       domainUrl: window.location.origin,
-                      adminFullName: principalForm.fullName.trim() || handoverData.adminFullName,
-                      adminEmail: principalForm.email.trim() || handoverData.adminEmail,
-                      adminPassword: principalForm.password.trim() || handoverData.adminPassword,
+                      adminFullName: pName || handoverData.adminFullName,
+                      adminEmail: pEmail || handoverData.adminEmail,
+                      adminPassword: pPass || handoverData.adminPassword,
                     });
                     setIsHandoverModalOpen(true);
                   }}
@@ -1795,7 +1806,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           </div>
         </Modal>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
 

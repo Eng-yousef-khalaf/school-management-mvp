@@ -26,7 +26,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
   const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, pendingRegistrationsCount } = useNotifications();
 
   // Role-specific navigation definitions
   let navItems = [];
@@ -46,7 +46,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة شؤون الطلاب' : 'Staff Dashboard', icon: <DashboardIcon />, section: 'main' },
       { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Student Admissions', icon: <StudentsIcon />, section: 'academic' },
-      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, section: 'academic' },
+      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, section: 'academic', badge: pendingRegistrationsCount },
       { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, section: 'academic' },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية' : 'Teachers Allocation', icon: <TeachersIcon />, section: 'academic' },
       { id: 'teacher-tracker', label: isRtl ? 'دوام المعلمين' : 'Teacher Check-In', icon: <AttendanceIcon />, section: 'daily' },
@@ -63,7 +63,9 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Dashboard', icon: <DashboardIcon />, section: 'main' },
       { id: 'developer-hub', label: isRtl ? 'لوحة المطور ⚡' : 'Developer Hub ⚡', icon: <span style={{ fontSize: 16 }}>⚡</span>, section: 'main', visible: Boolean(user?.isDeveloper) },
-      { id: 'fees', label: isRtl ? 'الرسوم وحسابات الطلاب' : 'Tuition & Fees', icon: <span style={{ fontSize: 16 }}>💰</span>, section: 'management' },
+      { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Students Directory', icon: <StudentsIcon />, section: 'management' },
+      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, section: 'management', badge: pendingRegistrationsCount },
+      { id: 'fees', label: isRtl ? 'الرسوم وحسابات الطلاب' : 'Tuition & Fees', icon: <span style={{ fontSize: 16 }}>💰</span>, section: 'management', badge: unreadCount },
       { id: 'users', label: isRtl ? 'المستخدمين والصلاحيات' : 'User Accounts', icon: <UsersIcon />, section: 'management' },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية' : 'Faculty Directory', icon: <TeachersIcon />, section: 'management' },
       { id: 'teacher-tracker', label: isRtl ? 'دوام المعلمين' : 'Teacher Attendance', icon: <AttendanceIcon />, section: 'management' },

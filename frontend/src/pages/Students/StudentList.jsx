@@ -12,7 +12,7 @@ import EmptyState from '../../components/common/EmptyState';
 import AddEditStudentModal from './AddEditStudentModal';
 import ImportStudentsModal from './ImportStudentsModal';
 import BulkCertificatesModal from '../Reports/BulkCertificatesModal';
-import UserAvatar from '../../components/common/UserAvatar';
+import { useNotifications } from '../../context/NotificationContext';
 import {
   SearchIcon,
   PlusIcon,
@@ -23,10 +23,11 @@ import {
   TrashIcon
 } from '../../components/common/Icons';
 
-export default function StudentList({ onViewStudent }) {
+export default function StudentList({ onViewStudent, onNavigate }) {
   const toast = useToast();
   const { canManageStudents, isAdmin, isTeacher } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { pendingRegistrationsCount } = useNotifications();
 
   const [students, setStudents] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -123,6 +124,45 @@ export default function StudentList({ onViewStudent }) {
 
   return (
     <div>
+      {/* Pending Online Registrations Alert Banner */}
+      {pendingRegistrationsCount > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+          border: '1.5px solid #60a5fa',
+          padding: '12px 18px',
+          borderRadius: '12px',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+          boxShadow: '0 4px 12px rgba(37, 99, 235, 0.08)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🎓</span>
+            <div>
+              <strong style={{ fontSize: 13.5, color: '#1e40af', display: 'block' }}>
+                {isRtl ? `يوجد ${pendingRegistrationsCount} طلب تسجيل إلكتروني جديد وحجز مقعد وارد من الموقع!` : `${pendingRegistrationsCount} new online student registration(s) pending review!`}
+              </strong>
+              <span style={{ fontSize: 12, color: '#3b82f6' }}>
+                {isRtl ? 'تم سداد رسوم الحجز (20 شيكل) بانتظار التحقق وتسكين الطالب في الشعبة' : 'Requires verification of deposit and class assignment'}
+              </span>
+            </div>
+          </div>
+          {onNavigate && (
+            <button
+              type="button"
+              onClick={() => onNavigate('enrollment')}
+              className="btn btn-primary btn-sm"
+              style={{ fontWeight: 800, padding: '7px 14px', borderRadius: 8, fontSize: 12 }}
+            >
+              {isRtl ? 'الانتقال لمعاينة واعتماد الطلبات ➜' : 'Review & Enroll ➜'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Role Context Ribbon */}
       {isAdmin && (
         <div style={{

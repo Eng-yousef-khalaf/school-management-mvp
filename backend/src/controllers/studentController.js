@@ -130,6 +130,48 @@ async function exportStudents(req, res, next) {
   }
 }
 
+const onlineRegistrationService = require('../services/onlineRegistrationService');
+
+async function submitPublicRegistration(req, res, next) {
+  try {
+    const result = await onlineRegistrationService.submitRegistration(req.body, req);
+    res.status(201).json({
+      ok: true,
+      message: 'تم استلام طلب التسجيل بنجاح! سيتم مراجعته واعتماده من قبل الإدارة.',
+      registration: result
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getOnlineRegistrations(req, res, next) {
+  try {
+    const list = await onlineRegistrationService.getRegistrations(req.query);
+    res.json(list);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function approveOnlineRegistration(req, res, next) {
+  try {
+    const result = await onlineRegistrationService.approveRegistration(req.params.id, req.body, req.user, req);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function rejectOnlineRegistration(req, res, next) {
+  try {
+    const result = await onlineRegistrationService.rejectRegistration(req.params.id, req.body?.reason, req.user, req);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getStudents,
   getStudentById,
@@ -139,5 +181,10 @@ module.exports = {
   deactivateStudent,
   previewImport,
   executeImport,
-  exportStudents
+  exportStudents,
+  submitPublicRegistration,
+  getOnlineRegistrations,
+  approveOnlineRegistration,
+  rejectOnlineRegistration
 };
+

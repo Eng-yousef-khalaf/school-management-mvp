@@ -286,3 +286,37 @@ model Payment {
   @@index([createdAt])
 }
 
+model OnlineRegistration {
+  id                   Int      @id @default(autoincrement())
+  registrationNumber   String   @unique
+  studentFullName      String
+  nationalId           String?
+  gender               String   @default("MALE")
+  dateOfBirth          String?
+  gradeLevel           String?
+  previousSchool       String?
+  studentPhoto         String?
+  parentFullName       String
+  relationship         String?  @default("الأب")
+  parentPhone          String
+  parentWhatsapp       String?
+  cityArea             String?
+  fullAddress          String?
+  senderName           String?
+  paymentMethod        String?  @default("Jawwal Pay")
+  referenceNumber      String?
+  receiptImage         String?
+  feeAmount            Float    @default(20)
+  currency             String   @default("NIS")
+  status               String   @default("PENDING_APPROVAL")
+  approvedStudentId    Int?
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([status])
+  @@index([registrationNumber])
+  @@index([parentPhone])
+  @@index([createdAt])
+}
+

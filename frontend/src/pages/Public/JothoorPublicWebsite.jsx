@@ -3,6 +3,8 @@ import SchoolLogo from '../../components/common/SchoolLogo';
 import { PalestineFlagIcon } from '../../components/common/Icons';
 import { useSchoolConfig } from '../../context/SchoolConfigContext';
 import { useToast } from '../../context/ToastContext';
+import api from '../../services/api';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function JothoorPublicWebsite({
   onNavigateToLogin,
@@ -54,24 +56,21 @@ export default function JothoorPublicWebsite({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileUpload = (e, field) => {
+  const handleFileUpload = async (e, field) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning('حجم الملف كبير جداً. يرجى اختيار صورة أقل من 5 ميجابايت.');
-      return;
+    try {
+      const dataUrl = await compressImageFile(file, 800, 800, 0.85);
+      setFormData((prev) => ({ ...prev, [field]: dataUrl }));
+      toast.success(field === 'receiptImage' ? 'تم إرفاق وتجهيز إشعار التحويل بنجاح 📎' : 'تم تحميل ومعالجة الصورة الشخصية للطالب 📸');
+    } catch (err) {
+      console.error('File compression error', err);
+      toast.error('تعذر معالجة الصورة، يرجى اختيار ملف صورة صالح.');
     }
-
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      setFormData((prev) => ({ ...prev, [field]: uploadEvent.target.result }));
-      toast.success(field === 'receiptImage' ? 'تم إرفاق إشعار التحويل بنجاح 📎' : 'تم تحميل الصورة الشخصية للطالب');
-    };
-    reader.readAsDataURL(file);
   };
 
-  const handleSubmitRegistration = (e) => {
+  const handleSubmitRegistration = async (e) => {
     e.preventDefault();
 
     if (!formData.studentFullName.trim()) {
@@ -90,7 +89,7 @@ export default function JothoorPublicWebsite({
     setSubmitting(true);
 
     try {
-      const regId = `JOTHOOR-REG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const regId = `REG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
       const submissionDate = new Date().toISOString();
 
       const newRegistration = {
@@ -103,17 +102,28 @@ export default function JothoorPublicWebsite({
         ...formData
       };
 
-      // Save to localStorage so admin/staff can immediately inspect and approve
+      // 1. Post to backend server for permanent database storage & staff notification
+      try {
+        const res = await api.post('/students/public/register', newRegistration);
+        if (res && res.registration) {
+          newRegistration.registrationNumber = res.registration.registrationNumber || regId;
+          newRegistration.id = res.registration.id || newRegistration.id;
+        }
+      } catch (apiErr) {
+        console.warn('Backend API registration offline or slow, saving to local sync cache:', apiErr);
+      }
+
+      // 2. Save to localStorage cache for instant access and resilience
       const existing = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
       existing.unshift(newRegistration);
       localStorage.setItem('jothoor_online_registrations', JSON.stringify(existing));
 
-      // Trigger update event across tabs/windows
+      // 3. Trigger update event across all open windows/tabs
       window.dispatchEvent(new CustomEvent('new_student_registration', { detail: newRegistration }));
 
       setRegisterSuccessData(newRegistration);
       setIsRegisterModalOpen(false);
-      toast.success(`تم استلام طلب حجز المقعد بنجاح! رقم الطلب: ${regId}`);
+      toast.success(`تم استلام طلب حجز المقعد بنجاح! رقم الطلب: ${newRegistration.registrationNumber}`);
     } catch (err) {
       toast.error('حدث خطأ أثناء حفظ الطلب. يرجى المحاولة ثانية.');
     } finally {

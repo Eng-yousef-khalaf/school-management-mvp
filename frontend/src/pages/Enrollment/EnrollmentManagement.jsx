@@ -54,16 +54,42 @@ export default function EnrollmentManagement() {
   const [targetApproveClassId, setTargetApproveClassId] = useState('');
   const [approvingLoading, setApprovingLoading] = useState(false);
 
+  const loadOnlineRegistrations = useCallback(async () => {
+    try {
+      const res = await api.get('/students/registrations/all');
+      if (res?.items && Array.isArray(res.items)) {
+        // Merge with any offline local storage registrations
+        let local = [];
+        try {
+          local = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+        } catch {}
+
+        const backendIds = new Set(res.items.map(r => String(r.id)));
+        const combined = [...res.items];
+        local.forEach(loc => {
+          if (!backendIds.has(String(loc.id))) {
+            combined.push(loc);
+          }
+        });
+
+        setOnlineRequests(combined);
+        try {
+          localStorage.setItem('jothoor_online_registrations', JSON.stringify(combined));
+        } catch {}
+      }
+    } catch {
+      // Keep local
+    }
+  }, []);
+
   useEffect(() => {
+    loadOnlineRegistrations();
     const handleNewReg = () => {
-      try {
-        const stored = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
-        setOnlineRequests(stored);
-      } catch {}
+      loadOnlineRegistrations();
     };
     window.addEventListener('new_student_registration', handleNewReg);
     return () => window.removeEventListener('new_student_registration', handleNewReg);
-  }, []);
+  }, [loadOnlineRegistrations]);
 
   const handleApproveOnlineRequest = async (req) => {
     if (!targetApproveClassId) {
@@ -73,52 +99,86 @@ export default function EnrollmentManagement() {
 
     setApprovingLoading(true);
     try {
-      const nameParts = (req.studentFullName || '').trim().split(' ');
-      const firstName = nameParts[0] || 'طالب';
-      const lastName = nameParts[nameParts.length - 1] || 'جديد';
-      const middleName = nameParts.slice(1, -1).join(' ') || '';
+      // 1. Call backend registration approval API
+      let approvedOnBackend = false;
+      try {
+        await api.post(`/students/registrations/${req.id}/approve`, {
+          classId: Number(targetApproveClassId)
+        });
+        approvedOnBackend = true;
+      } catch {
+        // Fallback: direct student creation
+      }
 
-      const newStudentPayload = {
-        studentNumber: `STU-2026-${Math.floor(100 + Math.random() * 900)}`,
-        firstName,
-        middleName,
-        lastName,
-        gender: req.gender || 'MALE',
-        dateOfBirth: req.dateOfBirth || '2015-01-01',
-        phone: req.parentPhone || '',
-        parentName: req.parentFullName || '',
-        parentPhone: req.parentPhone || '',
-        address: req.fullAddress || req.cityArea || '',
-        photoUrl: req.studentPhoto || '',
-        status: 'ACTIVE',
-        classId: Number(targetApproveClassId)
-      };
+      if (!approvedOnBackend) {
+        const nameParts = (req.studentFullName || '').trim().split(' ');
+        const firstName = nameParts[0] || 'طالب';
+        const lastName = nameParts[nameParts.length - 1] || 'جديد';
+        const middleName = nameParts.slice(1, -1).join(' ') || '';
 
-      const createdStudent = await api.post('/students', newStudentPayload).catch(() => ({
-        id: Date.now(),
-        ...newStudentPayload
-      }));
+        const newStudentPayload = {
+          studentNumber: `STU-2026-${Math.floor(100 + Math.random() * 900)}`,
+          firstName,
+          middleName,
+          lastName,
+          gender: req.gender || 'MALE',
+          dateOfBirth: req.dateOfBirth || '2015-01-01',
+          phone: req.parentPhone || '',
+          parentName: req.parentFullName || '',
+          parentPhone: req.parentPhone || '',
+          address: req.fullAddress || req.cityArea || '',
+          photoUrl: req.studentPhoto || '',
+          status: 'ACTIVE',
+          classId: Number(targetApproveClassId)
+        };
 
-      if (createdStudent?.id) {
-        await api.post('/enrollments', {
-          studentId: createdStudent.id,
-          classId: Number(targetApproveClassId),
-          academicYearId: selectedYearId ? Number(selectedYearId) : undefined
-        }).catch(() => null);
+        const createdStudent = await api.post('/students', newStudentPayload).catch(() => ({
+          id: Date.now(),
+          ...newStudentPayload
+        }));
+
+        if (createdStudent?.id) {
+          await api.post('/enrollments', {
+            studentId: createdStudent.id,
+            classId: Number(targetApproveClassId),
+            academicYearId: selectedYearId ? Number(selectedYearId) : undefined
+          }).catch(() => null);
+        }
       }
 
       const updated = onlineRequests.map(r => r.id === req.id ? { ...r, status: 'APPROVED', enrolledClassId: targetApproveClassId } : r);
       setOnlineRequests(updated);
-      localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+      try {
+        localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+      } catch {}
 
       toast.success(`تم تثبيت قيد الطالب (${req.studentFullName}) وتسكينه بالشعبة بنجاح!`);
       setApprovingReq(null);
       loadMetadata();
       loadEnrollments();
+      loadOnlineRegistrations();
     } catch (err) {
       toast.error(err.message || 'فشل اعتماد وتسكين الطالب');
     } finally {
       setApprovingLoading(false);
+    }
+  };
+
+  const handleRejectOnlineRequest = async (req) => {
+    if (!window.confirm(`هل أنت متأكد من حذف/استبعاد طلب تسجيل (${req.studentFullName})؟`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/students/registrations/${req.id}`).catch(() => null);
+      const updated = onlineRequests.filter(r => r.id !== req.id);
+      setOnlineRequests(updated);
+      try {
+        localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+      } catch {}
+      toast.success(`تم استبعاد طلب تسجيل (${req.studentFullName})`);
+    } catch (err) {
+      toast.error(err.message || 'فشل حذف الطلب');
     }
   };
 
@@ -410,17 +470,28 @@ export default function EnrollmentManagement() {
                         {req.status === 'APPROVED' ? (
                           <span style={{ color: '#059669', fontSize: 12, fontWeight: 700 }}>مسجل بالمنظومة</span>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setApprovingReq(req);
-                              setTargetApproveClassId(classes[0]?.id ? String(classes[0].id) : '');
-                            }}
-                            className="btn btn-primary btn-sm"
-                            style={{ fontSize: 12, fontWeight: 800, padding: '6px 12px' }}
-                          >
-                            ✓ تثبيت وتسكين الطالب
-                          </button>
+                          <div style={{ display: 'inline-flex', gap: 6 }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setApprovingReq(req);
+                                setTargetApproveClassId(classes[0]?.id ? String(classes[0].id) : '');
+                              }}
+                              className="btn btn-primary btn-sm"
+                              style={{ fontSize: 12, fontWeight: 800, padding: '6px 12px' }}
+                            >
+                              ✓ تثبيت وتسكين
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRejectOnlineRequest(req)}
+                              className="btn btn-secondary btn-sm"
+                              style={{ fontSize: 12, color: '#ef4444', padding: '6px 10px', borderColor: '#fca5a5' }}
+                              title="حذف أو استبعاد الطلب"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
