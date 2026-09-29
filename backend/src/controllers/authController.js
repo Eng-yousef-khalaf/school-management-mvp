@@ -161,5 +161,6 @@ async function changePassword(req, res, next) {
 module.exports = {
   login,
   getProfile,
+  updateProfile,
   changePassword
 };
