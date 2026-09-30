@@ -106,20 +106,66 @@ export default function App() {
     );
   });
 
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [selectedStudentId, setSelectedStudentId] = useState(null);
-  const [selectedTeacherId, setSelectedTeacherId] = useState(null);
-  const [selectedClassId, setSelectedClassId] = useState(null);
-  const [attendanceClassId, setAttendanceClassId] = useState('');
+  const VALID_PAGES = new Set([
+    'dashboard',
+    'students',
+    'student-details',
+    'teachers',
+    'teacher-details',
+    'teacher-tracker',
+    'classes',
+    'class-details',
+    'subjects',
+    'academic-years',
+    'enrollment',
+    'attendance',
+    'attendance-reports',
+    'grades',
+    'grade-reports',
+    'reports',
+    'fees',
+    'users',
+    'audit-logs',
+    'developer-hub',
+    'developer-fleet',
+    'settings',
+    'public-website'
+  ]);
 
-  // Whenever authenticated user changes (login, logout, switch account), always reset to dashboard
-  useEffect(() => {
-    setCurrentPage('dashboard');
-    setSelectedStudentId(null);
-    setSelectedTeacherId(null);
-    setSelectedClassId(null);
-    setAttendanceClassId('');
-  }, [user?.id, user?.role]);
+  const getPageFromUrl = () => {
+    if (typeof window === 'undefined') return 'dashboard';
+    const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0].toLowerCase();
+    if (VALID_PAGES.has(hash)) return hash;
+
+    const path = window.location.pathname.replace(/^\//, '').split('/')[0].toLowerCase();
+    if (VALID_PAGES.has(path)) return path;
+
+    const saved = sessionStorage.getItem('current_page');
+    if (saved && VALID_PAGES.has(saved)) return saved;
+
+    return 'dashboard';
+  };
+
+  const getUrlParams = () => {
+    if (typeof window === 'undefined') return {};
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParts = window.location.hash.split('?');
+    const hashParams = hashParts.length > 1 ? new URLSearchParams(hashParts[1]) : new URLSearchParams();
+
+    return {
+      studentId: searchParams.get('studentId') || hashParams.get('studentId'),
+      teacherId: searchParams.get('teacherId') || hashParams.get('teacherId'),
+      classId: searchParams.get('classId') || hashParams.get('classId'),
+      attendanceClassId: searchParams.get('attendanceClassId') || hashParams.get('attendanceClassId'),
+    };
+  };
+
+  const [currentPage, setCurrentPage] = useState(() => getPageFromUrl());
+  const initialParams = getUrlParams();
+  const [selectedStudentId, setSelectedStudentId] = useState(initialParams.studentId || null);
+  const [selectedTeacherId, setSelectedTeacherId] = useState(initialParams.teacherId || null);
+  const [selectedClassId, setSelectedClassId] = useState(initialParams.classId || null);
+  const [attendanceClassId, setAttendanceClassId] = useState(initialParams.attendanceClassId || '');
 
   // Clean #login hash if user is already authenticated
   useEffect(() => {
@@ -131,7 +177,7 @@ export default function App() {
     }
   }, [user]);
 
-  // Auto-switch role or detect developer/parent portal
+  // Auto-switch role or detect developer/parent portal and sync routes
   useEffect(() => {
     const handleUrlRoute = () => {
       const search = window.location.search.toLowerCase();
@@ -146,6 +192,9 @@ export default function App() {
       ) {
         if (user) logout();
         setShowLoginScreen(true);
+        setIsParentInquiryPortal(false);
+        setIsParentPortal(false);
+        setIsDeveloperPortal(false);
         return;
       }
 
@@ -157,11 +206,10 @@ export default function App() {
         )
       ) {
         setShowLoginScreen(true);
+        setIsParentInquiryPortal(false);
+        setIsParentPortal(false);
+        setIsDeveloperPortal(false);
         return;
-      }
-
-      if (!hash && !search && (path === '/' || path === '')) {
-        setShowLoginScreen(false);
       }
 
       const isParentInq =
@@ -200,6 +248,25 @@ export default function App() {
       setIsDeveloperPortal(isDev);
       setIsParentPortal(isParent);
 
+      // If neither login nor standalone portal, reset showLoginScreen if not logged in
+      if (!user && !path.includes('login') && !hash.includes('login') && !search.includes('portal=login')) {
+        setShowLoginScreen(false);
+      }
+
+      // If user is authenticated, sync page and parameters from URL
+      if (user && !isParentInq && !isParent && !isDev) {
+        const pageFromUrl = getPageFromUrl();
+        if (pageFromUrl && VALID_PAGES.has(pageFromUrl)) {
+          setCurrentPage(pageFromUrl);
+          sessionStorage.setItem('current_page', pageFromUrl);
+          const params = getUrlParams();
+          if (params.studentId) setSelectedStudentId(params.studentId);
+          if (params.teacherId) setSelectedTeacherId(params.teacherId);
+          if (params.classId) setSelectedClassId(params.classId);
+          if (params.attendanceClassId) setAttendanceClassId(params.attendanceClassId);
+        }
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const roleParam = urlParams.get('role')?.toUpperCase();
       const hashParam = window.location.hash.replace('#/', '').replace('#', '').toUpperCase();
@@ -228,13 +295,23 @@ export default function App() {
   if (isParentInquiryPortal) {
     return (
       <ParentInquiryPortal
+        onBackToHome={() => {
+          setIsParentInquiryPortal(false);
+          setIsParentPortal(false);
+          setIsDeveloperPortal(false);
+          setShowLoginScreen(false);
+          window.location.hash = '';
+          if (window.history.pushState) {
+            window.history.pushState(null, '', '/');
+          }
+        }}
         onExitToSchool={() => {
           setIsParentInquiryPortal(false);
           setIsParentPortal(false);
           setIsDeveloperPortal(false);
           window.location.hash = '';
           if (window.history.pushState) {
-            window.history.pushState(null, '', window.location.pathname.replace(/(\/inquiry|\/parents).*$/, '') || '/');
+            window.history.pushState(null, '', '/');
           }
           if (user) {
             setCurrentPage('dashboard');
@@ -255,13 +332,23 @@ export default function App() {
   if (isParentPortal) {
     return (
       <ParentPaymentPortalStandalone
+        onBackToHome={() => {
+          setIsParentPortal(false);
+          setIsParentInquiryPortal(false);
+          setIsDeveloperPortal(false);
+          setShowLoginScreen(false);
+          window.location.hash = '';
+          if (window.history.pushState) {
+            window.history.pushState(null, '', '/');
+          }
+        }}
         onExitToSchool={() => {
           setIsParentPortal(false);
           setIsParentInquiryPortal(false);
           setIsDeveloperPortal(false);
           window.location.hash = '';
           if (window.history.pushState) {
-            window.history.pushState(null, '', window.location.pathname.replace(/(\/pay|\/parent-pay).*$/, '') || '/');
+            window.history.pushState(null, '', '/');
           }
           if (user) {
             setCurrentPage('dashboard');
@@ -340,11 +427,30 @@ export default function App() {
   }
 
   const navigateTo = (pageId, params = {}) => {
-    if (params.studentId) setSelectedStudentId(params.studentId);
-    if (params.teacherId) setSelectedTeacherId(params.teacherId);
-    if (params.classId) setSelectedClassId(params.classId);
-    if (params.attendanceClassId) setAttendanceClassId(params.attendanceClassId);
+    if (params.studentId !== undefined) setSelectedStudentId(params.studentId);
+    if (params.teacherId !== undefined) setSelectedTeacherId(params.teacherId);
+    if (params.classId !== undefined) setSelectedClassId(params.classId);
+    if (params.attendanceClassId !== undefined) setAttendanceClassId(params.attendanceClassId);
+    
     setCurrentPage(pageId);
+    sessionStorage.setItem('current_page', pageId);
+
+    // Update URL hash cleanly with parameters if present
+    let hashUrl = `#${pageId}`;
+    const queryEntries = Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '');
+    if (queryEntries.length > 0) {
+      const q = new URLSearchParams(queryEntries).toString();
+      hashUrl += `?${q}`;
+    }
+
+    if (window.location.hash !== hashUrl) {
+      if (window.history.pushState) {
+        window.history.pushState(null, '', hashUrl);
+      } else {
+        window.location.hash = hashUrl;
+      }
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -406,7 +512,7 @@ export default function App() {
         return { title: t('settingsTitle'), subtitle: t('settingsSubtitle') };
       case 'public-website':
         return {
-          title: isRtl ? 'الموقع التعريفي العام لمدرسة جذور' : 'Jothoor School Showcase Website',
+          title: isRtl ? 'الموقع التعريفي العام لروضة ومدرسة السلام' : 'Al-Salam School Showcase Website',
           subtitle: isRtl ? 'الموقع التعريفي، طلبات حجز المقاعد (20ش)، والخدمات العامة' : 'Official public landing page, 20 NIS admissions & portals'
         };
       default:
@@ -423,7 +529,7 @@ export default function App() {
       pageTitle={title}
       pageSubtitle={subtitle}
     >
-      <ErrorBoundary onReset={() => navigateTo('dashboard')}>
+      <ErrorBoundary key={currentPage} resetKey={currentPage} onReset={() => navigateTo('dashboard')}>
         {/* Role-Specific Dashboards */}
       {currentPage === 'dashboard' && (
         isTeacher ? (
@@ -634,7 +740,7 @@ export default function App() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
           }}>
             <span style={{ fontSize: 13, fontWeight: 700 }}>
-              🌐 {isRtl ? 'أنت تتصفح حالياً الموقع العام لمدرسة جذور النموذجية كعضو في الكادر/الإدارة' : 'Browsing official school public landing page'}
+              🌐 {isRtl ? 'أنت تتصفح حالياً الموقع العام لروضة ومدرسة السلام كعضو في الكادر/الإدارة' : 'Browsing official school public landing page'}
             </span>
             <button
               onClick={() => navigateTo('dashboard')}

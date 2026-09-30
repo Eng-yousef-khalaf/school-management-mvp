@@ -69,7 +69,7 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
       '<html dir="rtl" lang="ar">' +
       '<head>' +
       '<meta charset="utf-8" />' +
-      '<title>التقرير_التحليلي_المؤسسي_مدرسة_جذور_النموذجية_الخاصة_UNICEF_MoE</title>' +
+      '<title>التقرير_التحليلي_المؤسسي_مجموعة_السلام_التعليمية_الخاصة_UNICEF_MoE</title>' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
       '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
@@ -158,8 +158,8 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
         { name: 'Grade 8 B', studentCount: 9, attendanceRate: 96, averageGpa: 83, passRate: 100 },
       ];
 
-  const schoolName = 'مدرسة جذور النموذجية الخاصة';
-  const schoolSlogan = 'بناء الأجيال على جذور متينة وقيم راسخة';
+  const schoolName = config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة';
+  const schoolSlogan = config?.schoolSloganAr || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز';
 
   return (
     <div className="modal-overlay unicef-report-overlay">

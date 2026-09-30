@@ -1143,7 +1143,7 @@ export function generateMockSqlDump() {
   const dateStr = new Date().toISOString();
   let sql = `-- =====================================================================
 -- 🏫 المنظومة الذكية لإدارة المدارس - قاعدة بيانات النسخة الاحتياطية (SQL Dump)
--- School: مدرسة جذور النموذجية الخاصة / Judhoor Model Private School (SCH-001)
+-- School: روضة ومدرسة مجموعة السلام التعليمية الخاصة / Al-Salam Educational Group Private School (SCH-ALSALAM-2026)
 -- Generated: ${dateStr}
 -- Format: PostgreSQL / SQLite Compatible (ANSI SQL Standard)
 -- Engine: Standalone Database Dump Engine
@@ -2659,9 +2659,9 @@ export function handleMockRequest(path, options = {}) {
     return {
       ok: true,
       currentSchool: {
-        code: 'SCH-001',
-        nameAr: 'مدرسة جذور النموذجية الخاصة',
-        nameEn: 'Judhoor Model Private School',
+        code: 'SCH-ALSALAM-2026',
+        nameAr: 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+        nameEn: 'Al-Salam Educational Group Private School & Kindergarten',
         databaseType: 'PostgreSQL (Dedicated Database)',
         studentsCount: students.length,
         teachersCount: teachers.length,
@@ -2770,9 +2770,9 @@ export function handleMockRequest(path, options = {}) {
       ok: true,
       backup: {
         exportMetadata: {
-          schoolCode: 'SCH-001',
-          schoolNameAr: 'مدرسة جذور النموذجية الخاصة',
-          schoolNameEn: 'Judhoor Model Private School',
+          schoolCode: 'SCH-ALSALAM-2026',
+          schoolNameAr: 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+          schoolNameEn: 'Al-Salam Educational Group Private School & Kindergarten',
           exportedAt: new Date().toISOString(),
           version: 'v2.0.0 (Standalone Instance)',
           format: 'JSON Snapshot',

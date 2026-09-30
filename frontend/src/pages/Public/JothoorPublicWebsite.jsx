@@ -114,9 +114,9 @@ export default function JothoorPublicWebsite({
       }
 
       // 2. Save to localStorage cache for instant access and resilience
-      const existing = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+      const existing = JSON.parse(localStorage.getItem('alsalam_online_registrations') || localStorage.getItem('jothoor_online_registrations') || '[]');
       existing.unshift(newRegistration);
-      localStorage.setItem('jothoor_online_registrations', JSON.stringify(existing));
+      localStorage.setItem('alsalam_online_registrations', JSON.stringify(existing));
 
       // 3. Trigger update event across all open windows/tabs
       window.dispatchEvent(new CustomEvent('new_student_registration', { detail: newRegistration }));
@@ -147,7 +147,7 @@ export default function JothoorPublicWebsite({
         'كثافة صفية نموذجية تضمن أقصى درجات التركيز',
         'استراتيجيات التعلم التفاعلي والتفكير الناقد'
       ],
-      fullDetails: 'صُممت الفصول الدراسية في مدرسة جذور بأحدث المعايير الهندسية والتربوية، مع إضاءة صحية مدروسة وأجهزة عرض متطورة تمكن المعلم من تقديم دروس مشوقة تجعل استيعاب المادة العلمية سهلاً وممتعاً بعيداً عن التلقين التقليدي.'
+      fullDetails: 'صُممت الفصول الدراسية في روضة ومدرسة مجموعة السلام التعليمية بأحدث المعايير الهندسية والتربوية، مع إضاءة صحية مدروسة وأجهزة عرض متطورة تمكن المعلم من تقديم دروس مشوقة تجعل استيعاب المادة العلمية سهلاً وممتعاً بعيداً عن التلقين التقليدي.'
     },
     {
       id: 'stem-labs',
@@ -181,7 +181,7 @@ export default function JothoorPublicWebsite({
         'برنامج مكثف للغة العربية والإنجليزية وحفظ القرآن',
         'بيئة آمنة مبهجة وألعاب تربوية هادفة'
       ],
-      fullDetails: 'تعتبر مرحلة الروضة والتمهيدي في جذور اللبنة الأساسية في رحلة الطالب، حيث نعتمد مبدأ التعلم باللعب وبناء الثقة بالنفس، مع متابعة يومية دقيقة لصحة الطفل ونموه الحركي واللغوي والاجتماعي.'
+      fullDetails: 'تعتبر مرحلة الروضة والتمهيدي في مجموعة السلام اللبنة الأساسية في رحلة الطالب، حيث نعتمد مبدأ التعلم باللعب وبناء الثقة بالنفس، مع متابعة يومية دقيقة لصحة الطفل ونموه الحركي واللغوي والاجتماعي.'
     },
     {
       id: 'sports',
@@ -215,7 +215,7 @@ export default function JothoorPublicWebsite({
         'مهرجانات تكريم فصلي بحضور أولياء الأمور',
         'شهادات وجوائز تقديرية ومنح تميز دراسية'
       ],
-      fullDetails: 'التفوق في مدرسة جذور ليس مجرد علامة في شهادة، بل هو ثقافة متكاملة، حيث يتم تكريم الطالب أسبوعياً وفصلياً أمام زملائه وعائلته لتشجيعه على المضي قدماً في طريق النجاح والريادة.'
+      fullDetails: 'التفوق في مدرسة السلام ليس مجرد علامة في شهادة، بل هو ثقافة متكاملة، حيث يتم تكريم الطالب أسبوعياً وفصلياً أمام زملائه وعائلته لتشجيعه على المضي قدماً في طريق النجاح والريادة.'
     },
     {
       id: 'guidance',
@@ -232,7 +232,7 @@ export default function JothoorPublicWebsite({
         'تقارير دورية شفافة لولي الأمر عبر المنصة',
         'تعديل سلوكي وتوجيه إيجابي يعزز الاستقرار النفسي'
       ],
-      fullDetails: 'تحرص جذور على احتضان كل طالب كحالة خاصة، وتقديم الدعم الإرشادي والنفسي لمساعدته على تخطي أي صعوبات تعليمية أو تحديات تواجهه، لبناء شخصية متزنة واثقة بنفسها وبمستقبلها.'
+      fullDetails: 'تحرص مدرسة السلام على احتضان كل طالب كحالة خاصة، وتقديم الدعم الإرشادي والنفسي لمساعدته على تخطي أي صعوبات تعليمية أو تحديات تواجهه، لبناء شخصية متزنة واثقة بنفسها وبمستقبلها.'
     }
   ];
 
@@ -274,7 +274,7 @@ export default function JothoorPublicWebsite({
     {
       id: 'kindergarten',
       title: 'مرحلة رياض الأطفال والتأسيس الإبداعي',
-      category: 'براعم جذور الغالية',
+      category: 'براعم وأطفال روضة السلام',
       tag: 'KG',
       image: '/gallery/kindergarten.jpg',
       backupGradient: 'linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #f97316 100%)',
@@ -448,12 +448,12 @@ export default function JothoorPublicWebsite({
             <PalestineFlagIcon size={18} />
             <span style={{ fontWeight: 700, color: '#f8fafc' }}>دولة فلسطين — وزارة التربية والتعليم العالي</span>
             <span style={{ opacity: 0.5 }}>|</span>
-            <span>مدرسة وجذور النموذجية الخاصة — صرح تعليمي ريادي فلسطيني</span>
+            <span>روضة ومدرسة مجموعة السلام التعليمية الخاصة — صرح تعليمي ريادي فلسطيني</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <a
-              href="https://www.facebook.com/jothoorschoolps"
+              href="https://www.facebook.com/profile.php?id=61573927433156"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}
@@ -462,12 +462,12 @@ export default function JothoorPublicWebsite({
             </a>
             <span style={{ opacity: 0.4 }}>•</span>
             <a
-              href="https://wa.me/970567088815"
+              href="https://wa.me/970593124444"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#34d399', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700 }}
             >
-              <span>💬</span> واتساب: +970 567 088 815
+              <span>💬</span> واتساب: +970 59 312 4444
             </a>
           </div>
         </div>
@@ -491,10 +491,10 @@ export default function JothoorPublicWebsite({
             </div>
             <div>
               <h1 style={{ fontSize: '19px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
-                مدرسة جذور النموذجية الخاصة
+                روضة ومدرسة مجموعة السلام التعليمية الخاصة
               </h1>
               <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-                Jothoor Model Private School — جذورٌ أصيلة.. تعليمٌ نموذجي
+                Al-Salam Educational Group — البيئة التعليمية النموذجية الأولى في فلسطين
               </p>
             </div>
           </div>
@@ -626,11 +626,11 @@ export default function JothoorPublicWebsite({
             </div>
 
             <h2 style={{ fontSize: '40px', fontWeight: 900, lineHeight: 1.25, letterSpacing: '-0.8px', margin: '0 0 16px', color: '#ffffff' }}>
-              مدرسة جذور النموذجية الخاصة
+              روضة ومدرسة مجموعة السلام التعليمية الخاصة
             </h2>
 
             <p style={{ fontSize: '21px', fontWeight: 800, color: '#38bdf8', margin: '0 0 18px', lineHeight: 1.4 }}>
-              "جذورٌ أصيلة.. تعليمٌ نموذجي.. وجيلٌ يبني المستقبل"
+              "البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز"
             </p>
 
             <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.85, margin: '0 0 28px', maxWidth: 560 }}>
@@ -703,7 +703,7 @@ export default function JothoorPublicWebsite({
                   <SchoolLogo size={62} />
                 </div>
                 <div>
-                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'block' }}>منظومة جذور الذكية</span>
+                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'block' }}>منظومة السلام الذكية</span>
                   <span style={{ fontSize: '18px', fontWeight: 900, color: '#f8fafc' }}>التعليم النموذجي الشامل</span>
                 </div>
               </div>
@@ -744,9 +744,9 @@ export default function JothoorPublicWebsite({
             </div>
 
             <div style={{ marginTop: 22, paddingTop: 16, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>📍 غزة - فلسطين</span>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>📍 غزة - منطقة النصر - فلسطين</span>
               <a
-                href="https://www.facebook.com/jothoorschoolps/photos"
+                href="https://www.facebook.com/profile.php?id=61573927433156"
                 target="_blank"
                 rel="noreferrer"
                 style={{ color: '#60a5fa', fontSize: 12, fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
@@ -789,7 +789,7 @@ export default function JothoorPublicWebsite({
               تم استلام طلب التسجيل وحجز المقعد بنجاح!
             </h3>
             <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 16px' }}>
-              شكراً لثقتكم بمدرسة جذور النموذجية الخاصة. تم تسجيل الطالب مبدئياً وحجز المقعد.
+              شكراً لثقتكم بروضة ومدرسة مجموعة السلام التعليمية الخاصة. تم تسجيل الطالب مبدئياً وحجز المقعد.
             </p>
 
             <div style={{ background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: 14, padding: 16, marginBottom: 20, textAlign: 'start' }}>
@@ -870,7 +870,7 @@ export default function JothoorPublicWebsite({
                   طلب تسجيل طالب جديد — حجز مقعد دراسي
                 </h3>
                 <p style={{ margin: '3px 0 0', fontSize: 12, color: '#64748b' }}>
-                  مدرسة جذور النموذجية الخاصة — حجز المقعد الإلكتروني المعتمد
+                  روضة ومدرسة مجموعة السلام التعليمية الخاصة — حجز المقعد الإلكتروني المعتمد
                 </p>
               </div>
               <button
@@ -1100,7 +1100,7 @@ export default function JothoorPublicWebsite({
                 </div>
 
                 <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.6, marginBottom: 12 }}>
-                  يمكنكم التحويل عبر: <strong>جوال باي / بال باي (+970 567 088 815)</strong> أو <strong>بنك فلسطين (حساب المدرسة)</strong> ثم إدخال بيانات التحويل أدناه:
+                  يمكنكم التحويل عبر: <strong>جوال باي / بال باي (+970 59 312 4444)</strong> أو <strong>بنك فلسطين (حساب المدرسة)</strong> ثم إدخال بيانات التحويل أدناه:
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
@@ -1178,7 +1178,7 @@ export default function JothoorPublicWebsite({
                       💡 للمساعدة في التحويل أو تأكيد الحوالة، تواصلوا مباشرة مع القبول والتسجيل:
                     </div>
                     <a
-                      href="https://wa.me/970567088815"
+                      href="https://wa.me/970593124444"
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
@@ -1194,7 +1194,7 @@ export default function JothoorPublicWebsite({
                         gap: 6
                       }}
                     >
-                      <span>💬</span> واتساب: +970 567 088 815
+                      <span>💬</span> واتساب: +970 59 312 4444
                     </a>
                   </div>
                 </div>
@@ -1248,7 +1248,7 @@ export default function JothoorPublicWebsite({
             🌟 بيئة تربوية تفاعلية متكاملة
           </span>
           <h3 style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px', letterSpacing: '-0.4px' }}>
-            ماذا تقدم مدرسة جذور النموذجية الخاصة؟
+            ماذا تقدم روضة ومدرسة مجموعة السلام التعليمية الخاصة؟
           </h3>
           <p style={{ fontSize: 14.5, color: '#64748b', maxWidth: 640, margin: '0 auto', lineHeight: 1.7 }}>
             نصمم تجربة تعليمية حديثة وممتعة ترتقي بشخصية الطالب معرفياً، قيمياً، وعملياً من خلال 6 ركائز تربوية معتمدة تضمن له التفوق والريادة.
@@ -1494,7 +1494,7 @@ export default function JothoorPublicWebsite({
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 <a
-                  href="https://wa.me/970567088815"
+                  href="https://wa.me/970593124444"
                   target="_blank"
                   rel="noreferrer"
                   style={{
@@ -1550,7 +1550,7 @@ export default function JothoorPublicWebsite({
               معايير الجودة والاعتماد
             </span>
             <h4 style={{ fontSize: 24, fontWeight: 900, color: '#064e3b', margin: '10px 0 6px' }}>
-              لماذا يفضل أولياء الأمور مدرسة جذور النموذجية الخاصة؟
+              لماذا يفضل أولياء الأمور روضة ومدرسة مجموعة السلام التعليمية الخاصة؟
             </h4>
             <p style={{ fontSize: 13.5, color: '#047857', margin: 0 }}>
               نضع مصلحة الطالب ومستقبله في صميم كل قرار، مع شراكة حقيقية ومستمرة مع الأسرة.
@@ -1622,7 +1622,7 @@ export default function JothoorPublicWebsite({
             📸 معرض الصور والفعاليات المدرسية الحية
           </span>
           <h3 style={{ fontSize: 30, fontWeight: 900, color: '#0f172a', margin: '14px 0 8px', letterSpacing: '-0.4px' }}>
-            جولة مصورة في أرجاء مدرسة جذور النموذجية الخاصة
+            جولة مصورة في أرجاء روضة ومدرسة مجموعة السلام التعليمية الخاصة
           </h3>
           <p style={{ fontSize: 14, color: '#64748b', maxWidth: 660, margin: '0 auto', lineHeight: 1.6 }}>
             نوثق بالصور والفيديو مسيرة أبنائنا وبناتنا اليومية في الغرف الصفية المتطورة، والأنشطة الإبداعية، والاحتفاء الدائم بالمتفوقين.
@@ -1733,7 +1733,7 @@ export default function JothoorPublicWebsite({
                         {photo.title}
                       </strong>
                       <span style={{ fontSize: 11, opacity: 0.85, marginTop: 4 }}>
-                        مدرسة جذور النموذجية الخاصة
+                        روضة ومدرسة مجموعة السلام التعليمية الخاصة
                       </span>
                     </div>
                   )}
@@ -1894,7 +1894,7 @@ export default function JothoorPublicWebsite({
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 16, flexWrap: 'wrap', gap: 12 }}>
                   <span style={{ fontSize: 12, color: '#64748b' }}>
-                    🏫 مدرسة جذور النموذجية الخاصة — غزة، فلسطين
+                    🏫 روضة ومدرسة مجموعة السلام التعليمية الخاصة — غزة، فلسطين
                   </span>
                   <button
                     onClick={() => {
@@ -1960,7 +1960,7 @@ export default function JothoorPublicWebsite({
           </div>
 
           <a
-            href="https://www.facebook.com/jothoorschoolps"
+            href="https://www.facebook.com/profile.php?id=61573927433156"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -1992,7 +1992,7 @@ export default function JothoorPublicWebsite({
               <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <SchoolLogo size={46} />
               </div>
-              <h4 style={{ color: '#ffffff', fontSize: 16, fontWeight: 800, margin: 0 }}>مدرسة جذور النموذجية الخاصة</h4>
+              <h4 style={{ color: '#ffffff', fontSize: 16, fontWeight: 800, margin: 0 }}>روضة ومدرسة مجموعة السلام التعليمية الخاصة</h4>
             </div>
             <p style={{ fontSize: 12.5, lineHeight: 1.7, color: '#64748b' }}>
               مؤسسة تعليمية تربوية فلسطينية رائدة ترعى أجيال الغد وتغرس حب المعرفة والتفوق بأحدث المعايير التربوية والذكية.
@@ -2028,30 +2028,30 @@ export default function JothoorPublicWebsite({
           <div>
             <h5 style={{ color: '#ffffff', fontSize: 14, fontWeight: 800, marginBottom: 12 }}>بيانات التواصل والاعتماد</h5>
             <div style={{ fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 8, color: '#94a3b8' }}>
-              <span>📍 العنوان: غزة — دولة فلسطين</span>
-              <span>📞 هاتف الإدارة: +970 567 088 815</span>
+              <span>📍 العنوان: غزة - منطقة النصر — دولة فلسطين</span>
+              <span>📞 هاتف الإدارة: +970 59 312 4444</span>
               <a
-                href="https://wa.me/970567088815"
+                href="https://wa.me/970593124444"
                 target="_blank"
                 rel="noreferrer"
                 style={{ color: '#34d399', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                <span>💬</span> واتساب القبول والتسجيل: +970 567 088 815
+                <span>💬</span> واتساب القبول والتسجيل: +970 59 312 4444
               </a>
               <a
-                href="https://www.facebook.com/jothoorschoolps"
+                href="https://www.facebook.com/profile.php?id=61573927433156"
                 target="_blank"
                 rel="noreferrer"
                 style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                <span>🌐</span> صفحة الفيسبوك: facebook.com/jothoorschoolps
+                <span>🌐</span> صفحة الفيسبوك: مجموعة السلام التعليمية الخاصة
               </a>
             </div>
           </div>
         </div>
 
         <div style={{ maxWidth: 1240, margin: '0 auto', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', fontSize: 12 }}>
-          © {new Date().getFullYear()} مدرسة جذور النموذجية الخاصة — جميع الحقوق محفوظة | منظومة الإدارة المدرسية الموحدة
+          © {new Date().getFullYear()} روضة ومدرسة مجموعة السلام التعليمية الخاصة — جميع الحقوق محفوظة | منظومة الإدارة المدرسية الموحدة
         </div>
       </footer>
     </div>

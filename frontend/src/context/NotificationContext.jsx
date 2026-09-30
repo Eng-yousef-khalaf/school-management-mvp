@@ -109,7 +109,7 @@ export function NotificationProvider({ children }) {
         const res = await api.get('/students/registrations/all');
         regList = Array.isArray(res) ? res.filter(r => r.status === 'PENDING_APPROVAL') : [];
       } catch {
-        const raw = localStorage.getItem('jothoor_online_registrations');
+        const raw = localStorage.getItem('alsalam_online_registrations') || localStorage.getItem('jothoor_online_registrations');
         if (raw) {
           const parsed = JSON.parse(raw);
           regList = parsed.filter(r => r.status === 'PENDING_APPROVAL');

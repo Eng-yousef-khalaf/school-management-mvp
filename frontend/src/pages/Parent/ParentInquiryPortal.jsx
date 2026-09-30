@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import SchoolLogo from '../../components/common/SchoolLogo';
 import { PalestineFlagIcon, SearchIcon, DownloadIcon } from '../../components/common/Icons';
 
-export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }) {
+export default function ParentInquiryPortal({ onBackToHome, onExitToSchool, onNavigateToFees }) {
   const { isRtl } = useLanguage();
   const toast = useToast();
 
@@ -59,7 +59,208 @@ export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }
   };
 
   const handlePrintStatement = () => {
-    window.print();
+    if (!studentData) {
+      window.print();
+      return;
+    }
+
+    const existingIframe = document.getElementById('inquiry-statement-print-iframe');
+    if (existingIframe) {
+      existingIframe.remove();
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'inquiry-statement-print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const rowsHtml = (studentData.subjectSummary && studentData.subjectSummary.length > 0)
+      ? studentData.subjectSummary.map(sub => {
+          const badge = getRatingBadge(sub.averagePercentage);
+          return `
+            <tr>
+              <td style="padding: 10px 14px; border: 1px solid #cbd5e1; font-weight: bold;">${sub.subjectName}</td>
+              <td style="padding: 10px 14px; border: 1px solid #cbd5e1; text-align: center;">${sub.subjectCode || 'GEN'}</td>
+              <td style="padding: 10px 14px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${sub.averagePercentage}%</td>
+              <td style="padding: 10px 14px; border: 1px solid #cbd5e1; text-align: center;">${badge.text}</td>
+            </tr>
+          `;
+        }).join('')
+      : `
+        <tr>
+          <td colspan="4" style="padding: 18px; text-align: center; color: #64748b; border: 1px solid #cbd5e1;">
+            ${isRtl ? 'طالب مستجد — لم ترصد له امتحانات فصلية بعد' : 'Newly enrolled student — assessments in progress'}
+          </td>
+        </tr>
+      `;
+
+    const gpaText = studentData.overallAverage !== null ? `${studentData.overallAverage}%` : (isRtl ? 'قيد التقييم' : 'Pending');
+    const attendanceText = studentData.attendanceSummary?.percentage !== null && studentData.attendanceSummary?.percentage !== undefined
+      ? `${studentData.attendanceSummary.percentage}%`
+      : (isRtl ? 'منتظم 100%' : '100%');
+
+    const printHtml = `<!DOCTYPE html>
+<html dir="${isRtl ? 'rtl' : 'ltr'}" lang="${isRtl ? 'ar' : 'en'}">
+<head>
+  <meta charset="utf-8" />
+  <title>شهادة_وإفادة_${studentData.fullName || 'طالب'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4 portrait; margin: 8mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+    }
+    .print-doc {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 275mm;
+      padding: 24px 28px;
+      margin: 0 auto;
+      border: 2.5px solid #0f172a;
+      border-radius: 10px;
+      background: #ffffff !important;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .border-inner {
+      position: absolute;
+      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th { background: #f1f5f9 !important; color: #0f172a !important; padding: 10px 14px; font-weight: 800; border: 1px solid #cbd5e1; }
+    td { border: 1px solid #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="print-doc">
+    <div class="border-inner"></div>
+    <div>
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #0f172a; padding-bottom: 14px; margin-bottom: 16px;">
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: #047857;">دولة فلسطين / وزارة التربية والتعليم</div>
+          <div style="font-size: 20px; font-weight: 900; color: #166534; margin-top: 4px;">روضة ومدرسة مجموعة السلام التعليمية الخاصة</div>
+          <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-top: 2px;">بوابة شؤون الطلاب والامتحانات الإلكترونية</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 58px; height: 58px; border-radius: 50%; border: 2px solid #166534; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto; color: #166534;">
+            🏫
+          </div>
+        </div>
+        <div style="text-align: left;">
+          <div style="font-size: 17px; font-weight: 900; color: #0f172a;">إفادة مستوى أكاديمي رسمي</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">تاريخ الإصدار: <strong>${new Date().toLocaleDateString('ar-EG')}</strong></div>
+          <div style="font-size: 11px; color: #059669; font-weight: 700; margin-top: 2px;">سجل معتمد وموثق</div>
+        </div>
+      </div>
+
+      <!-- Student Details Box -->
+      <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px;">
+        <table style="width: 100%; border: none; margin: 0;">
+          <tr style="border: none;">
+            <td style="border: none; padding: 6px; width: 33%;">
+              <span style="font-size: 11px; color: #64748b;">اسم الطالب الرباعي:</span>
+              <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">${studentData.fullName}</div>
+            </td>
+            <td style="border: none; padding: 6px; width: 33%;">
+              <span style="font-size: 11px; color: #64748b;">الرقم الأكاديمي:</span>
+              <div style="font-size: 14px; font-weight: 800; color: #166534; margin-top: 2px;">${studentData.studentNumber}</div>
+            </td>
+            <td style="border: none; padding: 6px; width: 33%;">
+              <span style="font-size: 11px; color: #64748b;">الصف والشعبة:</span>
+              <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">${studentData.currentClass || 'مسجل'}</div>
+            </td>
+          </tr>
+          <tr style="border: none;">
+            <td style="border: none; padding: 6px;">
+              <span style="font-size: 11px; color: #64748b;">العام الدراسي:</span>
+              <div style="font-size: 13px; font-weight: 700; color: #334155; margin-top: 2px;">${studentData.academicYear || '2026/2027'}</div>
+            </td>
+            <td style="border: none; padding: 6px;">
+              <span style="font-size: 11px; color: #64748b;">المعدل العام التراكمي:</span>
+              <div style="font-size: 14px; font-weight: 900; color: #0284c7; margin-top: 2px;">${gpaText}</div>
+            </td>
+            <td style="border: none; padding: 6px;">
+              <span style="font-size: 11px; color: #64748b;">نسبة الحضور والالتزام:</span>
+              <div style="font-size: 14px; font-weight: 900; color: #059669; margin-top: 2px;">${attendanceText}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Grades Table -->
+      <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">كشف تقييم المواد الأكاديمية:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align: right;">المادة الدراسية</th>
+            <th>رمز المادة</th>
+            <th>نسبة التحصيل</th>
+            <th>التقدير</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Signatures and Stamp -->
+    <div style="margin-top: 30px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px;">
+        <div style="text-align: center;">
+          <div style="font-size: 12.5px; font-weight: 700; color: #334155;">المرشد الأكاديمي</div>
+          <div style="height: 45px;"></div>
+          <div style="font-size: 12px; color: #64748b;">..............................</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="border: 2px dashed #059669; border-radius: 50%; width: 90px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #047857; margin: 0 auto;">
+            <span style="font-size: 10px; font-weight: 800;">ختم الاعتماد</span>
+            <span style="font-size: 8.5px; font-weight: 700; margin-top: 2px;">مجموعة السلام</span>
+            <span style="font-size: 8px;">معتمد إلكترونياً</span>
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 12.5px; font-weight: 700; color: #334155;">إدارة المدرسة والامتحانات</div>
+          <div style="height: 45px;"></div>
+          <div style="font-size: 12px; color: #64748b;">..............................</div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; margin-top: 20px; padding-top: 8px; display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
+        <span>وثيقة رسمية صادرة إلكترونياً من روضة ومدرسة مجموعة السلام التعليمية الخاصة</span>
+        <span>صفحة 1 من 1</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 450);
   };
 
   const getRatingBadge = (percentage) => {
@@ -365,7 +566,11 @@ export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }
 
       {/* Top Header Navigation */}
       <header className="portal-nav-bar no-print">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div
+          onClick={onBackToHome || onExitToSchool}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' }}
+          title={isRtl ? 'العودة للصفحة الرئيسية' : 'Back to Home'}
+        >
           <SchoolLogo height={44} />
           <div>
             <div style={{ fontSize: '15px', fontWeight: 800, color: '#f8fafc' }}>
@@ -378,7 +583,26 @@ export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {onBackToHome && (
+            <button
+              onClick={onBackToHome}
+              className="btn btn-secondary btn-sm"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+                padding: '8px 14px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                cursor: 'pointer'
+              }}
+            >
+              🏠 {isRtl ? 'الرئيسية' : 'Home'}
+            </button>
+          )}
+
           {onNavigateToFees && (
             <button
               onClick={onNavigateToFees}
@@ -394,7 +618,7 @@ export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }
                 cursor: 'pointer'
               }}
             >
-              💳 {isRtl ? 'بوابة سداد الأقساط' : 'Tuition Portal'}
+              💳 {isRtl ? 'سداد الأقساط' : 'Fees'}
             </button>
           )}
 
@@ -412,7 +636,7 @@ export default function ParentInquiryPortal({ onExitToSchool, onNavigateToFees }
               cursor: 'pointer'
             }}
           >
-            {isRtl ? '← دخول الكادر التعليمي' : '← Staff Login'}
+            {isRtl ? '👔 دخول الكادر' : 'Staff Login'}
           </button>
         </div>
       </header>

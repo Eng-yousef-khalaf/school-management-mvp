@@ -13,6 +13,7 @@ import AddEditStudentModal from './AddEditStudentModal';
 import ImportStudentsModal from './ImportStudentsModal';
 import BulkCertificatesModal from '../Reports/BulkCertificatesModal';
 import { useNotifications } from '../../context/NotificationContext';
+import UserAvatar from '../../components/common/UserAvatar';
 import {
   SearchIcon,
   PlusIcon,

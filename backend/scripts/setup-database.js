@@ -31,9 +31,9 @@ args.forEach((arg) => {
 });
 
 const targetDbUrl = params['db'] || process.env.DATABASE_URL;
-const schoolNameAr = params['name-ar'] || 'مدرسة جذور النموذجية الخاصة';
-const schoolNameEn = params['name-en'] || 'Judhoor Model Private School';
-const schoolCode = params['code'] || 'SCH-001';
+const schoolNameAr = params['name-ar'] || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة';
+const schoolNameEn = params['name-en'] || 'Al-Salam Educational Group Private School & Kindergarten';
+const schoolCode = params['code'] || 'SCH-ALSALAM-2026';
 const adminEmail = params['admin-email'] || 'admin@school.local';
 const adminPass = params['admin-pass'] || 'ChangeMe123!';
 const primaryColor = params['color'] || '#166534';

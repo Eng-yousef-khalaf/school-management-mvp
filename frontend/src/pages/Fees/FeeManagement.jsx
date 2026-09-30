@@ -770,7 +770,7 @@ export default function FeeManagement() {
 
                     {alt.parentPhone && (
                       <a
-                        href={`https://wa.me/970${alt.parentPhone.replace(/^0/, '')}?text=${encodeURIComponent(`السلام عليكم ورحمة الله، ولي أمر الطالب ${alt.studentName}، نود تذكيركم بموعد القسط المدرسي المستحق بقيمة ${alt.balanceDue} شيكل. شكراً لتعاونكم - إدارة مدرسة جذور النموذجية الخاصة.`)}`}
+                        href={`https://wa.me/970${alt.parentPhone.replace(/^0/, '')}?text=${encodeURIComponent(`السلام عليكم ورحمة الله، ولي أمر الطالب ${alt.studentName}، نود تذكيركم بموعد القسط المدرسي المستحق بقيمة ${alt.balanceDue} شيكل. شكراً لتعاونكم - إدارة روضة ومدرسة مجموعة السلام التعليمية الخاصة.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-sm"

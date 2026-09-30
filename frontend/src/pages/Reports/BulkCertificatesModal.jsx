@@ -87,7 +87,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
       '<html dir="rtl" lang="ar">' +
       '<head>' +
       '<meta charset="utf-8" />' +
-      '<title>شهادات_الطلاب_مدرسة_جذور_النموذجية_الخاصة</title>' +
+      '<title>شهادات_الطلاب_مجموعة_السلام_التعليمية_الخاصة</title>' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
       '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
@@ -95,7 +95,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
       '@page { size: A4 portrait; margin: 8mm; }' +
       '* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
       'html, body { background: #ffffff !important; color: #0f172a !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }' +
-      '.certificate-page, .printable-sheet { display: flex !important; flex-direction: column !important; justify-content: space-between !important; min-height: 275mm !important; height: 275mm !important; max-height: 275mm !important; padding: 16px 20px !important; margin: 0 0 20px 0 !important; border: 2px solid #0f172a !important; border-radius: 8px !important; background: #ffffff !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; break-inside: avoid-page !important; overflow: hidden !important; box-sizing: border-box !important; }' +
+      '.certificate-page, .printable-sheet { display: flex !important; flex-direction: column !important; justify-content: space-between !important; min-height: 275mm !important; height: 275mm !important; max-height: 275mm !important; padding: 16px 20px !important; margin: 0 0 20px 0 !important; border: 2px solid #0f172a !important; border-radius: 8px !important; background: #ffffff !important; box-shadow: none !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; break-inside: avoid-page !important; overflow: hidden !important; box-sizing: border-box !important; }' +
       '.certificate-page:last-child { page-break-after: auto !important; break-after: auto !important; }' +
       'table { border-collapse: collapse; width: 100%; }' +
       'img { max-width: 100%; height: auto; }' +
@@ -314,7 +314,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                         <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
                       </div>
                       <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 3 }}>
-                        {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
+                        {isRtl ? config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة' : config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'}
                       </div>
                       <div style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                         {isRtl ? 'قسم شؤون الطلاب والامتحانات' : 'Department of Student Affairs'}
@@ -549,7 +549,7 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                         fontWeight: 800,
                         background: '#f0fdf4'
                       }}>
-                        <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                        <span>{isRtl ? config?.schoolNameAr || 'مدرسة السلام' : config?.schoolNameEn || 'Al-Salam School'}</span>
                         <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
                       </div>
                     </div>
@@ -569,8 +569,8 @@ export default function BulkCertificatesModal({ isOpen, onClose, initialClassId 
                   }}>
                     <span>
                       {isRtl
-                        ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
-                        : `Official document issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'} - Student ${studentIdx + 1} of ${students.length}`}
+                        ? `وثيقة رسمية صادرة إلكترونياً من ${config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'} - طالب رقم ${studentIdx + 1} من إجمالي ${students.length}`
+                        : `Official document issued electronically by ${config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'} - Student ${studentIdx + 1} of ${students.length}`}
                     </span>
                     <span style={{ fontWeight: 700 }}>
                       {isRtl ? 'صفحة 1 من 1' : 'Page 1 of 1'}

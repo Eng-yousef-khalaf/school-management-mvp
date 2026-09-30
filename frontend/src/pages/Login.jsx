@@ -154,7 +154,7 @@ export default function Login({ onBackToWebsite }) {
                 }}
               >
                 <span>←</span>
-                <span>{isRtl ? 'العودة لموقع مدرسة جذور الرئيسي' : 'Back to Jothoor School Website'}</span>
+                <span>{isRtl ? 'العودة لموقع مدرسة السلام الرئيسي' : 'Back to Al-Salam School Website'}</span>
               </button>
             ) : (
               <a
@@ -166,7 +166,7 @@ export default function Login({ onBackToWebsite }) {
                   fontSize: '12px'
                 }}
               >
-                {isRtl ? '← موقع مدرسة جذور' : '← Jothoor School Website'}
+                {isRtl ? '← موقع مدرسة السلام' : '← Al-Salam School Website'}
               </a>
             )}
             <LanguageSwitcher />

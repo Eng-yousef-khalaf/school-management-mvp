@@ -10,20 +10,21 @@ export function SchoolConfigProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+        const isStale = !parsed.schoolNameAr || parsed.schoolNameAr.includes('النور') || parsed.schoolNameAr.includes('جذور');
         return {
-          schoolCode: parsed.schoolCode || import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
-          schoolNameAr: (parsed.schoolNameAr && !parsed.schoolNameAr.includes('النور')) ? parsed.schoolNameAr : (import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة'),
-          schoolNameEn: (parsed.schoolNameEn && !parsed.schoolNameEn.includes('Al-Noor')) ? parsed.schoolNameEn : (import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School'),
-          schoolSloganAr: parsed.schoolSloganAr || import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
-          schoolSloganEn: parsed.schoolSloganEn || import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
-          logoUrl: parsed.logoUrl !== undefined ? parsed.logoUrl : (import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png'),
+          schoolCode: (!isStale && parsed.schoolCode) ? parsed.schoolCode : (import.meta.env.VITE_SCHOOL_CODE || 'SCH-ALSALAM-2026'),
+          schoolNameAr: !isStale ? parsed.schoolNameAr : (import.meta.env.VITE_SCHOOL_NAME_AR || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'),
+          schoolNameEn: (!isStale && parsed.schoolNameEn) ? parsed.schoolNameEn : (import.meta.env.VITE_SCHOOL_NAME_EN || 'Al-Salam Educational Group Private School & Kindergarten'),
+          schoolSloganAr: !isStale ? (parsed.schoolSloganAr || import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز') : (import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز'),
+          schoolSloganEn: !isStale ? (parsed.schoolSloganEn || import.meta.env.VITE_SCHOOL_SLOGAN_EN || "Palestine's Premier Model Educational Environment - 25 Years of Excellence") : (import.meta.env.VITE_SCHOOL_SLOGAN_EN || "Palestine's Premier Model Educational Environment - 25 Years of Excellence"),
+          logoUrl: parsed.logoUrl !== undefined && !isStale ? parsed.logoUrl : (import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png'),
           primaryColor: parsed.primaryColor || import.meta.env.VITE_PRIMARY_COLOR || '#166534',
           primaryHover: parsed.primaryHover || import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
           instanceType: parsed.instanceType || import.meta.env.VITE_INSTANCE_TYPE || 'MASTER',
           supabaseProject: parsed.supabaseProject || import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
           allocatedStorageMb: parseInt(parsed.allocatedStorageMb || import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-          supportEmail: parsed.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
-          supportPhone: parsed.supportPhone || import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+          supportEmail: !isStale ? (parsed.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || 'info@alsalam-school.edu.ps') : (import.meta.env.VITE_SUPPORT_EMAIL || 'info@alsalam-school.edu.ps'),
+          supportPhone: !isStale ? (parsed.supportPhone || import.meta.env.VITE_SUPPORT_PHONE || '+970 59 312 4444') : (import.meta.env.VITE_SUPPORT_PHONE || '+970 59 312 4444'),
           schoolStartTime: parsed.schoolStartTime || '07:45',
         };
       }
@@ -32,19 +33,19 @@ export function SchoolConfigProvider({ children }) {
     }
 
     return {
-      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
-      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
-      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School',
-      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
-      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
+      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-ALSALAM-2026',
+      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Al-Salam Educational Group Private School & Kindergarten',
+      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز',
+      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || "Palestine's Premier Model Educational Environment - 25 Years of Excellence",
       logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png',
       primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#166534',
       primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
       instanceType: import.meta.env.VITE_INSTANCE_TYPE || 'MASTER', // MASTER | DEDICATED_SCHOOL
       supabaseProject: import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
-      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@alsalam-school.edu.ps',
+      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 312 4444',
       schoolStartTime: '07:45',
     };
   });
@@ -105,19 +106,19 @@ export function SchoolConfigProvider({ children }) {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {}
     setConfig({
-      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-JUDHOOR-01',
-      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'مدرسة جذور النموذجية الخاصة',
-      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Judhoor Model Private School',
-      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'بناء الأجيال على جذور متينة وقيم راسخة',
-      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || 'Building Future Generations on Solid Roots & Excellence',
+      schoolCode: import.meta.env.VITE_SCHOOL_CODE || 'SCH-ALSALAM-2026',
+      schoolNameAr: import.meta.env.VITE_SCHOOL_NAME_AR || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+      schoolNameEn: import.meta.env.VITE_SCHOOL_NAME_EN || 'Al-Salam Educational Group Private School & Kindergarten',
+      schoolSloganAr: import.meta.env.VITE_SCHOOL_SLOGAN_AR || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز',
+      schoolSloganEn: import.meta.env.VITE_SCHOOL_SLOGAN_EN || "Palestine's Premier Model Educational Environment - 25 Years of Excellence",
       logoUrl: import.meta.env.VITE_SCHOOL_LOGO_URL || '/school-logo.png',
       primaryColor: import.meta.env.VITE_PRIMARY_COLOR || '#166534',
       primaryHover: import.meta.env.VITE_PRIMARY_HOVER || '#14532d',
       instanceType: import.meta.env.VITE_INSTANCE_TYPE || 'MASTER',
       supabaseProject: import.meta.env.VITE_SUPABASE_PROJECT_ID || 'isolated-supabase-db',
       allocatedStorageMb: parseInt(import.meta.env.VITE_ALLOCATED_STORAGE_MB || '500', 10),
-      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@judhoor-school.edu.ps',
-      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 900 0000',
+      supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'info@alsalam-school.edu.ps',
+      supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '+970 59 312 4444',
       schoolStartTime: '07:45',
     });
   };

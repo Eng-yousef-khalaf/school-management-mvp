@@ -65,7 +65,7 @@ export default function SchoolLogo({ size = 64, className = '', showText = false
               دولة فلسطين / وزارة التربية والتعليم
             </div>
             <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-              مدرسة جذور النموذجية الخاصة
+              {config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'}
             </div>
           </div>
         )}

@@ -44,7 +44,7 @@ export default function EnrollmentManagement() {
   const [activeTab, setActiveTab] = useState('current'); // 'current' | 'online_registrations'
   const [onlineRequests, setOnlineRequests] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+      return JSON.parse(localStorage.getItem('alsalam_online_registrations') || localStorage.getItem('jothoor_online_registrations') || '[]');
     } catch {
       return [];
     }
@@ -61,7 +61,7 @@ export default function EnrollmentManagement() {
         // Merge with any offline local storage registrations
         let local = [];
         try {
-          local = JSON.parse(localStorage.getItem('jothoor_online_registrations') || '[]');
+          local = JSON.parse(localStorage.getItem('alsalam_online_registrations') || localStorage.getItem('jothoor_online_registrations') || '[]');
         } catch {}
 
         const backendIds = new Set(res.items.map(r => String(r.id)));
@@ -74,7 +74,7 @@ export default function EnrollmentManagement() {
 
         setOnlineRequests(combined);
         try {
-          localStorage.setItem('jothoor_online_registrations', JSON.stringify(combined));
+          localStorage.setItem('alsalam_online_registrations', JSON.stringify(combined));
         } catch {}
       }
     } catch {
@@ -149,7 +149,7 @@ export default function EnrollmentManagement() {
       const updated = onlineRequests.map(r => r.id === req.id ? { ...r, status: 'APPROVED', enrolledClassId: targetApproveClassId } : r);
       setOnlineRequests(updated);
       try {
-        localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+        localStorage.setItem('alsalam_online_registrations', JSON.stringify(updated));
       } catch {}
 
       toast.success(`تم تثبيت قيد الطالب (${req.studentFullName}) وتسكينه بالشعبة بنجاح!`);
@@ -174,7 +174,7 @@ export default function EnrollmentManagement() {
       const updated = onlineRequests.filter(r => r.id !== req.id);
       setOnlineRequests(updated);
       try {
-        localStorage.setItem('jothoor_online_registrations', JSON.stringify(updated));
+        localStorage.setItem('alsalam_online_registrations', JSON.stringify(updated));
       } catch {}
       toast.success(`تم استبعاد طلب تسجيل (${req.studentFullName})`);
     } catch (err) {
@@ -371,7 +371,7 @@ export default function EnrollmentManagement() {
           {onlineRequests.length === 0 ? (
             <EmptyState
               title="لا توجد طلبات تسجيل إلكتروني جديدة حالياً"
-              description="تظهر هنا فوراً الطلبات المقدمة من أولياء الأمور عبر الصفحة العامة لمدرسة جذور ومرفق معها إشعار تحويل الـ 20 شيكل."
+              description="تظهر هنا فوراً الطلبات المقدمة من أولياء الأمور عبر الصفحة العامة لروضة ومدرسة السلام ومرفق معها إشعار تحويل الـ 20 شيكل."
             />
           ) : (
             <div className="table-responsive">

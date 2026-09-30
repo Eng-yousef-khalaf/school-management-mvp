@@ -405,7 +405,7 @@ function buildTableSql(tableName, rows) {
 function generateSqlBackupDump({ schoolNameAr, schoolNameEn, schoolCode, exportedAt, data }) {
   let sql = `-- =====================================================================\n`;
   sql += `-- 🏫 School Management MVP - Autonomous Database Backup Dump\n`;
-  sql += `-- School: ${schoolNameAr || 'مدرسة جذور النموذجية الخاصة'} / ${schoolNameEn || 'Judhoor Model School'} (${schoolCode || 'SCH-001'})\n`;
+  sql += `-- School: ${schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'} / ${schoolNameEn || 'Al-Salam Educational Group'} (${schoolCode || 'SCH-ALSALAM-2026'})\n`;
   sql += `-- Export Date: ${exportedAt || new Date().toISOString()}\n`;
   sql += `-- Compatibility: PostgreSQL / SQLite (ANSI SQL Standard)\n`;
   sql += `-- Format: Complete Schema Tables Data Dump (.sql)\n`;

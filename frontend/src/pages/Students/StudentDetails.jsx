@@ -53,7 +53,77 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
   }, [studentId]);
 
   const handlePrint = () => {
-    window.print();
+    const statementEl = document.querySelector('.official-parent-statement');
+    if (!statementEl) {
+      window.print();
+      return;
+    }
+
+    const existingIframe = document.getElementById('student-statement-print-iframe');
+    if (existingIframe) existingIframe.remove();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'student-statement-print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    const printHtml = `<!DOCTYPE html>
+<html dir="${isRtl ? 'rtl' : 'ltr'}" lang="${isRtl ? 'ar' : 'en'}">
+<head>
+  <meta charset="utf-8" />
+  <title>إفادة_${student?.firstName || 'طالب'}_${student?.studentNumber || ''}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4 portrait; margin: 8mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+    }
+    .official-parent-statement {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 18px 24px !important;
+      margin: 0 auto !important;
+      border: 2px solid #0f172a !important;
+      border-radius: 8px !important;
+      background: #ffffff !important;
+      box-shadow: none !important;
+      box-sizing: border-box !important;
+    }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #cbd5e1; padding: 6px 10px; }
+    th { background-color: #f1f5f9 !important; font-weight: 800; }
+    img { max-width: 100%; height: auto; }
+    .no-print { display: none !important; }
+  </style>
+</head>
+<body>
+  ${statementEl.outerHTML}
+</body>
+</html>`;
+    doc.write(printHtml);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 450);
   };
 
   const handleQuickPhotoUpload = async (e) => {
@@ -747,7 +817,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
                 <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
               </div>
               <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 4 }}>
-                {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
+                {isRtl ? config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة' : config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'}
               </div>
               <div style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                 {isRtl ? 'قسم شؤون الطلاب والتسجيل والامتحانات' : 'Registrar & Student Affairs Department'}
@@ -942,7 +1012,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
                 fontWeight: 800,
                 background: '#f0fdf4'
               }}>
-                <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                <span>{isRtl ? config?.schoolNameAr || 'مدرسة السلام' : config?.schoolNameEn || 'Al-Salam School'}</span>
                 <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
               </div>
             </div>
@@ -960,8 +1030,8 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
           }}>
             <span>
               {isRtl
-                ? `وثيقة إفادة رسمية صادرة إلكترونياً ومعتمدة من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'}`
-                : `Official Statement issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'}`}
+                ? `وثيقة إفادة رسمية صادرة إلكترونياً ومعتمدة من ${config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'}`
+                : `Official Statement issued electronically by ${config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'}`}
             </span>
             <span style={{ fontWeight: 700 }}>
               {isRtl ? 'صفحة 1 من 1' : 'Page 1 of 1'}

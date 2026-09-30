@@ -7,6 +7,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AcademicYearProvider } from './context/AcademicYearContext';
 import { SchoolConfigProvider } from './context/SchoolConfigContext';
 import { NotificationProvider } from './context/NotificationContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import './styles/index.css';
 
 const rootElement = document.getElementById('root');
@@ -19,7 +20,9 @@ if (rootElement) {
             <AuthProvider>
               <AcademicYearProvider>
                 <NotificationProvider>
-                  <App />
+                  <ErrorBoundary onReset={() => window.location.reload()}>
+                    <App />
+                  </ErrorBoundary>
                 </NotificationProvider>
               </AcademicYearProvider>
             </AuthProvider>

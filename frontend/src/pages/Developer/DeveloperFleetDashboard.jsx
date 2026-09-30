@@ -26,17 +26,17 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   
   // School White-Label & Identity Form State
   const [brandForm, setBrandForm] = useState({
-    schoolNameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
-    schoolNameEn: config.schoolNameEn || 'Judhoor Model Private School',
-    schoolSloganAr: config.schoolSloganAr || 'بناء الأجيال على جذور متينة وقيم راسخة',
-    schoolSloganEn: config.schoolSloganEn || 'Building Generations on Strong Roots and Solid Values',
-    schoolCode: config.schoolCode || 'SCH-001',
+    schoolNameAr: config.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+    schoolNameEn: config.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten',
+    schoolSloganAr: config.schoolSloganAr || 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز',
+    schoolSloganEn: config.schoolSloganEn || "Palestine's Premier Model Educational Environment - 25 Years of Excellence",
+    schoolCode: config.schoolCode || 'SCH-ALSALAM-2026',
     logoUrl: config.logoUrl || '/school-logo.png',
     primaryColor: config.primaryColor || '#166534',
     primaryHover: config.primaryHover || '#14532d',
     allocatedStorageMb: config.allocatedStorageMb || 500,
-    supportEmail: config.supportEmail || 'support@school-management.dev',
-    supportPhone: config.supportPhone || '+966 50 000 0000',
+    supportEmail: config.supportEmail || 'info@alsalam-school.edu.ps',
+    supportPhone: config.supportPhone || '+970 59 312 4444',
   });
 
   // Sync brandForm if config changes
@@ -104,17 +104,17 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
 
   const handleResetBranding = () => {
     const defaultObj = {
-      schoolNameAr: 'مدرسة جذور النموذجية الخاصة',
-      schoolNameEn: 'Judhoor Model Private School',
-      schoolSloganAr: 'بناء الأجيال على جذور متينة وقيم راسخة',
-      schoolSloganEn: 'Building Generations on Strong Roots and Solid Values',
-      schoolCode: 'SCH-001',
+      schoolNameAr: 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+      schoolNameEn: 'Al-Salam Educational Group Private School & Kindergarten',
+      schoolSloganAr: 'البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز',
+      schoolSloganEn: "Palestine's Premier Model Educational Environment - 25 Years of Excellence",
+      schoolCode: 'SCH-ALSALAM-2026',
       logoUrl: '/school-logo.png',
       primaryColor: '#166534',
       primaryHover: '#14532d',
       allocatedStorageMb: 500,
-      supportEmail: 'support@school-management.dev',
-      supportPhone: '+966 50 000 0000',
+      supportEmail: 'info@alsalam-school.edu.ps',
+      supportPhone: '+970 59 312 4444',
     };
     setBrandForm(defaultObj);
     updateSchoolBranding(defaultObj);
@@ -132,9 +132,9 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [isSavingPrincipal, setIsSavingPrincipal] = useState(false);
 
   const [handoverData, setHandoverData] = useState({
-    schoolNameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
-    schoolNameEn: config.schoolNameEn || 'Judhoor Model Private School',
-    schoolCode: config.schoolCode || 'SCH-001',
+    schoolNameAr: config.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+    schoolNameEn: config.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten',
+    schoolCode: config.schoolCode || 'SCH-ALSALAM-2026',
     domainUrl: window.location.origin,
     adminFullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
     adminEmail: 'admin@school.local',
@@ -162,9 +162,9 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         // Real clean fallback state (0 dummy data)
         setTelemetry({
           currentSchool: {
-            code: config.schoolCode || 'SCH-001',
-            nameAr: config.schoolNameAr || 'مدرسة جذور النموذجية الخاصة',
-            nameEn: config.schoolNameEn || 'Judhoor Model Private School',
+            code: config.schoolCode || 'SCH-ALSALAM-2026',
+            nameAr: config.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
+            nameEn: config.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten',
             databaseType: 'PostgreSQL (Dedicated Instance)',
             studentsCount: 0,
             teachersCount: 0,
@@ -1312,7 +1312,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                       className="form-input"
                       value={brandForm.schoolNameAr}
                       onChange={(e) => setBrandForm({ ...brandForm, schoolNameAr: e.target.value })}
-                      placeholder="مدرسة جذور النموذجية الخاصة"
+                      placeholder="روضة ومدرسة مجموعة السلام التعليمية الخاصة"
                       required
                     />
                   </div>
@@ -1589,7 +1589,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>
-                      {brandForm.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'}
+                      {brandForm.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'}
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
                       {brandForm.schoolSloganAr || 'المنصة الأكاديمية الشاملة'}

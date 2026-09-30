@@ -91,7 +91,7 @@ export default function GradeReports() {
       '<!DOCTYPE html>' +
       '<html dir="rtl" lang="ar">' +
       '<head><meta charset="utf-8">' +
-      '<title>كشف_الدرجات_والنتائج_مدرسة_جذور_النموذجية_الخاصة</title>' +
+      '<title>كشف_الدرجات_والنتائج_مجموعة_السلام_التعليمية_الخاصة</title>' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">' +
       '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
       '<style>' +
@@ -226,7 +226,7 @@ export default function GradeReports() {
                 <span>{isRtl ? 'دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}</span>
               </div>
               <div style={{ fontSize: 20, fontWeight: 900, color: '#166534', marginTop: 3 }}>
-                {isRtl ? config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة' : config?.schoolNameEn || 'Judhoor Model Private School'}
+                {isRtl ? config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة' : config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'}
               </div>
               <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginTop: 2 }}>
                 {isRtl ? 'الإدارة العامة للتقويم التربوي والامتحانات' : 'Department of Educational Evaluation & Examinations'}
@@ -376,7 +376,7 @@ export default function GradeReports() {
                 fontWeight: 800,
                 background: '#f0fdf4'
               }}>
-                <span>{isRtl ? config?.schoolNameAr || 'مدرسة جذور' : config?.schoolNameEn || 'Judhoor School'}</span>
+                <span>{isRtl ? config?.schoolNameAr || 'مدرسة السلام' : config?.schoolNameEn || 'Al-Salam School'}</span>
                 <span style={{ fontSize: 7 }}>{isRtl ? 'الختم المعتمد' : 'Official Seal'}</span>
               </div>
             </div>
@@ -384,8 +384,8 @@ export default function GradeReports() {
 
           <div style={{ fontSize: 9.5, color: '#64748b', marginTop: 14, textAlign: 'center', borderTop: '1px solid #e2e8f0', paddingTop: 6 }}>
             {isRtl
-              ? `كشف درجات رسمي صادر إلكترونياً من ${config?.schoolNameAr || 'مدرسة جذور النموذجية الخاصة'} - دولة فلسطين`
-              : `Official grade transcript issued electronically by ${config?.schoolNameEn || 'Judhoor Model Private School'}`}
+              ? `كشف درجات رسمي صادر إلكترونياً من ${config?.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة'} - دولة فلسطين`
+              : `Official grade transcript issued electronically by ${config?.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten'}`}
           </div>
         </div>
       </div>
