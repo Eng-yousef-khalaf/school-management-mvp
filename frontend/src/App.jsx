@@ -166,6 +166,8 @@ export default function App() {
   const [selectedTeacherId, setSelectedTeacherId] = useState(initialParams.teacherId || null);
   const [selectedClassId, setSelectedClassId] = useState(initialParams.classId || null);
   const [attendanceClassId, setAttendanceClassId] = useState(initialParams.attendanceClassId || '');
+  const [editingStudentFromDetails, setEditingStudentFromDetails] = useState(null);
+  const [editingTeacherFromDetails, setEditingTeacherFromDetails] = useState(null);
 
   // Clean #login hash if user is already authenticated
   useEffect(() => {
@@ -381,10 +383,6 @@ export default function App() {
       />
     );
   }
-
-  // Editing Modals from details
-  const [editingStudentFromDetails, setEditingStudentFromDetails] = useState(null);
-  const [editingTeacherFromDetails, setEditingTeacherFromDetails] = useState(null);
 
   if (loading) {
     return (

@@ -22,11 +22,11 @@ export default class ErrorBoundary extends React.Component {
 
   handleReset = () => {
     this.setState({ hasError: false, error: null });
+    window.location.hash = '';
     if (this.props.onReset) {
       this.props.onReset();
     } else {
-      window.location.hash = '';
-      window.location.reload();
+      window.location.href = '/';
     }
   };
 
