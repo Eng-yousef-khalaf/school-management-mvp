@@ -17,4 +17,9 @@ router.get('/bulk-certificates', staffOrAdmin, reportController.getBulkCertifica
 router.get('/unified-export', adminOnly, reportController.exportUnifiedMinistryReport);
 router.get('/executive-analytical', adminOnly, reportController.getExecutiveAnalyticalReport);
 
+// Consolidated Multi-Branch General Report (Super Admin / General Director)
+router.get('/branches-general', adminOnly, reportController.getBranchesGeneralReport);
+router.get('/branches-general/export', adminOnly, reportController.exportBranchesGeneralReport);
+
 module.exports = router;
+

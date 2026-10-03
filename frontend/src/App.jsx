@@ -10,6 +10,7 @@ import AccessDenied from './components/common/AccessDenied';
 import AdminDashboard from './pages/Dashboards/AdminDashboard';
 import StaffDashboard from './pages/Dashboards/StaffDashboard';
 import TeacherDashboard from './pages/Dashboards/TeacherDashboard';
+import GeneralDirectorDashboard from './pages/Dashboards/GeneralDirectorDashboard';
 
 // Pages
 import StudentList from './pages/Students/StudentList';
@@ -29,6 +30,7 @@ import AttendanceReports from './pages/Attendance/AttendanceReports';
 import GradeEntry from './pages/Grades/GradeEntry';
 import GradeReports from './pages/Grades/GradeReports';
 import ReportsHub from './pages/Reports/ReportsHub';
+import BranchesExecutiveReportPage from './pages/Reports/BranchesExecutiveReportPage';
 import UserList from './pages/Users/UserList';
 import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
@@ -42,7 +44,7 @@ import JothoorPublicWebsite from './pages/Public/JothoorPublicWebsite';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 export default function App() {
-  const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole, logout } = useAuth();
+  const { user, loading, isAdmin, isStaff, isTeacher, isSuperAdmin, switchPortalRole, logout } = useAuth();
   const { t, isRtl } = useLanguage();
 
   const [showLoginScreen, setShowLoginScreen] = useState(() => {
@@ -128,6 +130,8 @@ export default function App() {
     'audit-logs',
     'developer-hub',
     'developer-fleet',
+    'branches',
+    'branches-report',
     'settings',
     'public-website'
   ]);
@@ -501,6 +505,16 @@ export default function App() {
           title: isRtl ? 'لوحة تحكم مهندس ومطور المنظومة' : 'Developer Engineering & Diagnostics Hub', 
           subtitle: isRtl ? 'فحص الخادم وقاعدة البيانات، مراقبة استهلاك الجداول، وأدوات الصيانة' : 'Server health diagnostics, live database table analysis, and maintenance utilities' 
         };
+      case 'branches':
+        return {
+          title: isRtl ? 'إدارة وإشراف فروع المؤسسة (المدير العام)' : 'Enterprise Branches Hub & Campus Oversight',
+          subtitle: isRtl ? 'إشراف مركزي على كافة الفروع، فتح وتأسيس فروع جديدة، وتعيين مدراء الفروع' : 'Centralized branch directory, campus expansion, and branch manager allocations'
+        };
+      case 'branches-report':
+        return {
+          title: isRtl ? 'التقرير التحليلي التنفيذي الموحد للفروع (KPI)' : 'Consolidated Branches Executive KPI Report',
+          subtitle: isRtl ? 'المؤشرات الأكاديمية والتشغيلية الشاملة، نسب النجاح والرسوب، والوثيقة التنفيذية المعتمدة' : 'Comprehensive branch analytics, academic pass/fail rates, tuition metrics, and official executive dossier'
+        };
       case 'fees':
         return {
           title: isRtl ? (user?.role === 'STAFF' ? 'الرسوم والأقساط والمقبوضات' : 'الرسوم المالية وحسابات الطلاب') : 'Student Tuition & Fee Management',
@@ -534,32 +548,51 @@ export default function App() {
           <TeacherDashboard onNavigate={navigateTo} />
         ) : user?.role === 'STAFF' ? (
           <StaffDashboard onNavigate={navigateTo} />
+        ) : isSuperAdmin ? (
+          <GeneralDirectorDashboard onNavigate={navigateTo} />
         ) : (
           <AdminDashboard onNavigate={navigateTo} />
         )
       )}
 
-      {/* Student Directory - Accessible by Admin, Staff, and Teachers for their rosters */}
+      {/* Multi-Branch Executive Hub */}
+      {currentPage === 'branches' && (
+        (isSuperAdmin || isAdmin) ? (
+          <GeneralDirectorDashboard onNavigate={navigateTo} />
+        ) : (
+          <AccessDenied requiredRole="SUPER_ADMIN" onBack={() => navigateTo('dashboard')} />
+        )
+      )}
+
+      {/* Student Directory - Strictly for Staff, Teachers, and Branch Directors. General Director does NOT see individual students */}
       {currentPage === 'students' && (
-        (isStaff || isTeacher || isAdmin) ? (
+        (!isSuperAdmin && (isStaff || isTeacher || isAdmin)) ? (
           <StudentList
             onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
             onNavigate={navigateTo}
           />
         ) : (
-          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+          <AccessDenied
+            requiredRole="STAFF"
+            message={isSuperAdmin ? (isRtl ? 'إدارة وقبول الطلاب مقتصرة على موظفي شؤون الطلاب وإدارة الفرع حصراً. المدير العام يشرف على المؤشرات التنفيذية والفروع.' : 'Students management is exclusively handled by Staff and Branch Directors.') : undefined}
+            onBack={() => navigateTo('dashboard')}
+          />
         )
       )}
 
       {currentPage === 'student-details' && (
-        (isStaff || isTeacher || isAdmin) ? (
+        (!isSuperAdmin && (isStaff || isTeacher || isAdmin)) ? (
           <StudentDetails
             studentId={selectedStudentId}
             onBack={() => navigateTo('students')}
             onEdit={(s) => setEditingStudentFromDetails(s)}
           />
         ) : (
-          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+          <AccessDenied
+            requiredRole="STAFF"
+            message={isSuperAdmin ? (isRtl ? 'تفاصيل وسجلات الطلاب الفردية مقتصرة على شؤون الطلاب وإدارة الفرع.' : 'Student records are exclusively handled by Staff and Branch Directors.') : undefined}
+            onBack={() => navigateTo('dashboard')}
+          />
         )
       )}
 
@@ -631,12 +664,16 @@ export default function App() {
         )
       )}
 
-      {/* Enrollment Management - Accessible by Staff & Admin */}
+      {/* Enrollment Management - Strictly for Staff & Branch Director */}
       {currentPage === 'enrollment' && (
-        (isStaff || isAdmin) ? (
+        (!isSuperAdmin && (isStaff || isAdmin)) ? (
           <EnrollmentManagement />
         ) : (
-          <AccessDenied requiredRole="STAFF" onBack={() => navigateTo('dashboard')} />
+          <AccessDenied
+            requiredRole="STAFF"
+            message={isSuperAdmin ? (isRtl ? 'تسكين وتوزيع الفصول هي من اختصاص مسؤولي شؤون الطلاب وإدارة الفرع.' : 'Enrollment is managed by Staff and Branch Directors.') : undefined}
+            onBack={() => navigateTo('dashboard')}
+          />
         )
       )}
 
@@ -682,6 +719,15 @@ export default function App() {
           <ReportsHub onNavigate={navigateTo} />
         ) : (
           <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
+        )
+      )}
+
+      {/* Consolidated Branches Executive KPI Report - Accessible by Super Admin and Admin */}
+      {currentPage === 'branches-report' && (
+        (isSuperAdmin || isAdmin) ? (
+          <BranchesExecutiveReportPage onNavigate={navigateTo} />
+        ) : (
+          <AccessDenied requiredRole="SUPER_ADMIN" onBack={() => navigateTo('dashboard')} />
         )
       )}
 

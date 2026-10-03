@@ -26,7 +26,7 @@ import {
 
 export default function StudentList({ onViewStudent, onNavigate }) {
   const toast = useToast();
-  const { canManageStudents, isAdmin, isTeacher } = useAuth();
+  const { canManageStudents, isAdmin, isSuperAdmin, isTeacher, user } = useAuth();
   const { t, isRtl } = useLanguage();
   const { pendingRegistrationsCount } = useNotifications();
 
@@ -40,11 +40,13 @@ export default function StudentList({ onViewStudent, onNavigate }) {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [genderFilter, setGenderFilter] = useState('ALL');
   const [classFilter, setClassFilter] = useState('');
+  const [branchFilter, setBranchFilter] = useState('ALL');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
 
   // Metadata dropdowns
   const [classes, setClasses] = useState([]);
+  const [branches, setBranches] = useState([]);
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -61,6 +63,19 @@ export default function StudentList({ onViewStudent, onNavigate }) {
     } catch {}
   };
 
+  const loadBranches = async () => {
+    try {
+      const data = await api.get('/branches');
+      if (Array.isArray(data)) setBranches(data);
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      loadBranches();
+    }
+  }, [isSuperAdmin]);
+
   const loadStudents = useCallback(async () => {
     try {
       setLoading(true);
@@ -74,6 +89,10 @@ export default function StudentList({ onViewStudent, onNavigate }) {
         classId: classFilter
       });
 
+      if (isSuperAdmin && branchFilter && branchFilter !== 'ALL') {
+        queryParams.append('branchId', branchFilter);
+      }
+
       const res = await api.get(`/students?${queryParams.toString()}`);
       setStudents(res.items);
       setPagination(res.pagination);
@@ -82,7 +101,7 @@ export default function StudentList({ onViewStudent, onNavigate }) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, statusFilter, genderFilter, classFilter]);
+  }, [page, limit, search, statusFilter, genderFilter, classFilter, branchFilter, isSuperAdmin]);
 
   useEffect(() => {
     loadClasses();
@@ -220,7 +239,7 @@ export default function StudentList({ onViewStudent, onNavigate }) {
             <SearchIcon className="search-icon" />
             <input
               type="text"
-              placeholder={isRtl ? 'بحث بالاسم، الرقم الأكاديمي، الهاتف...' : 'Search by ID, Name, Phone...'}
+              placeholder={isRtl ? 'بحث بالاسم، رقم الهوية (9 أرقام)، رقم القيد...' : 'Search by Name, 9-digit National ID, Student #...'}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -228,6 +247,23 @@ export default function StudentList({ onViewStudent, onNavigate }) {
               }}
             />
           </div>
+
+          {isSuperAdmin && branches.length > 0 && (
+            <select
+              className="filter-select"
+              value={branchFilter}
+              onChange={(e) => {
+                setBranchFilter(e.target.value);
+                setPage(1);
+              }}
+              style={{ fontWeight: 700, borderColor: '#a5b4fc', background: '#f5f3ff', color: '#4338ca' }}
+            >
+              <option value="ALL">🏫 {isRtl ? 'كافة الفروع' : 'All Branches'}</option>
+              {branches.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          )}
 
           <select
             className="filter-select"
@@ -332,7 +368,9 @@ export default function StudentList({ onViewStudent, onNavigate }) {
               <thead>
                 <tr>
                   <th>{t('studentNumber')}</th>
+                  <th>🪪 {isRtl ? 'رقم الهوية' : 'National ID'}</th>
                   <th>{t('fullName')}</th>
+                  <th>🏫 {isRtl ? 'الفرع' : 'Branch'}</th>
                   <th>{t('gender')}</th>
                   <th>{t('className')}</th>
                   <th>{t('parentName')}</th>
@@ -361,6 +399,26 @@ export default function StudentList({ onViewStudent, onNavigate }) {
                       </span>
                     </td>
                     <td>
+                      {s.nationalId ? (
+                        <span style={{
+                          fontWeight: 800,
+                          color: '#0f766e',
+                          background: '#ccfbf1',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          fontSize: 12,
+                          letterSpacing: '1px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🪪 {s.nationalId}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#94a3b8', fontSize: 11 }}>—</span>
+                      )}
+                    </td>
+                    <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <UserAvatar
                           src={s.photoUrl || s.avatar}
@@ -374,6 +432,19 @@ export default function StudentList({ onViewStudent, onNavigate }) {
                           {s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}
                         </span>
                       </div>
+                    </td>
+                    <td>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        background: '#f1f5f9',
+                        color: '#475569',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        🏫 {s.branchName || 'الفرع الرئيسي'}
+                      </span>
                     </td>
                     <td>
                       {s.gender === 'MALE' ? t('male') : s.gender === 'FEMALE' ? t('female') : '—'}

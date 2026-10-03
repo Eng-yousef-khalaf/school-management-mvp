@@ -24,6 +24,11 @@ async function getClasses({ academicYearId, grade } = {}, user) {
     where.grade = String(grade);
   }
 
+  // Branch isolation
+  if (user?.role !== 'SUPER_ADMIN' && user?.branchId) {
+    where.branchId = user.branchId;
+  }
+
   // If user is Teacher, filter by assigned classes
   if (user?.role === 'TEACHER' && user?.teacherId) {
     const teacherLinks = await prisma.teacherClassSubject.findMany({
@@ -190,12 +195,23 @@ async function getClassById(id) {
 }
 
 async function createClass(data, user, req) {
+  let branchId = null;
+  if (data.branchId) {
+    branchId = parseInt(data.branchId, 10);
+  } else if (user?.branchId) {
+    branchId = user.branchId;
+  } else {
+    const firstBranch = await prisma.branch.findFirst({ orderBy: { id: 'asc' } });
+    branchId = firstBranch ? firstBranch.id : null;
+  }
+
   const schoolClass = await prisma.schoolClass.create({
     data: {
       name: data.name.trim(),
       grade: data.grade.trim(),
       section: data.section ? data.section.trim() : null,
-      academicYearId: parseInt(data.academicYearId, 10)
+      academicYearId: parseInt(data.academicYearId, 10),
+      branchId: branchId
     },
     include: {
       academicYear: true

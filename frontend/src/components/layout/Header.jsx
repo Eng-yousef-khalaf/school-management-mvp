@@ -10,7 +10,7 @@ import { AcademicYearIcon, LogoutIcon } from '../common/Icons';
 import UserAvatar from '../common/UserAvatar';
 
 export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNavigate }) {
-  const { user, switchPortalRole, logout } = useAuth();
+  const { user, isSuperAdmin, isBranchManager, logout } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
   const toast = useToast();
@@ -30,8 +30,17 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const roleColor = user?.role === 'ADMIN' ? 'var(--primary)' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
-  const roleName = user?.role === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : user?.role === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher');
+  const isGeneralDirector = isSuperAdmin || user?.role === 'SUPER_ADMIN' || (!user?.branchId && user?.role === 'ADMIN');
+  const isBranchAdmin = isBranchManager || (Boolean(user?.branchId) && user?.role === 'ADMIN');
+
+  const roleColor = isGeneralDirector ? '#ec4899' : isBranchAdmin ? '#4f46e5' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const roleName = isGeneralDirector
+    ? (isRtl ? 'المدير العام (إشراف كافة الفروع)' : 'General Director (All Branches)')
+    : isBranchAdmin
+    ? (isRtl ? `مدير الفرع (${user?.branch?.name || 'فرع المدرسة'})` : `Branch Director (${user?.branch?.name || 'Branch'})`)
+    : user?.role === 'STAFF'
+    ? (isRtl ? 'شؤون الطلاب والقبول' : 'Staff & Admissions')
+    : (isRtl ? 'المعلم' : 'Teacher');
 
   return (
     <header className="topbar">
@@ -85,6 +94,47 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           </div>
         )}
 
+        {/* Branch Context Pill */}
+        {user?.branch ? (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: '#ecfdf5',
+            color: '#065f46',
+            border: '1px solid #a7f3d0',
+            padding: '5px 12px',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '12px',
+            fontWeight: 800
+          }}>
+            <span>🏫</span>
+            <span>{user.branch.name}</span>
+          </div>
+        ) : isGeneralDirector ? (
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate('branches')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#eff6ff',
+              color: '#1e40af',
+              border: '1px solid #bfdbfe',
+              padding: '5px 12px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '12px',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+            title={isRtl ? 'عرض لوحة تحكم الفروع والمدير العام' : 'View General Director Branches Hub'}
+          >
+            <span>🏢</span>
+            <span>{isRtl ? 'المدير العام (إشراف كافة الفروع)' : 'General Director (All Branches)'}</span>
+          </button>
+        ) : null}
+
         {/* User Profile Chip with Avatar */}
         <div
           style={{
@@ -118,7 +168,8 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           </div>
         </div>
 
-        {/* Notifications Center */}
+        {/* Notifications Center (Strictly for STAFF: شؤون الطلاب) */}
+        {user?.role === 'STAFF' && (
         <div style={{ position: 'relative' }} ref={notifDropdownRef}>
           <button
             onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
@@ -297,6 +348,7 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
             </div>
           )}
         </div>
+        )}
 
         {/* Language Switcher */}
         <LanguageSwitcher />

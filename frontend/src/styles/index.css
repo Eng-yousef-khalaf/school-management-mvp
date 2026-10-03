@@ -1256,6 +1256,28 @@ tbody tr:last-child td {
   border-radius: 4px;
 }
 
+.a4-sheet-container {
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto 40px;
+  background: #ffffff;
+  color: #0f172a;
+  box-sizing: border-box;
+  padding: 12mm 14mm;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  position: relative;
+  page-break-after: avoid;
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
 /* ========================================================= */
 /* COMPREHENSIVE HIGH-PRECISION PRINT STYLESHEET             */
 /* ========================================================= */
@@ -1401,7 +1423,8 @@ tbody tr:last-child td {
   }
 
   .modal-body,
-  #printable-unicef-report {
+  #printable-unicef-report,
+  #printable-branches-general-report {
     padding: 0 !important;
     margin: 0 !important;
     background: #ffffff !important;
@@ -1496,5 +1519,55 @@ tbody tr:last-child td {
   .grade-matrix-print-wrapper th {
     background-color: #f1f5f9 !important;
     font-weight: 800 !important;
+  }
+
+  /* ========================================================= */
+  /* CONSOLIDATED EXECUTIVE BRANCHES KPI REPORT PRINT RULES     */
+  /* ========================================================= */
+  .branches-executive-page {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .interactive-view {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  #printable-executive-dossier,
+  .a4-sheet-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    overflow: visible !important;
+  }
+
+  #printable-executive-dossier table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  #printable-executive-dossier th,
+  #printable-executive-dossier td {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  #printable-executive-dossier tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

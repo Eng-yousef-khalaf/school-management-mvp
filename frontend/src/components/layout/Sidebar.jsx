@@ -23,7 +23,7 @@ import SchoolLogo from '../common/SchoolLogo';
 import UserAvatar from '../common/UserAvatar';
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
-  const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
+  const { user, logout, isAdmin, isStaff, isTeacher, isSuperAdmin, isBranchManager, currentBranch } = useAuth();
   const { t, isRtl } = useLanguage();
   const { config } = useSchoolConfig();
   const { unreadCount, pendingRegistrationsCount } = useNotifications();
@@ -58,29 +58,48 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
       { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
-  } else {
-    // ADMIN
+  } else if (isSuperAdmin) {
+    // GENERAL DIRECTOR (المدير العام: إشراف عام وتجميعي لكافة الفروع بدون تفاصيل الطلاب والتسكين)
     navItems = [
-      { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Dashboard', icon: <DashboardIcon />, section: 'main' },
+      { id: 'dashboard', label: isRtl ? 'لوحة المدير العام (الفروع)' : 'General Director Hub', icon: <DashboardIcon />, section: 'main' },
+      { id: 'branches', label: isRtl ? 'إشراف وإدارة الفروع 🏢' : 'Branches Management 🏢', icon: <span style={{ fontSize: 16 }}>🏢</span>, section: 'main' },
+      { id: 'branches-report', label: isRtl ? 'التقرير التحليلي الموحد (KPI) 📑' : 'Branches Executive Report 📑', icon: <span style={{ fontSize: 16 }}>📑</span>, section: 'main' },
       { id: 'developer-hub', label: isRtl ? 'لوحة المطور ⚡' : 'Developer Hub ⚡', icon: <span style={{ fontSize: 16 }}>⚡</span>, section: 'main', visible: Boolean(user?.isDeveloper) },
-      { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Students Directory', icon: <StudentsIcon />, section: 'management' },
-      { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, section: 'management', badge: pendingRegistrationsCount },
-      { id: 'fees', label: isRtl ? 'الرسوم وحسابات الطلاب' : 'Tuition & Fees', icon: <span style={{ fontSize: 16 }}>💰</span>, section: 'management', badge: unreadCount },
-      { id: 'users', label: isRtl ? 'المستخدمين والصلاحيات' : 'User Accounts', icon: <UsersIcon />, section: 'management' },
+      { id: 'reports', label: isRtl ? 'التحصيل والتقارير التنفيذية 📊' : 'Financial & Executive Reports 📊', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'users', label: isRtl ? 'مدراء الفروع والمستخدمين 👥' : 'Branch Directors & Users', icon: <UsersIcon />, section: 'management' },
+      { id: 'audit-logs', label: isRtl ? 'سجل الرقابة والتدقيق الأمني 🛡️' : 'Security Audit Trail', icon: <AuditLogsIcon />, section: 'system' },
+      { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
+      { id: 'settings', label: isRtl ? 'إعدادات المنظومة ⚙️' : 'System Settings', icon: <SettingsIcon />, section: 'system' }
+    ];
+  } else {
+    // BRANCH MANAGER / ADMIN (مدير الفرع: يدير الكادر والشعب والعمليات الخاصة بفرعه)
+    navItems = [
+      { id: 'dashboard', label: isRtl ? 'لوحة إشراف الفرع' : 'Branch Dashboard', icon: <DashboardIcon />, section: 'main' },
+      { id: 'developer-hub', label: isRtl ? 'لوحة المطور ⚡' : 'Developer Hub ⚡', icon: <span style={{ fontSize: 16 }}>⚡</span>, section: 'main', visible: Boolean(user?.isDeveloper) },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية' : 'Faculty Directory', icon: <TeachersIcon />, section: 'management' },
       { id: 'teacher-tracker', label: isRtl ? 'دوام المعلمين' : 'Teacher Attendance', icon: <AttendanceIcon />, section: 'management' },
       { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, section: 'management' },
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, section: 'management' },
       { id: 'academic-years', label: isRtl ? 'السنوات والتقويم' : 'Academic Years', icon: <AcademicYearIcon />, section: 'system' },
-      { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والأمان' : 'Security Audit Trail', icon: <AuditLogsIcon />, section: 'system' },
-      { id: 'reports', label: isRtl ? 'مركز التقارير' : 'Executive Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'reports', label: isRtl ? 'تقارير الفرع' : 'Branch Reports', icon: <ReportsIcon />, section: 'reports' },
+      { id: 'users', label: isRtl ? 'مستخدمي الفرع' : 'Branch Users', icon: <UsersIcon />, section: 'management' },
       { id: 'public-website', label: isRtl ? 'الموقع التعريفي العام 🌐' : 'Public Website 🌐', icon: <span style={{ fontSize: 16 }}>🌐</span>, section: 'system' },
-      { id: 'settings', label: isRtl ? 'إعدادات النظام' : 'System Settings', icon: <SettingsIcon />, section: 'system' }
+      { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, section: 'system' }
     ];
   }
 
-  const roleColor = user?.isDeveloper ? '#818cf8' : user?.role === 'ADMIN' ? '#6366f1' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
-  const roleName = user?.isDeveloper ? (isRtl ? 'المطور العام' : 'Lead Developer') : user?.role === 'ADMIN' ? (isRtl ? 'المدير العام' : 'Admin') : user?.role === 'STAFF' ? (isRtl ? 'شؤون الطلاب' : 'Staff') : (isRtl ? 'المعلم' : 'Teacher');
+  const roleColor = user?.isDeveloper ? '#818cf8' : isSuperAdmin ? '#ec4899' : isBranchManager ? '#6366f1' : user?.role === 'ADMIN' ? '#6366f1' : user?.role === 'STAFF' ? '#10b981' : '#0ea5e9';
+  const roleName = user?.isDeveloper 
+    ? (isRtl ? 'المطور العام' : 'Lead Developer')
+    : isSuperAdmin
+      ? (isRtl ? 'المدير العام (كافة الفروع)' : 'General Director (All Branches)')
+      : isBranchManager
+        ? (isRtl ? `مدير فرع: ${currentBranch?.name || 'الفرع'}` : `Branch Director: ${currentBranch?.name || 'Branch'}`)
+        : user?.role === 'ADMIN'
+          ? (isRtl ? 'المدير الإداري' : 'Admin')
+          : user?.role === 'STAFF'
+            ? (isRtl ? 'شؤون الطلاب' : 'Staff')
+            : (isRtl ? 'المعلم' : 'Teacher');
   const schoolName = isRtl ? config.schoolNameAr : config.schoolNameEn;
 
   return (

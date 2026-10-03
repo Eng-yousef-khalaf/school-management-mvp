@@ -2,16 +2,21 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../components/common/Modal';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import UserAvatar from '../../components/common/UserAvatar';
 import { compressImageFile } from '../../utils/imageCompressor';
 
 export default function AddEditStudentModal({ isOpen, onClose, student, onSaved, classes = [] }) {
   const toast = useToast();
+  const { user, isSuperAdmin } = useAuth();
   const isEdit = Boolean(student && student.id);
 
+  const [branches, setBranches] = useState([]);
   const [formData, setFormData] = useState({
     studentNumber: '',
+    nationalId: '',
+    branchId: '',
     firstName: '',
     middleName: '',
     lastName: '',
@@ -29,10 +34,21 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Load branches for Super Admin or branch assignment
+  useEffect(() => {
+    if (isOpen) {
+      api.get('/branches').then(res => {
+        if (Array.isArray(res)) setBranches(res);
+      }).catch(() => {});
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (student) {
       setFormData({
         studentNumber: student.studentNumber || '',
+        nationalId: student.nationalId || '',
+        branchId: student.branchId || student.branch?.id || user?.branchId || '',
         firstName: student.firstName || '',
         middleName: student.middleName || '',
         lastName: student.lastName || '',
@@ -49,6 +65,8 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
     } else {
       setFormData({
         studentNumber: `STU-2026-${Math.floor(100 + Math.random() * 900)}`,
+        nationalId: '',
+        branchId: user?.branchId || (branches[0]?.id || ''),
         firstName: '',
         middleName: '',
         lastName: '',
@@ -64,7 +82,7 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
       });
     }
     setError('');
-  }, [student, classes, isOpen]);
+  }, [student, classes, isOpen, user, branches]);
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -86,20 +104,29 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (formData.nationalId && String(formData.nationalId).trim()) {
+      const cleanId = String(formData.nationalId).trim();
+      if (!/^\d{9}$/.test(cleanId)) {
+        setError('رقم الهوية يجب أن يتكون من 9 أرقام بالضبط (مثال: 405123456)');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
       if (isEdit) {
         await api.put(`/students/${student.id}`, formData);
-        toast.success('Student updated successfully!');
+        toast.success('تم تحديث بيانات الطالب بنجاح!');
       } else {
         await api.post('/students', formData);
-        toast.success('Student created successfully!');
+        toast.success('تم تسجيل الطالب بنجاح وحجز هويته!');
       }
       onSaved();
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to save student');
+      setError(err.message || 'فشل في حفظ بيانات الطالب');
     } finally {
       setLoading(false);
     }
@@ -109,15 +136,15 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEdit ? `Edit Student: ${student.firstName} ${student.lastName}` : 'Add New Student'}
+      title={isEdit ? `تعديل ملف الطالب: ${student.firstName} ${student.lastName}` : 'إضافة طالب جديد للنظام'}
       size="lg"
       footer={
         <>
           <button className="btn btn-secondary" onClick={onClose} disabled={loading}>
-            Cancel
+            إلغاء
           </button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Student'}
+            {loading ? 'جاري الحفظ...' : isEdit ? 'حفظ التعديلات' : 'تسجيل وحجز الطالب'}
           </button>
         </>
       }
@@ -126,11 +153,87 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
 
       <form onSubmit={handleSubmit}>
         <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--primary)', marginBottom: 12 }}>
-          1. Student Academic Identity
+          1. الهوية الأكاديمية والرسمية للطالب
         </div>
+
+        {/* National ID & Branch Row */}
+        <div className="form-grid-2" style={{
+          background: 'rgba(99, 102, 241, 0.04)',
+          border: '1px dashed #c7d2fe',
+          padding: '14px',
+          borderRadius: '12px',
+          marginBottom: '16px'
+        }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <label className="form-label" style={{ fontWeight: 800, color: '#1e293b', marginBottom: 0 }}>
+                🪪 رقم الهوية الوطنية (9 أرقام) <span className="req">*</span>
+              </label>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 6,
+                background: formData.nationalId?.length === 9 ? '#dcfce7' : '#fef3c7',
+                color: formData.nationalId?.length === 9 ? '#15803d' : '#b45309'
+              }}>
+                {formData.nationalId?.length === 9 ? '🟢 مكتمل (9 أرقام)' : `🟡 ${formData.nationalId?.length || 0} / 9 أرقام`}
+              </span>
+            </div>
+            <input
+              type="text"
+              maxLength={9}
+              className="form-input"
+              value={formData.nationalId}
+              onChange={(e) => handleChange('nationalId', e.target.value.replace(/\D/g, ''))}
+              placeholder="مثال: 405123456"
+              style={{ fontWeight: 700, letterSpacing: '2px', fontSize: '15px' }}
+              required
+            />
+            <small style={{ fontSize: 11, color: '#64748b' }}>
+              المعرف الأساسي لمنع التكرار وحجز قيد الطالب حتى في حال تشابه الأسماء
+            </small>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label" style={{ fontWeight: 800, color: '#1e293b' }}>
+              🏫 الفرع المدرسي (School Branch)
+            </label>
+            {isSuperAdmin && branches.length > 0 ? (
+              <select
+                className="form-select"
+                value={formData.branchId}
+                onChange={(e) => handleChange('branchId', e.target.value)}
+              >
+                <option value="">-- اختر الفرع --</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.city || 'غزة'})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div style={{
+                padding: '9px 12px',
+                background: '#fff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                fontWeight: 700,
+                color: '#334155',
+                fontSize: 13
+              }}>
+                {user?.branch?.name || branches.find(b => b.id === Number(formData.branchId))?.name || 'الفرع الرئيسي'}
+              </div>
+            )}
+            <small style={{ fontSize: 11, color: '#64748b' }}>
+              الفرع التابع له قيد الطالب وكافة سجلاته
+            </small>
+          </div>
+        </div>
+
         <div className="form-grid-3">
           <div className="form-group">
-            <label className="form-label">Student Number <span className="req">*</span></label>
+            <label className="form-label">رقم القيد الأكاديمي <span className="req">*</span></label>
             <input
               type="text"
               className="form-input"
@@ -141,27 +244,27 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Status</label>
+            <label className="form-label">حالة القيد</label>
             <select
               className="form-select"
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value)}
             >
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-              <option value="GRADUATED">GRADUATED</option>
-              <option value="WITHDRAWN">WITHDRAWN</option>
+              <option value="ACTIVE">نشط (ACTIVE)</option>
+              <option value="INACTIVE">غير نشط (INACTIVE)</option>
+              <option value="GRADUATED">متخرج (GRADUATED)</option>
+              <option value="WITHDRAWN">منسحب (WITHDRAWN)</option>
             </select>
           </div>
           {!isEdit && (
             <div className="form-group">
-              <label className="form-label">Initial Class</label>
+              <label className="form-label">الصف والشعبة الأولية</label>
               <select
                 className="form-select"
                 value={formData.classId}
                 onChange={(e) => handleChange('classId', e.target.value)}
               >
-                <option value="">Select class...</option>
+                <option value="">اختر الصف...</option>
                 {classes.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name} ({c.academicYear?.name})
@@ -173,7 +276,7 @@ export default function AddEditStudentModal({ isOpen, onClose, student, onSaved,
         </div>
 
         <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--primary)', margin: '16px 0 12px' }}>
-          2. Personal Information & Photo
+          2. البيانات الشخصية والصورة الرسمية
         </div>
 
         {/* Student Photo Upload & Preview */}

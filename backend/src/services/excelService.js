@@ -11,13 +11,15 @@ function parseStudentFile(fileBuffer) {
 }
 
 async function validateStudentRows(rawRows) {
-  // Fetch existing student numbers from database
+  // Fetch existing student numbers and national IDs from database
   const existingStudents = await prisma.student.findMany({
-    select: { studentNumber: true }
+    select: { studentNumber: true, nationalId: true }
   });
   const existingDbNumbers = new Set(existingStudents.map(s => s.studentNumber.toLowerCase()));
+  const existingDbNationalIds = new Set(existingStudents.filter(s => s.nationalId).map(s => String(s.nationalId).trim()));
 
-  const seenInFile = new Set();
+  const seenInFileNumbers = new Set();
+  const seenInFileNationalIds = new Set();
   const validRows = [];
   const invalidRows = [];
   const duplicateRows = [];
@@ -27,23 +29,44 @@ async function validateStudentRows(rawRows) {
     const errors = [];
 
     const studentNumber = String(row.studentNumber || '').trim();
-    const firstName = String(row.firstName || '').trim();
-    const middleName = String(row.middleName || '').trim() || null;
-    const lastName = String(row.lastName || '').trim();
-    let gender = String(row.gender || '').trim().toUpperCase() || null;
-    const phone = String(row.phone || '').trim() || null;
-    const parentName = String(row.parentName || '').trim() || null;
-    const parentPhone = String(row.parentPhone || '').trim() || null;
-    const address = String(row.address || '').trim() || null;
+    const nationalId = String(row.nationalId || row['رقم الهوية'] || row['الهوية'] || '').trim();
+    const firstName = String(row.firstName || row['الاسم الأول'] || '').trim();
+    const middleName = String(row.middleName || row['اسم الأب'] || '').trim() || null;
+    const lastName = String(row.lastName || row['العائلة'] || row['اسم العائلة'] || '').trim();
+    let gender = String(row.gender || row['الجنس'] || '').trim().toUpperCase() || null;
+    const phone = String(row.phone || row['الهاتف'] || '').trim() || null;
+    const parentName = String(row.parentName || row['ولي الأمر'] || '').trim() || null;
+    const parentPhone = String(row.parentPhone || row['هاتف ولي الأمر'] || '').trim() || null;
+    const address = String(row.address || row['العنوان'] || '').trim() || null;
     let dateOfBirth = null;
 
     if (!studentNumber) errors.push('Missing Student Number');
     if (!firstName) errors.push('Missing First Name');
     if (!lastName) errors.push('Missing Last Name');
 
+    // Validate 9-digit Palestinian National ID
+    let isDuplicate = false;
+    if (nationalId) {
+      if (!/^\d{9}$/.test(nationalId)) {
+        errors.push(`رقم الهوية "${nationalId}" غير صحيح - يجب أن يتكون من 9 أرقام بالضبط`);
+      } else if (existingDbNationalIds.has(nationalId)) {
+        errors.push(`رقم الهوية (${nationalId}) مسجل مسبقاً في النظام لطالب آخر`);
+        isDuplicate = true;
+      } else if (seenInFileNationalIds.has(nationalId)) {
+        errors.push(`رقم الهوية (${nationalId}) مكرر داخل هذا الملف`);
+        isDuplicate = true;
+      } else {
+        seenInFileNationalIds.add(nationalId);
+      }
+    }
+
     if (gender && !['MALE', 'FEMALE', 'OTHER'].includes(gender)) {
-      errors.push(`Invalid Gender "${row.gender}". Expected MALE, FEMALE, or OTHER`);
-      gender = null;
+      if (gender === 'ذكر') gender = 'MALE';
+      else if (gender === 'أنثى' || gender === 'انثى') gender = 'FEMALE';
+      else {
+        errors.push(`Invalid Gender "${row.gender}". Expected MALE, FEMALE, or OTHER`);
+        gender = null;
+      }
     }
 
     if (row.dateOfBirth) {
@@ -56,23 +79,23 @@ async function validateStudentRows(rawRows) {
     }
 
     const lowerNum = studentNumber.toLowerCase();
-    let isDuplicate = false;
 
     if (studentNumber) {
       if (existingDbNumbers.has(lowerNum)) {
         errors.push('Student number already exists in database');
         isDuplicate = true;
-      } else if (seenInFile.has(lowerNum)) {
+      } else if (seenInFileNumbers.has(lowerNum)) {
         errors.push('Duplicate student number within this file');
         isDuplicate = true;
       } else {
-        seenInFile.add(lowerNum);
+        seenInFileNumbers.add(lowerNum);
       }
     }
 
     const processedRow = {
       rowNum,
       studentNumber,
+      nationalId: nationalId || null,
       firstName,
       middleName,
       lastName,
@@ -109,11 +132,21 @@ async function importValidatedStudents(validRows, user, req) {
   let createdCount = 0;
   const errors = [];
 
+  let branchId = null;
+  if (user?.branchId) {
+    branchId = user.branchId;
+  } else {
+    const defaultBranch = await prisma.branch.findFirst({ orderBy: { id: 'asc' } });
+    branchId = defaultBranch ? defaultBranch.id : null;
+  }
+
   for (const row of validRows) {
     try {
       await prisma.student.create({
         data: {
           studentNumber: row.studentNumber,
+          nationalId: row.nationalId || null,
+          branchId: branchId,
           firstName: row.firstName,
           middleName: row.middleName || null,
           lastName: row.lastName,

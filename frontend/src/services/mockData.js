@@ -1264,6 +1264,16 @@ export function handleMockRequest(path, options = {}) {
     const cleanEmail = (body.email || '').trim().toLowerCase();
     const cleanPassword = (body.password || '').trim();
 
+    const FIXED_PASS = 'ChangeMe123!';
+    const ALT_PASS = 'Admin123!';
+
+    // Strict password verification - Never accept arbitrary passwords!
+    if (cleanPassword !== FIXED_PASS && cleanPassword !== ALT_PASS) {
+      const err = new Error('كلمة المرور غير صحيحة. يرجى التأكد من كلمة المرور وإعادة المحاولة.');
+      err.status = 401;
+      throw err;
+    }
+
     // 1. Check Principal from Handover Pass
     const savedPrincipalInfo = typeof window !== 'undefined' ? localStorage.getItem('school_principal_info') : null;
     let principalEmail = 'admin@school.local';
@@ -1276,17 +1286,19 @@ export function handleMockRequest(path, options = {}) {
       } catch {}
     }
 
-    if (cleanEmail === principalEmail || cleanEmail === 'admin@school.local') {
+    if (cleanEmail === principalEmail || cleanEmail === 'admin@school.local' || cleanEmail === 'admin@school.com') {
       const mockUser = {
         id: 1,
         email: principalEmail,
         fullName: principalName,
-        role: 'ADMIN',
+        role: 'SUPER_ADMIN',
+        branchId: null,
+        branch: null,
         teacherId: null,
         active: true,
       };
       return {
-        token: 'auth-jwt-token-principal',
+        token: 'auth-jwt-token-super-admin',
         user: mockUser,
       };
     }
@@ -1306,6 +1318,7 @@ export function handleMockRequest(path, options = {}) {
             role: userRole,
             teacherId: userRole === 'TEACHER' ? (found.teacherId || found.id || 1) : null,
             specialty: found.specialty || null,
+            branchId: found.branchId || 1,
             active: true,
           };
           return {
@@ -1316,11 +1329,30 @@ export function handleMockRequest(path, options = {}) {
       } catch {}
     }
 
+    // Check seed accounts
+    if (cleanEmail === 'staff@school.local') {
+      return {
+        token: 'auth-jwt-token-staff',
+        user: { id: 2, email: 'staff@school.local', fullName: 'محمد (شؤون الطلاب)', role: 'STAFF', branchId: 1, active: true }
+      };
+    }
+    if (cleanEmail === 'deir@school.local') {
+      return {
+        token: 'auth-jwt-token-deir',
+        user: { id: 102, email: 'deir@school.local', fullName: 'أ. محمود حمدان (مدير فرع دير البلح)', role: 'ADMIN', branchId: 2, active: true }
+      };
+    }
+    if (cleanEmail.includes('teacher') || cleanEmail.includes('khalil')) {
+      return {
+        token: 'auth-jwt-token-teacher',
+        user: { id: 4, email: cleanEmail, fullName: 'أحمد خليل (معلم الرياضيات)', role: 'TEACHER', teacherId: 1, branchId: 1, active: true }
+      };
+    }
+
     // 3. Reject any unauthorized credentials
-    return {
-      error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة، أو لم يتم اعتماد وتسجيل هذا الحساب بعد من قبل مدير المدرسة.',
-      ok: false
-    };
+    const err = new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+    err.status = 401;
+    throw err;
   }
 
   // 2. Auth: Profile
@@ -2466,6 +2498,103 @@ export function handleMockRequest(path, options = {}) {
           'الاستمرار في تفعيل التوثيق الإلكتروني للغياب والتأخير لتحقيق نسبة التزام صفي تتجاوز 98%.'
         ]
       }
+    };
+  }
+  if (cleanPath === '/reports/branches-general') {
+    return {
+      reportTitle: 'التقرير العام الموحد لكافة فروع المؤسسة التعليمية',
+      scopeDescription: 'تقرير موحد شامل ومقارن يضم جميع فروع المؤسسة في كشف تنفيذي واحد.',
+      isSingleBranch: false,
+      generatedAt: new Date().toISOString(),
+      academicYear: '2026/2027',
+      generatedBy: 'د. المدير العام (Super Admin)',
+      privacyGovernanceNote: 'يقتصر تقرير الطلاب في هذا الكشف التنفيذي على مؤشرات الأداء الرئيسية (KPIs: نسبة النجاح، نسبة الرسوب، معدل الحضور، ومتوسط التحصيل) لكل فرع لضمان الحوكمة وسرية السجلات المحلية للطلاب.',
+      grandTotals: {
+        totalBranches: 2,
+        activeBranches: 2,
+        grandTotalStudents: 320,
+        grandGradedCount: 320,
+        grandPassedCount: 304,
+        grandFailedCount: 16,
+        grandOverallPassRate: 95,
+        grandOverallFailRate: 5,
+        grandOverallAttendanceRate: 96,
+        grandOverallGpa: 87,
+        grandTotalTeachers: 24,
+        grandActiveTeachers: 24,
+        grandTotalClasses: 12,
+        grandTotalExpected: 480000,
+        grandTotalCollected: 412000,
+        grandOverallCollectionRate: 86
+      },
+      branches: [
+        {
+          id: 1,
+          index: 1,
+          name: 'فرع غزة الرئيسي (النصر)',
+          code: 'BR-GAZA-01',
+          city: 'غزة',
+          address: 'شارع النصر - بجوار مجمع المدارس',
+          phone: '+970 8 288 1234',
+          principalName: 'أ. يوسف خلف',
+          managerEmail: 'yousef@school.local',
+          active: true,
+          teachersCount: 14,
+          activeTeachersCount: 14,
+          classesCount: 7,
+          financials: {
+            totalExpected: 300000,
+            totalCollected: 264000,
+            collectionRate: 88
+          },
+          studentKpis: {
+            totalStudents: 200,
+            maleCount: 105,
+            femaleCount: 95,
+            gradedCount: 200,
+            passedCount: 192,
+            failedCount: 8,
+            passRate: 96,
+            failRate: 4,
+            avgAttendanceRate: 97,
+            avgGpa: 88,
+            performanceLevel: 'ممتاز (Excellent)'
+          }
+        },
+        {
+          id: 2,
+          index: 2,
+          name: 'مدرسة السلام - فرع دير البلح',
+          code: 'BR-DEIR-01',
+          city: 'دير البلح',
+          address: 'دوار البركة – غرب عمارة أبو شعبان',
+          phone: '0592380871',
+          principalName: 'أ. محمود حمدان',
+          managerEmail: 'deir@school.local',
+          active: true,
+          teachersCount: 10,
+          activeTeachersCount: 10,
+          classesCount: 5,
+          financials: {
+            totalExpected: 180000,
+            totalCollected: 148000,
+            collectionRate: 82
+          },
+          studentKpis: {
+            totalStudents: 120,
+            maleCount: 62,
+            femaleCount: 58,
+            gradedCount: 120,
+            passedCount: 112,
+            failedCount: 8,
+            passRate: 93,
+            failRate: 7,
+            avgAttendanceRate: 95,
+            avgGpa: 85,
+            performanceLevel: 'ممتاز (Excellent)'
+          }
+        }
+      ]
     };
   }
 

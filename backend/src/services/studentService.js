@@ -53,10 +53,18 @@ async function getStudents({
     };
   }
 
+  // Multi-branch filtering
+  if (user?.role !== 'SUPER_ADMIN' && user?.branchId) {
+    where.branchId = user.branchId;
+  } else if (branchId && branchId !== 'ALL') {
+    where.branchId = parseInt(branchId, 10);
+  }
+
   if (q && q.trim()) {
     const searchTerm = q.trim();
     where.OR = [
       { studentNumber: { contains: searchTerm } },
+      { nationalId: { contains: searchTerm } },
       { firstName: { contains: searchTerm } },
       { middleName: { contains: searchTerm } },
       { lastName: { contains: searchTerm } },
@@ -117,6 +125,7 @@ async function getStudents({
       take,
       orderBy,
       include: {
+        branch: true,
         enrollments: {
           where: targetYearId ? { class: { academicYearId: targetYearId } } : undefined,
           include: {
@@ -137,6 +146,7 @@ async function getStudents({
     const currentEnrollment = s.enrollments[0] || null;
     return {
       ...s,
+      branchName: s.branch?.name || null,
       currentClass: currentEnrollment?.class?.name || null,
       currentClassId: currentEnrollment?.class?.id || null,
       academicYear: currentEnrollment?.class?.academicYear?.name || null
@@ -180,6 +190,7 @@ async function getStudentById(id, user) {
   const student = await prisma.student.findUnique({
     where: { id: studentId },
     include: {
+      branch: true,
       enrollments: {
         include: {
           class: {
@@ -205,6 +216,11 @@ async function getStudentById(id, user) {
   });
 
   if (!student) return null;
+
+  // Branch isolation: If user belongs to a specific branch and is not SUPER_ADMIN, deny access to other branches
+  if (user?.role !== 'SUPER_ADMIN' && user?.branchId && student.branchId && student.branchId !== user.branchId) {
+    return null;
+  }
 
   // Calculate Attendance Summary
   const allAttendance = await prisma.attendance.findMany({
@@ -280,8 +296,42 @@ async function getStudentById(id, user) {
 }
 
 async function createStudent(data, user, req) {
+  // 1. Validate 9-digit Palestinian National ID
+  let cleanNationalId = null;
+  if (data.nationalId && String(data.nationalId).trim()) {
+    cleanNationalId = String(data.nationalId).trim();
+    if (!/^\d{9}$/.test(cleanNationalId)) {
+      const err = new Error('رقم الهوية يجب أن يتكون من 9 أرقام وبشكل رقمي صحيح.');
+      err.status = 400;
+      throw err;
+    }
+    const existingWithId = await prisma.student.findUnique({
+      where: { nationalId: cleanNationalId },
+      include: { branch: true }
+    });
+    if (existingWithId) {
+      const branchText = existingWithId.branch?.name ? ` في (${existingWithId.branch.name})` : '';
+      const err = new Error(`رقم الهوية (${cleanNationalId}) مسجل مسبقاً في النظام باسم الطالب (${existingWithId.firstName} ${existingWithId.lastName})${branchText}. لا يمكن تكرار تسجيل الطالب!`);
+      err.status = 409;
+      throw err;
+    }
+  }
+
+  // 2. Assign Branch
+  let branchId = null;
+  if (data.branchId) {
+    branchId = parseInt(data.branchId, 10);
+  } else if (user?.branchId) {
+    branchId = user.branchId;
+  } else {
+    const firstBranch = await prisma.branch.findFirst({ orderBy: { id: 'asc' } });
+    branchId = firstBranch ? firstBranch.id : null;
+  }
+
   const formattedData = {
     studentNumber: data.studentNumber.trim(),
+    nationalId: cleanNationalId,
+    branchId: branchId,
     firstName: data.firstName.trim(),
     middleName: data.middleName ? data.middleName.trim() : null,
     lastName: data.lastName.trim(),
@@ -296,7 +346,8 @@ async function createStudent(data, user, req) {
   };
 
   const student = await prisma.student.create({
-    data: formattedData
+    data: formattedData,
+    include: { branch: true }
   });
 
   if (data.classId) {
@@ -314,7 +365,7 @@ async function createStudent(data, user, req) {
     action: 'CREATE_STUDENT',
     entity: 'Student',
     entityId: student.id,
-    metadata: { studentNumber: student.studentNumber, fullName: `${student.firstName} ${student.lastName}` },
+    metadata: { studentNumber: student.studentNumber, nationalId: student.nationalId, fullName: `${student.firstName} ${student.lastName}`, branchId },
     req
   });
 
@@ -338,9 +389,38 @@ async function updateStudent(id, data, user, req) {
   if (data.photoUrl !== undefined) formattedData.photoUrl = data.photoUrl ? data.photoUrl.trim() : null;
   if (data.status !== undefined) formattedData.status = data.status;
 
+  if (data.branchId !== undefined) {
+    formattedData.branchId = data.branchId ? parseInt(data.branchId, 10) : null;
+  }
+
+  if (data.nationalId !== undefined) {
+    if (data.nationalId && String(data.nationalId).trim()) {
+      const cleanNationalId = String(data.nationalId).trim();
+      if (!/^\d{9}$/.test(cleanNationalId)) {
+        const err = new Error('رقم الهوية يجب أن يتكون من 9 أرقام وبشكل رقمي صحيح.');
+        err.status = 400;
+        throw err;
+      }
+      const existingWithId = await prisma.student.findUnique({
+        where: { nationalId: cleanNationalId },
+        include: { branch: true }
+      });
+      if (existingWithId && existingWithId.id !== studentId) {
+        const branchText = existingWithId.branch?.name ? ` في (${existingWithId.branch.name})` : '';
+        const err = new Error(`رقم الهوية (${cleanNationalId}) مسجل مسبقاً في النظام باسم الطالب (${existingWithId.firstName} ${existingWithId.lastName})${branchText}. لا يمكن تكرار تسجيل الطالب!`);
+        err.status = 409;
+        throw err;
+      }
+      formattedData.nationalId = cleanNationalId;
+    } else {
+      formattedData.nationalId = null;
+    }
+  }
+
   const updated = await prisma.student.update({
     where: { id: studentId },
-    data: formattedData
+    data: formattedData,
+    include: { branch: true }
   });
 
   await logAudit({
@@ -380,10 +460,13 @@ async function getPublicStudentInquiry(identifier) {
   }
   const cleanId = identifier.trim();
 
-  // Find strictly by exact studentNumber (personal identifier) to ensure privacy
+  // Find by exact studentNumber or 9-digit nationalId
   const student = await prisma.student.findFirst({
     where: {
-      studentNumber: cleanId
+      OR: [
+        { studentNumber: cleanId },
+        { nationalId: cleanId }
+      ]
     },
     include: {
       enrollments: {

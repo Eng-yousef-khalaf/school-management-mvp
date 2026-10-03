@@ -124,22 +124,30 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   // Handover Slip State
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
   const [principalForm, setPrincipalForm] = useState({
-    fullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
-    email: 'admin@school.local',
-    password: 'ChangeMe123!',
-    photoUrl: localStorage.getItem('school_principal_photo') || ''
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    photoUrl: ''
   });
   const [isSavingPrincipal, setIsSavingPrincipal] = useState(false);
+
+  // Historical Telemetry Archive States
+  const [statsHistory, setStatsHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [snapshotLabel, setSnapshotLabel] = useState('');
+  const [isSavingSnapshot, setIsSavingSnapshot] = useState(false);
 
   const [handoverData, setHandoverData] = useState({
     schoolNameAr: config.schoolNameAr || 'روضة ومدرسة مجموعة السلام التعليمية الخاصة',
     schoolNameEn: config.schoolNameEn || 'Al-Salam Educational Group Private School & Kindergarten',
     schoolCode: config.schoolCode || 'SCH-ALSALAM-2026',
     domainUrl: window.location.origin,
-    adminFullName: localStorage.getItem('school_principal_name') || 'أ. عبد الرحمن خليل (المدير العام)',
-    adminEmail: 'admin@school.local',
-    adminPassword: 'ChangeMe123!',
-    adminPhotoUrl: localStorage.getItem('school_principal_photo') || '',
+    adminFullName: '',
+    adminEmail: '',
+    adminPhone: '',
+    adminPassword: '',
+    adminPhotoUrl: '',
   });
 
   // DB Maintenance States
@@ -150,6 +158,49 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   const [isRepairing, setIsRepairing] = useState(false);
   const [repairReport, setRepairReport] = useState(null);
   const [isCleaningSlate, setIsCleaningSlate] = useState(false);
+
+  const generatePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+    let pass = '';
+    for (let i = 0; i < 10; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setPrincipalForm(p => ({ ...p, password: pass }));
+    toast.success(isRtl ? 'تم توليد كلمة مرور قوية للمدير العام!' : 'Strong random password generated!');
+  };
+
+  const fetchStatsHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      const res = await api.get('/developer/stats-history').catch(() => null);
+      if (res?.ok && Array.isArray(res.history)) {
+        setStatsHistory(res.history);
+      }
+    } catch (err) {
+      console.warn('Failed to load stats history', err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleCreateSnapshot = async () => {
+    try {
+      setIsSavingSnapshot(true);
+      const res = await api.post('/developer/stats-history', {
+        label: snapshotLabel.trim() || 'لقطة إحصائية يدوية',
+        note: 'تم حفظها يدوياً بواسطة مهندس المنظومة'
+      });
+      if (res?.ok) {
+        toast.success(isRtl ? 'تم حفظ اللقطة الإحصائية بنجاح!' : 'Snapshot captured successfully!');
+        setSnapshotLabel('');
+        fetchStatsHistory();
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to capture snapshot');
+    } finally {
+      setIsSavingSnapshot(false);
+    }
+  };
 
   // Load telemetry & live database stats
   const fetchTelemetry = async () => {
@@ -229,12 +280,14 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           ...prev,
           fullName: res.principal.fullName,
           email: res.principal.email || prev.email,
+          phone: res.handover?.principalPhone || prev.phone,
           photoUrl: res.principal.photoUrl || prev.photoUrl || ''
         }));
         setHandoverData((prev) => ({
           ...prev,
           adminFullName: res.principal.fullName,
           adminEmail: res.principal.email || prev.adminEmail,
+          adminPhone: res.handover?.principalPhone || prev.adminPhone,
           adminPhotoUrl: res.principal.photoUrl || ''
         }));
         if (res.principal.photoUrl) {
@@ -260,6 +313,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
   useEffect(() => {
     fetchTelemetry();
     fetchPrincipal();
+    fetchStatsHistory();
   }, []);
 
   const handleSavePrincipal = async (e) => {
@@ -267,6 +321,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
     const cleanName = (principalForm?.fullName || '').trim();
     const cleanEmail = (principalForm?.email || '').trim();
     const cleanPass = (principalForm?.password || '').trim();
+    const cleanPhone = (principalForm?.phone || '').trim();
 
     if (!cleanName) {
       toast.error(isRtl ? 'يرجى إدخال اسم مدير المدرسة' : 'Principal full name is required');
@@ -278,6 +333,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         fullName: cleanName,
         email: cleanEmail,
         password: cleanPass || undefined,
+        phone: cleanPhone || undefined,
         photoUrl: principalForm?.photoUrl || null
       });
 
@@ -286,19 +342,25 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           ...prev,
           adminFullName: cleanName,
           adminEmail: cleanEmail,
+          adminPhone: cleanPhone || prev.adminPhone,
           adminPassword: cleanPass || prev.adminPassword,
           adminPhotoUrl: principalForm?.photoUrl || ''
         }));
         localStorage.setItem('school_principal_name', cleanName);
+        if (cleanPhone) localStorage.setItem('school_principal_phone', cleanPhone);
         if (principalForm.photoUrl) {
           localStorage.setItem('school_principal_photo', principalForm.photoUrl);
         }
         localStorage.setItem('school_principal_info', JSON.stringify({
           fullName: cleanName,
           email: cleanEmail,
+          phone: cleanPhone,
+          password: cleanPass,
           photoUrl: principalForm.photoUrl
         }));
 
+        fetchTelemetry();
+        fetchPrincipal();
         const curUser = sessionStorage.getItem('user');
         if (curUser) {
           try {
@@ -316,8 +378,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
         window.dispatchEvent(new Event('principal-updated'));
         toast.success(
           isRtl
-            ? `تم تثبيت بيانات وصورة المدير (${cleanName}) بنجاح! تظهر الآن في كامل أرجاء المنظومة.`
-            : `Principal details & photo (${cleanName}) saved & updated system-wide!`
+            ? `تم إنشاء وتثبيت بيانات حساب المدير العام (${cleanName}) بنجاح! يمكنك الآن تسجيل الدخول بحسابه واختبار المنظومة.`
+            : `Principal credentials (${cleanName}) saved & ready for testing!`
         );
       }
     } catch (err) {
@@ -714,15 +776,7 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           className={`btn ${activeTab === 'principal' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           style={{ fontWeight: 700 }}
         >
-          👑 {isRtl ? 'بيانات وبطاقة المدير' : 'Principal Credentials & Pass'}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('storage')}
-          className={`btn ${activeTab === 'storage' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-          style={{ fontWeight: 700 }}
-        >
-          💾 {isRtl ? 'حجم الجداول وسعة التخزين' : 'Database Storage Breakdown'}
+          👑 {isRtl ? 'إنشاء حساب المدير العام وتسليم المنظومة' : 'General Manager & Handover'}
         </button>
 
         <button
@@ -730,7 +784,23 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
           className={`btn ${activeTab === 'branding' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           style={{ fontWeight: 700 }}
         >
-          🎨 {isRtl ? 'هوية وشعار النسخة' : 'School Branding'}
+          🎨 {isRtl ? 'ألوان وهوية المنظومة' : 'Theme Colors & Branding'}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+          style={{ fontWeight: 700 }}
+        >
+          📜 {isRtl ? 'أرشيف الإحصائيات السابقة' : 'Historical Stats Archive'}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('storage')}
+          className={`btn ${activeTab === 'storage' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+          style={{ fontWeight: 700 }}
+        >
+          💾 {isRtl ? 'حجم الجداول وقاعدة البيانات' : 'Database Storage'}
         </button>
       </div>
 
@@ -1094,39 +1164,75 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   className="form-input"
                   value={principalForm.fullName}
                   onChange={(e) => setPrincipalForm({ ...principalForm, fullName: e.target.value })}
-                  placeholder="مثال: أ. عبد الرحمن خليل (المدير العام)"
+                  placeholder={isRtl ? 'اكتب الاسم واللقب الرسمي للمدير العام' : 'e.g. Dr. Ahmad (General Director)'}
                   required
                 />
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-                  {isRtl ? 'هذا الاسم سيظهر في تذييل كشوف الدرجات، الهيدر، وبطاقة الدخول الرسمية.' : 'Displayed on student grade transcripts, topbar, and official passes.'}
+                  {isRtl ? 'هذا الاسم سيظهر في لوحة المدير العام والتقارير التنفيذية.' : 'Displayed on executive dashboards and reports.'}
                 </span>
               </div>
 
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
-                  {isRtl ? 'البريد الإلكتروني المعتمد لتسجيل الدخول:' : 'Official Login Email:'}
-                </label>
-                <input
-                  type="email"
-                  className="form-input"
-                  value={principalForm.email}
-                  onChange={(e) => setPrincipalForm({ ...principalForm, email: e.target.value })}
-                  placeholder="admin@school.local"
-                  required
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
+                    {isRtl ? 'البريد الإلكتروني المعتمد لتسجيل الدخول:' : 'Official Login Email:'}
+                  </label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={principalForm.email}
+                    onChange={(e) => setPrincipalForm({ ...principalForm, email: e.target.value })}
+                    placeholder="director@school.local"
+                    required
+                  />
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                    {isRtl ? 'البريد المعتمد لحساب المدير العام (Super Admin)' : 'Authorized General Director login email'}
+                  </span>
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
+                    {isRtl ? 'رقم هاتف المدير العام (اختياري):' : 'Principal Phone Number (optional):'}
+                  </label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={principalForm.phone || ''}
+                    onChange={(e) => setPrincipalForm({ ...principalForm, phone: e.target.value })}
+                    placeholder="+970 59 000 0000"
+                  />
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                    {isRtl ? 'للتواصل الإداري الداخلي' : 'For internal administrative contact'}
+                  </span>
+                </div>
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontWeight: 800, fontSize: 13 }}>
-                  {isRtl ? 'كلمة المرور الافتراضية للتسليم:' : 'Default Handover Password:'}
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <label className="form-label" style={{ fontWeight: 800, fontSize: 13, margin: 0 }}>
+                    {isRtl ? 'كلمة المرور الخاصة بحساب المدير العام:' : 'General Director Login Password:'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={generatePassword}
+                    className="btn btn-secondary btn-sm"
+                    style={{ fontSize: 11, padding: '2px 8px', fontWeight: 700 }}
+                  >
+                    ⚡ {isRtl ? 'توليد كلمة مرور عشوائية' : 'Generate Random Password'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   className="form-input"
                   value={principalForm.password}
                   onChange={(e) => setPrincipalForm({ ...principalForm, password: e.target.value })}
-                  placeholder="ChangeMe123!"
+                  placeholder={isRtl ? 'اكتب كلمة المرور المعتمدة التي تختارها' : 'Enter your chosen password'}
+                  style={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '0.5px' }}
+                  required
                 />
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                  {isRtl ? 'سيتم تشفير هذه الكلمة بأمان وحفظها، ولن يتم قبول سواها عند تسجيل الدخول.' : 'Securely hashed with bcrypt and used for your login.'}
+                </span>
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
@@ -1137,8 +1243,8 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
                   style={{ fontWeight: 800, padding: '10px 20px', flex: 1 }}
                 >
                   {isSavingPrincipal
-                    ? (isRtl ? 'جاري التثبيت والتعميم...' : 'Saving...')
-                    : (isRtl ? '💾 حفظ وتثبيت اسم المدير في المنظومة' : 'Save & Propagate Principal')}
+                    ? (isRtl ? 'جاري إنشاء وتثبيت الحساب...' : 'Saving...')
+                    : (isRtl ? '💾 إنشاء وتثبيت حساب المدير العام في المنظومة' : 'Create & Save Principal Account')}
                 </button>
 
                 <button
@@ -1671,6 +1777,202 @@ export default function DeveloperFleetDashboard({ onNavigate }) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* TAB 4: HISTORICAL STATISTICS ARCHIVE */}
+      {activeTab === 'history' && (
+        <div className="panel" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottom: '1px solid var(--border-color)', paddingBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <h3 className="panel-title" style={{ fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>📜</span>
+                <span>{isRtl ? 'أرشيف الإحصائيات واللقطات التاريخية للمنظومة' : 'Historical Statistics & Telemetry Archive'}</span>
+              </h3>
+              <p className="panel-subtitle" style={{ margin: 0 }}>
+                {isRtl
+                  ? 'سجل موثق للإحصائيات السابقة وأعداد الطلاب والمعلمين والصفوف، محفوظ بأمان حتى بعد عمليات تصفير وتنقية قاعدة البيانات.'
+                  : 'Immutable telemetry archive documenting previous counts of students, faculty, and classes before resets.'}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={fetchStatsHistory}
+                disabled={loadingHistory}
+                style={{ fontWeight: 700 }}
+              >
+                🔄 {isRtl ? 'تحديث السجلات' : 'Refresh'}
+              </button>
+            </div>
+          </div>
+
+          {/* Manual Snapshot Creator Bar */}
+          <div style={{
+            background: 'var(--bg-main)',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 16,
+            marginBottom: 24,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <label className="form-label" style={{ fontWeight: 800, fontSize: 12, marginBottom: 4 }}>
+                {isRtl ? 'حفظ لقطة إحصائية فورية للوضع الحالي:' : 'Capture Live Statistics Snapshot:'}
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder={isRtl ? 'مثال: إحصائية نهاية الفصل الدراسي الأول ٢٠٢٦' : 'e.g. Term 1 Close Snapshot'}
+                value={snapshotLabel}
+                onChange={(e) => setSnapshotLabel(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+            </div>
+            <div style={{ alignSelf: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleCreateSnapshot}
+                disabled={isSavingSnapshot}
+                style={{ fontWeight: 800, padding: '9px 18px' }}
+              >
+                {isSavingSnapshot ? (isRtl ? 'جاري الأرشفة...' : 'Archiving...') : `📸 ${isRtl ? 'حفظ اللقطة في الأرشيف' : 'Capture Snapshot'}`}
+              </button>
+            </div>
+          </div>
+
+          {/* History List */}
+          {loadingHistory ? (
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+              <div className="spinner" style={{ margin: '0 auto 12px' }} />
+              <span>{isRtl ? 'جاري استرجاع سجلات الإحصائيات السابقة...' : 'Loading archived telemetry...'}</span>
+            </div>
+          ) : statsHistory.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: 48,
+              background: 'var(--bg-main)',
+              borderRadius: 'var(--radius-lg)',
+              border: '2px dashed var(--border-color)'
+            }}>
+              <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>📁</span>
+              <h4 style={{ margin: '0 0 6px', fontWeight: 800 }}>
+                {isRtl ? 'لا توجد لقطات إحصائية سابقة حتى الآن' : 'No snapshots found'}
+              </h4>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: 13 }}>
+                {isRtl ? 'يمكنك التقاط لقطة يدوية الآن أو سيتم إنشاؤها تلقائياً عند أي عملية تصفير.' : 'Capture a snapshot above or one will be automatically saved during clean slate.'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {statsHistory.map((item, idx) => {
+                const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString(isRtl ? 'ar-EG' : 'en-US') : 'التاريخ غير محدد';
+                const s = item.stats || {};
+                const students = s.totalStudents ?? item.studentsCount ?? 0;
+                const teachers = s.totalTeachers ?? item.teachersCount ?? 0;
+                const classes = s.totalClasses ?? item.classesCount ?? 0;
+                const records = s.totalRecords ?? item.totalRecords ?? 0;
+                const users = s.users ?? item.usersCount ?? 0;
+                const branches = s.branches ?? item.branchesCount ?? 0;
+
+                return (
+                  <div
+                    key={item.id || idx}
+                    style={{
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 20,
+                      boxShadow: 'var(--shadow-sm)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 14,
+                      position: 'relative',
+                    }}
+                  >
+                    {/* Header Row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 18 }}>📜</span>
+                          <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-main)' }}>
+                            {item.label || (isRtl ? `لقطة إحصائية #${idx + 1}` : `Snapshot #${idx + 1}`)}
+                          </h4>
+                          <span className="badge badge-info" style={{ fontSize: 11, fontWeight: 700 }}>
+                            {item.archivedBeforeCleanSlate
+                              ? (isRtl ? '🛡️ أرشيف ما قبل التصفير' : 'Pre-Wipe Snapshot')
+                              : (isRtl ? '📸 لقطة يدوية' : 'Manual Snapshot')}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>
+                          🕒 {dateStr} {item.note ? `• ${item.note}` : ''}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 800, background: 'rgba(79, 70, 229, 0.08)', padding: '4px 10px', borderRadius: 'var(--radius-full)' }}>
+                        ID: {item.id || `SNAP-${idx + 1}`}
+                      </div>
+                    </div>
+
+                    {/* Metrics Grid */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                      gap: 10,
+                      background: 'var(--bg-main)',
+                      padding: 12,
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-color)'
+                    }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>👥 {isRtl ? 'الطلاب' : 'Students'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--primary)', fontWeight: 900 }}>{students}</strong>
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>👨‍🏫 {isRtl ? 'المعلمون' : 'Teachers'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--secondary)', fontWeight: 900 }}>{teachers}</strong>
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>🏫 {isRtl ? 'الصفوف' : 'Classes'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--accent)', fontWeight: 900 }}>{classes}</strong>
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>👤 {isRtl ? 'المستخدمون' : 'Users'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--text-main)', fontWeight: 900 }}>{users}</strong>
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>🏢 {isRtl ? 'الأفرع' : 'Branches'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--warning)', fontWeight: 900 }}>{branches}</strong>
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block' }}>🗄️ {isRtl ? 'إجمالي السجلات' : 'Total Records'}</span>
+                        <strong style={{ fontSize: 18, color: 'var(--success)', fontWeight: 900 }}>{records}</strong>
+                      </div>
+                    </div>
+
+                    {/* Breakdown details if available */}
+                    {s.tables && Object.keys(s.tables).length > 0 && (
+                      <div style={{ fontSize: 11.5, color: 'var(--text-muted)', borderTop: '1px dashed var(--border-color)', paddingTop: 8 }}>
+                        <span style={{ fontWeight: 700, marginInlineEnd: 6 }}>{isRtl ? 'تفصيل الجداول المؤرشفة:' : 'Tables:'}</span>
+                        {Object.entries(s.tables).map(([tbl, cnt]) => `${tbl}: ${cnt}`).join(' • ')}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

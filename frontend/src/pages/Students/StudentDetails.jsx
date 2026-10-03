@@ -244,6 +244,12 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             </div>
             <div style={{ display: 'flex', gap: 20, color: 'var(--text-muted)', fontSize: 13, marginTop: 8, flexWrap: 'wrap' }}>
               <span><strong>{t('studentNumber')}:</strong> <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{student.studentNumber}</span></span>
+              {student.nationalId && (
+                <span style={{ color: '#0f766e', fontWeight: 800, background: '#ccfbf1', padding: '1px 8px', borderRadius: '4px' }}>
+                  <strong>🪪 {isRtl ? 'رقم الهوية الوطنية:' : 'National ID:'}</strong> <span style={{ letterSpacing: '1.5px', fontFamily: 'monospace' }}>{student.nationalId}</span>
+                </span>
+              )}
+              <span><strong>🏫 {isRtl ? 'الفرع:' : 'Branch:'}</strong> <span style={{ fontWeight: 700, color: '#334155' }}>{student.branchName || student.branch?.name || 'الفرع الرئيسي'}</span></span>
               <span><strong>{t('gender')}:</strong> {student.gender === 'MALE' ? t('male') : student.gender === 'FEMALE' ? t('female') : '—'}</span>
               <span><strong>{t('dob')}:</strong> {student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : '—'}</span>
               <span><strong>{isRtl ? 'السنة الدراسية:' : 'Academic Year:'}</strong> {student.academicYear || '2026/2027'}</span>

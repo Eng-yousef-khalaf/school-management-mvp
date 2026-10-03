@@ -33,6 +33,7 @@ const userRoutes = require('./routes/userRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const developerRoutes = require('./routes/developerRoutes');
 const feeRoutes = require('./routes/feeRoutes');
+const branchRoutes = require('./routes/branchRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 const prisma = require('./utils/prisma');
@@ -452,6 +453,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/developer', developerRoutes);
 app.use('/api/fees', feeRoutes);
+app.use('/api/branches', branchRoutes);
 
 // SPA client-side routing fallback (for all non-API paths in Express 5)
 app.use((req, res, next) => {

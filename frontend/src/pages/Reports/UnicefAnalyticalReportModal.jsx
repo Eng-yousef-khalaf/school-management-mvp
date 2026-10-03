@@ -292,66 +292,116 @@ export default function UnicefAnalyticalReportModal({ isOpen, onClose }) {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr auto 1fr',
-                    alignItems: 'center',
-                    gap: 16,
-                    background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0369a1 100%)',
+                    gridTemplateColumns: 'minmax(200px, 220px) 1fr minmax(200px, 220px)',
+                    alignItems: 'stretch',
+                    gap: 12,
+                    background: 'linear-gradient(135deg, #091e3a 0%, #10375c 50%, #0d466e 100%)',
                     borderRadius: 12,
-                    padding: '12px 18px',
+                    padding: '12px 14px',
                     color: '#ffffff',
-                    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
-                    border: 'none',
-                    margin: '4px 0 14px 0'
+                    boxShadow: '0 4px 18px rgba(9, 30, 58, 0.25)',
+                    border: '1px solid rgba(147, 197, 253, 0.25)',
+                    margin: '2px 0 14px 0',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  {/* Right: State of Palestine / Ministry Header */}
-                  <div style={{ textAlign: isRtl ? 'right' : 'left', minWidth: 150 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                  {/* Right: State of Palestine / Ministry Card */}
+                  <div
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                      border: '1px solid rgba(186, 230, 253, 0.22)',
+                      borderRadius: 10,
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginBottom: 5 }}>
                       <PalestineFlagIcon width={22} height={15} />
-                      <span style={{ fontSize: 13, fontWeight: 900, color: '#34d399', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 13.5, fontWeight: 900, color: '#34d399', letterSpacing: 0.2 }}>
                         دولة فلسطين
                       </span>
                     </div>
-                    <div style={{ fontSize: 13.5, fontWeight: 900, color: '#ffffff', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: '#ffffff', lineHeight: 1.35 }}>
                       وزارة التربية والتعليم العالي
                     </div>
-                    <div style={{ fontSize: 10.5, color: '#bae6fd', fontWeight: 700, marginTop: 2, whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 11, color: '#bae6fd', fontWeight: 700, marginTop: 4, lineHeight: 1.3 }}>
                       الإدارة العامة للتعليم والتقويم التربوي
                     </div>
                   </div>
 
-                  {/* Center: School Emblem - Natively Blended */}
-                  <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 12px' }}>
-                    <SchoolLogo size={66} />
-                    <div style={{ fontSize: 16.5, fontWeight: 900, color: '#ffffff', marginTop: 4, whiteSpace: 'nowrap', letterSpacing: -0.2 }}>
+                  {/* Center: School Emblem & Identity */}
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 8px',
+                      minWidth: 0,
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <div style={{ filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))' }}>
+                      <SchoolLogo size={58} />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15.5,
+                        fontWeight: 900,
+                        color: '#ffffff',
+                        marginTop: 5,
+                        letterSpacing: -0.2,
+                        lineHeight: 1.35,
+                        textAlign: 'center'
+                      }}
+                    >
                       {schoolName}
                     </div>
-                    <div style={{ fontSize: 10.5, color: '#bae6fd', fontWeight: 700, marginTop: 2, whiteSpace: 'nowrap' }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: '#93c5fd',
+                        fontWeight: 600,
+                        marginTop: 3,
+                        lineHeight: 1.35,
+                        textAlign: 'center'
+                      }}
+                    >
                       {schoolSlogan}
                     </div>
                   </div>
 
-                  {/* Left: UNICEF Emblem & Header */}
-                  <div style={{ textAlign: isRtl ? 'left' : 'right', minWidth: 150, display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end' }}>
-                    <div
-                      style={{
-                        display: 'inline-flex',
-                        flexDirection: 'column',
-                        alignItems: isRtl ? 'flex-start' : 'flex-end',
-                        background: 'rgba(255, 255, 255, 0.12)',
-                        border: '1.5px solid rgba(125, 211, 252, 0.6)',
-                        padding: '6px 12px',
-                        borderRadius: 8,
-                        backdropFilter: 'blur(6px)'
-                      }}
-                    >
-                      <UnicefLogo height={32} />
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#e0f2fe', marginTop: 2, whiteSpace: 'nowrap' }}>
-                        منظمة الأمم المتحدة للطفولة
-                      </div>
-                      <div style={{ fontSize: 8.5, color: '#7dd3fc', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        United Nations Children's Fund
-                      </div>
+                  {/* Left: UNICEF Card (Symmetrical & Cohesive) */}
+                  <div
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                      border: '1px solid rgba(186, 230, 253, 0.22)',
+                      borderRadius: 10,
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ marginBottom: 11, display: 'flex', justifyContent: 'center' }}>
+                      <UnicefLogo height={34} variant="image" style={{ filter: 'drop-shadow(0 2px 6px rgba(0, 174, 239, 0.35))' }} />
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#f0f9ff', lineHeight: 1.35 }}>
+                      منظمة الأمم المتحدة للطفولة
+                    </div>
+                    <div style={{ fontSize: 9.5, color: '#7dd3fc', fontWeight: 600, marginTop: 3, lineHeight: 1.25 }}>
+                      United Nations Children's Fund
                     </div>
                   </div>
                 </div>

@@ -3,13 +3,15 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const prisma = require('../utils/prisma');
 
+const { readSettings, writeSettings, saveStatsSnapshot } = require('../utils/developerSettings');
+
 // Master Developer Authentication Key
 const DEVELOPER_MASTER_KEY = process.env.DEVELOPER_MASTER_KEY || 'YOUSEF_MASTER_2026';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-32chars!';
 
 /**
  * POST /api/developer/master-auth
- * Authenticates Yousef as Lead Developer / Super Admin into this school instance
+ * Authenticates Yousef as Lead Developer / System Engineer with a dedicated independent profile
  */
 router.post('/master-auth', async (req, res) => {
   try {
@@ -19,18 +21,15 @@ router.post('/master-auth', async (req, res) => {
       return res.status(401).json({ ok: false, error: 'Invalid developer master key' });
     }
 
-    // Try finding an existing admin user, or create virtual dev user payload
-    let adminUser = await prisma.user.findFirst({
-      where: { role: 'ADMIN' },
-    });
-
+    // Dedicated Developer Profile (ID 99999) - Completely separate from School Principal / Admin!
     const devPayload = {
-      id: adminUser ? adminUser.id : 9999,
-      email: 'yousef@platform.dev',
-      fullName: 'Yousef Khalaf (Lead Developer & Platform Owner)',
+      id: 99999,
+      email: 'developer@school.local',
+      fullName: 'م. يوسف خلف (مهندس ومطور المنظومة)',
       role: 'ADMIN',
       isDeveloper: true,
       teacherId: null,
+      branchId: null,
     };
 
     const token = jwt.sign(devPayload, JWT_SECRET, { expiresIn: '24h' });
@@ -560,23 +559,156 @@ router.get('/export-backup-sql', (req, res) => {
 router.get('/export-database-snapshot', exportBackupHandler);
 
 /**
+ * GET /api/developer/branding
+ * Retrieve system branding and color palette
+ */
+router.get('/branding', (req, res) => {
+  try {
+    const settings = readSettings();
+    return res.json({ ok: true, branding: settings.branding });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/developer/branding
+ * Update system-wide branding, logo, and theme colors
+ */
+router.post('/branding', (req, res) => {
+  try {
+    const {
+      schoolNameAr,
+      schoolNameEn,
+      schoolSloganAr,
+      schoolSloganEn,
+      schoolCode,
+      logoUrl,
+      primaryColor,
+      primaryHover,
+      primaryLight,
+      primaryDark,
+      accentColor,
+      allocatedStorageMb,
+      supportEmail,
+      supportPhone
+    } = req.body;
+
+    const current = readSettings();
+    const updatedBranding = {
+      ...current.branding,
+      ...(schoolNameAr && { schoolNameAr: schoolNameAr.trim() }),
+      ...(schoolNameEn && { schoolNameEn: schoolNameEn.trim() }),
+      ...(schoolSloganAr !== undefined && { schoolSloganAr: schoolSloganAr.trim() }),
+      ...(schoolSloganEn !== undefined && { schoolSloganEn: schoolSloganEn.trim() }),
+      ...(schoolCode && { schoolCode: schoolCode.trim() }),
+      ...(logoUrl !== undefined && { logoUrl }),
+      ...(primaryColor && { primaryColor }),
+      ...(primaryHover && { primaryHover }),
+      ...(primaryLight && { primaryLight }),
+      ...(primaryDark && { primaryDark }),
+      ...(accentColor && { accentColor }),
+      ...(allocatedStorageMb && { allocatedStorageMb: Number(allocatedStorageMb) }),
+      ...(supportEmail && { supportEmail }),
+      ...(supportPhone && { supportPhone })
+    };
+
+    writeSettings({ branding: updatedBranding });
+
+    return res.json({
+      ok: true,
+      message: 'تم حفظ وتعميم ألوان وخصائص المنظومة بنجاح',
+      branding: updatedBranding
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * GET /api/developer/stats-history
+ * Retrieve historical telemetry and archived statistics snapshots
+ */
+router.get('/stats-history', (req, res) => {
+  try {
+    const settings = readSettings();
+    return res.json({ ok: true, history: settings.statsHistory || [] });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/developer/stats-history
+ * Create a manual historical statistics snapshot
+ */
+router.post('/stats-history', async (req, res) => {
+  try {
+    const { label, note } = req.body;
+    const [
+      studentsCount,
+      teachersCount,
+      classesCount,
+      enrollmentsCount,
+      attendanceCount,
+      gradesCount,
+      feesCount,
+      paymentsCount,
+      auditLogsCount
+    ] = await Promise.all([
+      prisma.student.count().catch(() => 0),
+      prisma.teacher.count().catch(() => 0),
+      prisma.schoolClass.count().catch(() => 0),
+      prisma.enrollment.count().catch(() => 0),
+      prisma.attendance.count().catch(() => 0),
+      prisma.grade.count().catch(() => 0),
+      prisma.studentFee.count().catch(() => 0),
+      prisma.payment.count().catch(() => 0),
+      prisma.auditLog.count().catch(() => 0),
+    ]);
+
+    const entry = saveStatsSnapshot({
+      label: label || 'لقطة إحصائية يدوية محفوظة',
+      note: note || '',
+      studentsCount,
+      teachersCount,
+      classesCount,
+      attendanceCount,
+      gradesCount,
+      feesCount,
+      paymentsCount,
+      auditLogsCount,
+      storageUsedMb: Number(((studentsCount * 1024 + teachersCount * 512 + attendanceCount * 256) / (1024 * 1024)).toFixed(2))
+    });
+
+    return res.json({ ok: true, message: 'تم حفظ اللقطة الإحصائية بنجاح', snapshot: entry });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
  * GET /api/developer/principal
- * Retrieve current principal / super-admin user information
+ * Retrieve current principal / super-admin user information and handover status
  */
 router.get('/principal', async (req, res) => {
   try {
     const admin = await prisma.user.findFirst({
-      where: { role: 'ADMIN' },
+      where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } },
       select: { id: true, fullName: true, email: true, role: true, photoUrl: true, createdAt: true }
     });
 
+    const settings = readSettings();
+
     return res.json({
       ok: true,
-      principal: admin || {
-        fullName: 'أ. عبد الرحمن خليل (المدير العام)',
-        email: 'admin@school.local',
-        role: 'ADMIN',
-        photoUrl: null
+      principal: admin || null,
+      handover: settings.handover || {
+        isHandedOver: false,
+        handoverDate: null,
+        principalName: '',
+        principalEmail: '',
+        principalPhone: ''
       }
     });
   } catch (err) {
@@ -590,7 +722,7 @@ router.get('/principal', async (req, res) => {
  */
 router.post('/update-principal', async (req, res) => {
   try {
-    const { fullName, email, password, photoUrl } = req.body;
+    const { fullName, email, password, photoUrl, phone } = req.body;
     if (!fullName || !fullName.trim()) {
       return res.status(400).json({ ok: false, error: 'Principal name is required' });
     }
@@ -600,12 +732,15 @@ router.post('/update-principal', async (req, res) => {
     const bcrypt = require('bcryptjs');
 
     let admin = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
+      where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] }, branchId: null }
     });
 
     const updateData = {
       fullName: cleanName,
-      email: cleanEmail
+      email: cleanEmail,
+      role: 'SUPER_ADMIN',
+      branchId: null,
+      active: true
     };
 
     if (photoUrl !== undefined) {
@@ -613,7 +748,7 @@ router.post('/update-principal', async (req, res) => {
     }
 
     if (password && password.trim()) {
-      updateData.passwordHash = await bcrypt.hash(password.trim(), 12);
+      updateData.passwordHash = await bcrypt.hash(password.trim(), 10);
     }
 
     if (admin) {
@@ -622,22 +757,37 @@ router.post('/update-principal', async (req, res) => {
         data: updateData
       });
     } else {
-      const passwordHash = await bcrypt.hash(password?.trim() || 'ChangeMe123!', 12);
+      if (!password || !password.trim()) {
+        return res.status(400).json({ ok: false, error: 'يرجى إدخال كلمة المرور المعتمدة لحساب المدير العام.' });
+      }
+      const passwordHash = await bcrypt.hash(password.trim(), 10);
       admin = await prisma.user.create({
         data: {
           fullName: cleanName,
           email: cleanEmail,
           passwordHash,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
+          branchId: null,
           photoUrl: photoUrl || null,
           active: true
         }
       });
     }
 
+    // Save Handover record
+    writeSettings({
+      handover: {
+        isHandedOver: true,
+        handoverDate: new Date().toISOString(),
+        principalName: cleanName,
+        principalEmail: cleanEmail,
+        principalPhone: phone || ''
+      }
+    });
+
     return res.json({
       ok: true,
-      message: 'Principal details updated successfully',
+      message: 'تم تعيين وتثبيت حساب المدير العام بنجاح',
       principal: {
         id: admin.id,
         fullName: admin.fullName,
@@ -653,14 +803,51 @@ router.post('/update-principal', async (req, res) => {
 
 /**
  * POST /api/developer/clean-slate
- * Wipes all dummy/demo data from the active database (Postgres or SQLite),
- * preserving ONLY the Admin/Principal account and setting up Academic Year 2026/2027.
+ * Wipes all dummy/demo data from the active database, archiving previous statistics,
+ * invalidating all mock accounts and passwords, and creating the single real General Manager account.
  */
 router.post('/clean-slate', async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
 
-    // 1. Delete dependent transactional records
+    // 0. Archive historical statistics BEFORE wipe so developer can view past stats!
+    const [
+      preStudents,
+      preTeachers,
+      preClasses,
+      preEnrollments,
+      preAttendance,
+      preGrades,
+      preFees,
+      prePayments,
+      preAuditLogs
+    ] = await Promise.all([
+      prisma.student?.count().catch(() => 0),
+      prisma.teacher?.count().catch(() => 0),
+      prisma.schoolClass?.count().catch(() => 0),
+      prisma.enrollment?.count().catch(() => 0),
+      prisma.attendance?.count().catch(() => 0),
+      prisma.grade?.count().catch(() => 0),
+      prisma.studentFee?.count().catch(() => 0),
+      prisma.payment?.count().catch(() => 0),
+      prisma.auditLog?.count().catch(() => 0)
+    ]);
+
+    saveStatsSnapshot({
+      label: 'إحصائيات ما قبل تصفير المنظومة والتسليم الرسمي',
+      note: 'تم حفظ هذه اللقطة آلياً قبل حذف كافة البيانات الوهمية وإلغاء الحسابات السابقة لتسليم المدرسة الحقيقية.',
+      studentsCount: preStudents,
+      teachersCount: preTeachers,
+      classesCount: preClasses,
+      attendanceCount: preAttendance,
+      gradesCount: preGrades,
+      feesCount: preFees,
+      paymentsCount: prePayments,
+      auditLogsCount: preAuditLogs,
+      storageUsedMb: Number(((preStudents * 1024 + preTeachers * 512 + preAttendance * 256) / (1024 * 1024)).toFixed(2))
+    });
+
+    // 1. Delete dependent transactional records & all entities
     await prisma.payment?.deleteMany({}).catch(() => {});
     await prisma.studentFee?.deleteMany({}).catch(() => {});
     await prisma.grade?.deleteMany({}).catch(() => {});
@@ -673,41 +860,27 @@ router.post('/clean-slate', async (req, res) => {
     await prisma.subject?.deleteMany({}).catch(() => {});
     await prisma.teacher?.deleteMany({}).catch(() => {});
     await prisma.auditLog?.deleteMany({}).catch(() => {});
+    await prisma.onlineRegistration?.deleteMany({}).catch(() => {});
 
-    // 2. Delete non-admin users (staff & demo teachers)
-    await prisma.user?.deleteMany({
-      where: {
-        role: { not: 'ADMIN' }
-      }
-    }).catch(() => {});
+    // 2. Wipe ALL users and ALL branches completely
+    await prisma.user?.deleteMany({}).catch(() => {});
+    await prisma.branch?.deleteMany({}).catch(() => {});
 
-    // 3. Ensure Single Admin (Principal) is preserved / updated
-    const principalName = req.body?.principalName?.trim() || 'أ. عبد الرحمن خليل (المدير العام)';
-    const principalEmail = req.body?.principalEmail?.trim()?.toLowerCase() || 'admin@school.local';
-    const principalPassword = req.body?.principalPassword?.trim() || 'ChangeMe123!';
-    const passwordHash = await bcrypt.hash(principalPassword, 12);
+    // 3. Establish General Director account if provided
+    let admin = null;
+    const principalName = req.body?.principalName?.trim();
+    const principalEmail = req.body?.principalEmail?.trim()?.toLowerCase();
+    const principalPassword = req.body?.principalPassword?.trim();
 
-    let admin = await prisma.user.findFirst({
-      where: { role: 'ADMIN' }
-    });
-
-    if (admin) {
-      admin = await prisma.user.update({
-        where: { id: admin.id },
-        data: {
-          fullName: principalName,
-          email: principalEmail,
-          passwordHash,
-          active: true
-        }
-      });
-    } else {
+    if (principalName && principalEmail && principalPassword) {
+      const passwordHash = await bcrypt.hash(principalPassword, 10);
       admin = await prisma.user.create({
         data: {
           fullName: principalName,
           email: principalEmail,
           passwordHash,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
+          branchId: null,
           active: true
         }
       });
@@ -724,19 +897,37 @@ router.post('/clean-slate', async (req, res) => {
       }
     });
 
+    // 5. Update Handover Dossier
+    writeSettings({
+      handover: {
+        isHandedOver: Boolean(admin),
+        handoverDate: admin ? new Date().toISOString() : null,
+        principalName: principalName || '',
+        principalEmail: principalEmail || '',
+        principalPhone: req.body?.principalPhone || ''
+      }
+    });
+
     return res.json({
       ok: true,
-      message: 'تم تصفير المنظومة بنجاح تام! قاعدة البيانات الآن نقية 100% وجاهزة للمدرسة الحقيقية بدون أي طلاب أو معلمين وهميين.',
-      principal: {
+      message: 'تم تصفير المنظومة بنجاح تام! تم حذف كافة البيانات الوهمية والفروع السابقة، وتأسيس النظام النقي بنجاح.',
+      principal: admin ? {
+        id: admin.id,
         fullName: admin.fullName,
         email: admin.email,
         role: admin.role
-      },
+      } : null,
       academicYear: year2026.name,
       stats: {
         studentsCount: 0,
         teachersCount: 0,
         classesCount: 0
+      },
+      archivedPreviousStats: {
+        studentsCount: preStudents,
+        teachersCount: preTeachers,
+        classesCount: preClasses,
+        recordsCount: preStudents + preTeachers + preClasses + preAttendance + preGrades
       }
     });
   } catch (error) {

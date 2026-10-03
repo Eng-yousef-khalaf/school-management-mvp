@@ -58,7 +58,8 @@ export function NotificationProvider({ children }) {
 
   const prevNoticeIdsRef = useRef(new Set());
   const prevRegIdsRef = useRef(new Set());
-  const canReceiveAlerts = user?.role === 'STAFF' || user?.role === 'ADMIN' || user?.isDeveloper;
+  // Strictly STAFF (شؤون الطلاب) receives operational alerts for student transfers & registrations; neither the General Director nor Branch Managers receive them
+  const canReceiveAlerts = user?.role === 'STAFF';
 
   const fetchNotices = useCallback(async () => {
     if (!canReceiveAlerts) {

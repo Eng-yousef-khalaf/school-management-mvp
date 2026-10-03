@@ -1,0 +1,87 @@
+{
+  "branding": {
+    "schoolNameAr": "روضة ومدرسة مجموعة السلام التعليمية الخاصة",
+    "schoolNameEn": "Al-Salam Educational Group Private School & Kindergarten",
+    "schoolSloganAr": "البيئة التعليمية النموذجية الأولى في فلسطين - خبرة 25 عاماً من الإبداع والتميز",
+    "schoolSloganEn": "Palestine's Premier Model Educational Environment - 25 Years of Excellence",
+    "schoolCode": "SCH-ALSALAM-2026",
+    "logoUrl": "/school-logo.png",
+    "primaryColor": "#166534",
+    "primaryHover": "#14532d",
+    "primaryLight": "#dcfce7",
+    "primaryDark": "#052e16",
+    "accentColor": "#f59e0b",
+    "allocatedStorageMb": 500,
+    "supportEmail": "info@alsalam-school.edu.ps",
+    "supportPhone": "+970 59 312 4444"
+  },
+  "statsHistory": [
+    {
+      "id": "snapshot-1791034444566",
+      "timestamp": "2026-10-03T13:34:04.566Z",
+      "label": "أرشيف ما قبل التصفير الشامل وحذف الأفرع والحسابات التجريبية",
+      "studentsCount": 0,
+      "teachersCount": 0,
+      "classesCount": 0,
+      "attendanceCount": 0,
+      "gradesCount": 0,
+      "feesCount": 0,
+      "paymentsCount": 0,
+      "auditLogsCount": 4,
+      "storageUsedMb": 0,
+      "note": "تم أرشفة: 0 طالب، 0 معلم، 0 صف، 1 فرع، 2 حساب قبل التصفير للبدء بحساب مدير عام جديد."
+    },
+    {
+      "id": "snapshot-1791027505918",
+      "timestamp": "2026-10-03T11:38:25.918Z",
+      "label": "أرشيف ما قبل التصفير الشامل وحذف الأفرع والحسابات التجريبية",
+      "studentsCount": 0,
+      "teachersCount": 0,
+      "classesCount": 0,
+      "attendanceCount": 0,
+      "gradesCount": 0,
+      "feesCount": 0,
+      "paymentsCount": 0,
+      "auditLogsCount": 0,
+      "storageUsedMb": 0,
+      "note": "تم أرشفة: 0 طالب، 0 معلم، 0 صف، 0 فرع، 0 حساب قبل التصفير للبدء بحساب مدير عام جديد."
+    },
+    {
+      "id": "snapshot-1791024789388",
+      "timestamp": "2026-10-03T10:53:09.388Z",
+      "label": "أرشيف ما قبل التصفير الشامل وحذف الأفرع والحسابات التجريبية",
+      "studentsCount": 46,
+      "teachersCount": 10,
+      "classesCount": 5,
+      "attendanceCount": 120,
+      "gradesCount": 360,
+      "feesCount": 0,
+      "paymentsCount": 0,
+      "auditLogsCount": 12,
+      "storageUsedMb": 0.08,
+      "note": "تم أرشفة: 46 طالب، 10 معلم، 5 صف، 3 فرع، 15 حساب قبل التصفير للبدء بحساب مدير عام جديد."
+    },
+    {
+      "id": "initial-demo-snapshot",
+      "timestamp": "2026-10-01T12:00:00.000Z",
+      "label": "النسخة التجريبية الأولية قبل الإفراغ والتسليم",
+      "studentsCount": 120,
+      "teachersCount": 14,
+      "classesCount": 8,
+      "attendanceCount": 450,
+      "gradesCount": 320,
+      "feesCount": 120,
+      "paymentsCount": 85,
+      "auditLogsCount": 230,
+      "storageUsedMb": 1.45,
+      "note": "بيانات المحاكاة والتدريب التجريبية السابقة قبل التسليم الرسمي للمدير العام"
+    }
+  ],
+  "handover": {
+    "isHandedOver": false,
+    "handoverDate": null,
+    "principalName": "",
+    "principalEmail": "",
+    "principalPhone": ""
+  }
+}

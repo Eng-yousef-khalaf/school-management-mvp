@@ -120,6 +120,43 @@ async function getExecutiveAnalyticalReport(req, res, next) {
   }
 }
 
+/**
+ * Consolidated Multi-Branch General Report (Super Admin / General Director)
+ * Displays KPI statistics for all branches (or single branch if only 1 exists)
+ * Privacy & Governance: Student data is strictly aggregated as Pass Rate & Fail Rate KPIs per branch.
+ */
+async function getBranchesGeneralReport(req, res, next) {
+  try {
+    const data = await reportService.getBranchesGeneralReport();
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Export Multi-Sheet Official Excel for Consolidated Branches General Report
+ */
+async function exportBranchesGeneralReport(req, res, next) {
+  try {
+    const { summaryRows, branchKpiRows } = await reportService.getBranchesGeneralReportExcelData();
+
+    const sheets = [
+      { name: 'المؤشرات العامة الموحدة', data: summaryRows },
+      { name: 'مؤشرات الفروع والطلاب KPI', data: branchKpiRows }
+    ];
+
+    const buffer = excelService.generateMultiSheetExcelBuffer(sheets);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `Consolidated_Branches_General_Report_${dateStr}.xlsx`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').send(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getStudentReport,
   getDemographics,
@@ -128,5 +165,8 @@ module.exports = {
   exportStudentReport,
   exportTeacherWorkload,
   exportUnifiedMinistryReport,
-  getExecutiveAnalyticalReport
+  getExecutiveAnalyticalReport,
+  getBranchesGeneralReport,
+  exportBranchesGeneralReport
 };
+

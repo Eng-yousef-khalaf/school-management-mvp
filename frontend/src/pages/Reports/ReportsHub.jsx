@@ -12,7 +12,7 @@ import { DownloadIcon, StudentsIcon, TeachersIcon, AttendanceIcon, GradesIcon } 
 
 export default function ReportsHub({ onNavigate }) {
   const toast = useToast();
-  const { isAdmin, isStaff, canManageStudents } = useAuth();
+  const { isAdmin, isStaff, canManageStudents, isSuperAdmin } = useAuth();
   const { isRtl } = useLanguage();
 
   const [demographics, setDemographics] = useState(null);
@@ -191,6 +191,33 @@ export default function ReportsHub({ onNavigate }) {
 
         {/* Report Categories Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12, marginBottom: 20 }}>
+          {/* Executive: Multi-Branch KPI Analytical Report */}
+          {(isAdmin || isSuperAdmin) && (
+            <div className="panel" style={{ padding: '16px 18px', border: '1.5px solid rgba(6, 95, 70, 0.4)', background: 'rgba(6, 95, 70, 0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div className="stat-icon" style={{ fontSize: 20, width: 34, height: 34, background: '#d1fae5', color: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
+                  🏢
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 14.5, fontWeight: 800, color: '#065f46', margin: 0 }}>
+                    {isRtl ? 'التقرير التحليلي التنفيذي الموحد (KPI الفروع)' : 'Consolidated Branches KPI Report'}
+                  </h3>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                    {isRtl ? 'مكان مخصص وشامل لمؤشرات أداء الفروع، نسب النجاح والرسوب، والتحصيل المالي' : 'Dedicated executive workspace for branch metrics, pass/fail rates & financials'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => onNavigate && onNavigate('branches-report')}
+                  style={{ background: '#065f46', borderColor: '#065f46', padding: '7px 14px', fontSize: 12.5, fontWeight: 800 }}
+                >
+                  📑 {isRtl ? 'فتح التقرير التحليلي الكامل' : 'Open Full Executive Report'}
+                </button>
+              </div>
+            </div>
+          )}
           {/* Staff & Admin: Bulk Certificates */}
           <div className="panel" style={{ padding: '14px 16px', border: '1.5px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>

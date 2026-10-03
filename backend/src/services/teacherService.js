@@ -37,6 +37,11 @@ async function getTeachers({
     where.specialty = { contains: specialty, mode: 'insensitive' };
   }
 
+  // Branch isolation
+  if (user?.role !== 'SUPER_ADMIN' && user?.branchId) {
+    where.branchId = user.branchId;
+  }
+
   const orderBy = [];
   if (sortBy === 'employeeNo') {
     orderBy.push({ employeeNo: sortOrder });
@@ -157,6 +162,16 @@ async function getTeacherById(id) {
 }
 
 async function createTeacher(data, user, req) {
+  let branchId = null;
+  if (data.branchId) {
+    branchId = parseInt(data.branchId, 10);
+  } else if (user?.branchId) {
+    branchId = user.branchId;
+  } else {
+    const firstBranch = await prisma.branch.findFirst({ orderBy: { id: 'asc' } });
+    branchId = firstBranch ? firstBranch.id : null;
+  }
+
   const formatted = {
     employeeNo: data.employeeNo.trim(),
     firstName: data.firstName.trim(),
@@ -165,7 +180,8 @@ async function createTeacher(data, user, req) {
     email: data.email ? data.email.trim().toLowerCase() : null,
     specialty: data.specialty ? data.specialty.trim() : null,
     photoUrl: data.photoUrl ? data.photoUrl.trim() : (data.avatar || null),
-    active: data.active !== undefined ? Boolean(data.active) : true
+    active: data.active !== undefined ? Boolean(data.active) : true,
+    branchId: branchId
   };
 
   const teacher = await prisma.teacher.create({

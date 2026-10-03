@@ -15,6 +15,8 @@ model User {
   role         String     @default("STAFF")
   photoUrl     String?
   active       Boolean    @default(true)
+  branchId     Int?
+  branch       Branch?    @relation(fields: [branchId], references: [id], onDelete: SetNull)
   teacherId    Int?       @unique
   teacher      Teacher?   @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   auditLogs    AuditLog[]
@@ -24,6 +26,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([branchId])
 }
 
 model AcademicYear {
@@ -48,6 +51,8 @@ model SchoolClass {
   section        String?
   academicYearId Int
   academicYear   AcademicYear          @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  branchId       Int?
+  branch         Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
   enrollments    Enrollment[]
   teacherLinks   TeacherClassSubject[]
   attendance     Attendance[]
@@ -58,11 +63,13 @@ model SchoolClass {
   @@unique([name, academicYearId])
   @@index([academicYearId])
   @@index([grade])
+  @@index([branchId])
 }
 
 model Student {
   id            Int          @id @default(autoincrement())
   studentNumber String       @unique
+  nationalId    String?      @unique
   firstName     String
   middleName    String?
   lastName      String
@@ -74,6 +81,8 @@ model Student {
   address       String?
   photoUrl      String?
   status        String       @default("ACTIVE")
+  branchId      Int?
+  branch        Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
   enrollments   Enrollment[]
   attendance    Attendance[]
   grades        Grade[]
@@ -83,6 +92,8 @@ model Student {
   updatedAt     DateTime     @updatedAt
 
   @@index([studentNumber])
+  @@index([nationalId])
+  @@index([branchId])
   @@index([lastName, firstName])
   @@index([firstName])
   @@index([lastName])
@@ -100,6 +111,8 @@ model Teacher {
   specialty    String?
   photoUrl     String?
   active       Boolean               @default(true)
+  branchId     Int?
+  branch       Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
   user         User?
   teacherLinks TeacherClassSubject[]
   attendance   TeacherAttendance[]
@@ -107,6 +120,7 @@ model Teacher {
   updatedAt    DateTime              @updatedAt
 
   @@index([employeeNo])
+  @@index([branchId])
   @@index([lastName, firstName])
   @@index([firstName])
   @@index([lastName])
@@ -310,6 +324,8 @@ model OnlineRegistration {
   currency             String   @default("NIS")
   status               String   @default("PENDING_APPROVAL")
   approvedStudentId    Int?
+  branchId             Int?
+  branch               Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
   notes                String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
@@ -317,6 +333,28 @@ model OnlineRegistration {
   @@index([status])
   @@index([registrationNumber])
   @@index([parentPhone])
+  @@index([branchId])
   @@index([createdAt])
+}
+
+model Branch {
+  id            Int                  @id @default(autoincrement())
+  name          String               @unique
+  code          String               @unique
+  city          String?
+  address       String?
+  phone         String?
+  principalName String?
+  active        Boolean              @default(true)
+  users         User[]
+  students      Student[]
+  teachers      Teacher[]
+  classes       SchoolClass[]
+  registrations OnlineRegistration[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([code])
+  @@index([active])
 }
 

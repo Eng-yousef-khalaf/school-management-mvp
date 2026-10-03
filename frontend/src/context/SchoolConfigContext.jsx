@@ -50,12 +50,17 @@ export function SchoolConfigProvider({ children }) {
     };
   });
 
-  // Dynamically inject the school's primary color into CSS root variables and listen for multi-tab updates
+  // Dynamically inject the school's primary color palette into CSS root variables and listen for multi-tab updates
   useEffect(() => {
     if (config.primaryColor) {
       document.documentElement.style.setProperty('--primary', config.primaryColor);
       document.documentElement.style.setProperty('--primary-hover', config.primaryHover || config.primaryColor);
-      document.documentElement.style.setProperty('--primary-light', `${config.primaryColor}15`);
+      document.documentElement.style.setProperty('--primary-light', config.primaryLight || `${config.primaryColor}18`);
+      document.documentElement.style.setProperty('--primary-dark', config.primaryDark || config.primaryHover || config.primaryColor);
+      document.documentElement.style.setProperty('--primary-subtle', `${config.primaryColor}0c`);
+      if (config.accentColor) {
+        document.documentElement.style.setProperty('--secondary', config.accentColor);
+      }
     }
 
     const handleStorageChange = () => {
@@ -70,9 +75,27 @@ export function SchoolConfigProvider({ children }) {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [config.primaryColor, config.primaryHover]);
+  }, [config.primaryColor, config.primaryHover, config.primaryLight, config.primaryDark, config.accentColor]);
 
-  // Update branding helper and persist to localStorage
+  // Initial fetch from backend branding endpoint
+  useEffect(() => {
+    fetch('/api/developer/branding')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.ok && data?.branding) {
+          setConfig(prev => {
+            const merged = { ...prev, ...data.branding };
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Update branding helper and persist to localStorage & backend
   const updateSchoolBranding = (newValues) => {
     setConfig((prev) => {
       const updated = { ...prev, ...newValues };
@@ -84,6 +107,13 @@ export function SchoolConfigProvider({ children }) {
       }
       return updated;
     });
+
+    // Proactively persist to backend API
+    fetch('/api/developer/branding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newValues)
+    }).catch(() => {});
   };
 
   // Update any school configuration settings

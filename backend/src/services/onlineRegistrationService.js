@@ -156,10 +156,28 @@ async function approveRegistration(id, { classId, studentNumber } = {}, user, re
 
   const finalStudentNumber = studentNumber || `STU-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
+  // Validate and assign nationalId
+  let cleanNationalId = null;
+  if (reg.nationalId && String(reg.nationalId).trim()) {
+    cleanNationalId = String(reg.nationalId).trim();
+    const existing = await prisma.student.findUnique({
+      where: { nationalId: cleanNationalId },
+      include: { branch: true }
+    });
+    if (existing) {
+      const branchText = existing.branch?.name ? ` في (${existing.branch.name})` : '';
+      const err = new Error(`رقم الهوية (${cleanNationalId}) مسجل مسبقاً في النظام باسم الطالب (${existing.firstName} ${existing.lastName})${branchText}. لا يمكن تكرار تسجيل الطالب!`);
+      err.status = 409;
+      throw err;
+    }
+  }
+
   // Create Student in Database
   const createdStudent = await prisma.student.create({
     data: {
       studentNumber: finalStudentNumber,
+      nationalId: cleanNationalId,
+      branchId: reg.branchId || user?.branchId || null,
       firstName,
       middleName,
       lastName,
