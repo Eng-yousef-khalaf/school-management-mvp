@@ -731,15 +731,21 @@ router.post('/update-principal', async (req, res) => {
     const cleanEmail = email ? email.trim().toLowerCase() : 'admin@school.local';
     const bcrypt = require('bcryptjs');
 
-    let admin = await prisma.user.findFirst({
-      where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] }, branchId: null }
-    });
+    let admin = null;
+    try {
+      admin = await prisma.user.findFirst({
+        where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] }, branchId: null }
+      });
+    } catch (e) {
+      admin = await prisma.user.findFirst({
+        where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } }
+      });
+    }
 
     const updateData = {
       fullName: cleanName,
       email: cleanEmail,
       role: 'SUPER_ADMIN',
-      branchId: null,
       active: true
     };
 
@@ -752,26 +758,46 @@ router.post('/update-principal', async (req, res) => {
     }
 
     if (admin) {
-      admin = await prisma.user.update({
-        where: { id: admin.id },
-        data: updateData
-      });
+      try {
+        admin = await prisma.user.update({
+          where: { id: admin.id },
+          data: { ...updateData, branchId: null }
+        });
+      } catch (e) {
+        admin = await prisma.user.update({
+          where: { id: admin.id },
+          data: updateData
+        });
+      }
     } else {
       if (!password || !password.trim()) {
         return res.status(400).json({ ok: false, error: 'يرجى إدخال كلمة المرور المعتمدة لحساب المدير العام.' });
       }
       const passwordHash = await bcrypt.hash(password.trim(), 10);
-      admin = await prisma.user.create({
-        data: {
-          fullName: cleanName,
-          email: cleanEmail,
-          passwordHash,
-          role: 'SUPER_ADMIN',
-          branchId: null,
-          photoUrl: photoUrl || null,
-          active: true
-        }
-      });
+      try {
+        admin = await prisma.user.create({
+          data: {
+            fullName: cleanName,
+            email: cleanEmail,
+            passwordHash,
+            role: 'SUPER_ADMIN',
+            branchId: null,
+            photoUrl: photoUrl || null,
+            active: true
+          }
+        });
+      } catch (e) {
+        admin = await prisma.user.create({
+          data: {
+            fullName: cleanName,
+            email: cleanEmail,
+            passwordHash,
+            role: 'SUPER_ADMIN',
+            photoUrl: photoUrl || null,
+            active: true
+          }
+        });
+      }
     }
 
     // Save Handover record
@@ -874,16 +900,28 @@ router.post('/clean-slate', async (req, res) => {
 
     if (principalName && principalEmail && principalPassword) {
       const passwordHash = await bcrypt.hash(principalPassword, 10);
-      admin = await prisma.user.create({
-        data: {
-          fullName: principalName,
-          email: principalEmail,
-          passwordHash,
-          role: 'SUPER_ADMIN',
-          branchId: null,
-          active: true
-        }
-      });
+      try {
+        admin = await prisma.user.create({
+          data: {
+            fullName: principalName,
+            email: principalEmail,
+            passwordHash,
+            role: 'SUPER_ADMIN',
+            branchId: null,
+            active: true
+          }
+        });
+      } catch (e) {
+        admin = await prisma.user.create({
+          data: {
+            fullName: principalName,
+            email: principalEmail,
+            passwordHash,
+            role: 'SUPER_ADMIN',
+            active: true
+          }
+        });
+      }
     }
 
     // 4. Ensure clean starting Academic Year 2026/2027

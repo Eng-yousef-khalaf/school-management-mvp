@@ -78,10 +78,10 @@
     }
   ],
   "handover": {
-    "isHandedOver": false,
-    "handoverDate": null,
-    "principalName": "",
-    "principalEmail": "",
-    "principalPhone": ""
+    "isHandedOver": true,
+    "handoverDate": "2026-10-03T13:48:50.376Z",
+    "principalName": "د. إبراهيم المدير العام",
+    "principalEmail": "super@school.local",
+    "principalPhone": "⁦+968 7947 4677⁩"
   }
 }
