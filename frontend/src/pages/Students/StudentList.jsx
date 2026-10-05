@@ -309,7 +309,7 @@ export default function StudentList({ onViewStudent, onNavigate }) {
             ))}
           </select>
 
-          <div style={{ display: 'flex', gap: 8, marginInlineStart: 'auto' }}>
+          <div className="toolbar-actions" style={{ display: 'flex', gap: 8, marginInlineStart: 'auto', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary btn-sm" onClick={handleExport} title={t('exportExcel')}>
               <DownloadIcon /> {t('exportExcel')}
             </button>

@@ -18,16 +18,18 @@ export default function LanguageSwitcher({ className = '', style = {} }) {
         border: '1px solid rgba(79, 70, 229, 0.2)',
         borderRadius: 'var(--radius-md)',
         padding: '6px 12px',
-        fontSize: '13px',
-        fontWeight: '600',
+        fontSize: '12.5px',
+        fontWeight: '700',
         cursor: 'pointer',
         transition: 'var(--transition)',
+        flexShrink: 0,
         ...style
       }}
       title={language === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
     >
-      <span style={{ fontSize: '15px' }}>🌐</span>
-      <span>{language === 'ar' ? 'English' : 'العربية'}</span>
+      <span style={{ fontSize: '15px', lineHeight: 1 }}>🌐</span>
+      <span className="lang-text-full">{language === 'ar' ? 'English' : 'العربية'}</span>
+      <span className="lang-text-abbr">{language === 'ar' ? 'EN' : 'AR'}</span>
     </button>
   );
 }

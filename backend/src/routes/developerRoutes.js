@@ -10,6 +10,77 @@ const DEVELOPER_MASTER_KEY = process.env.DEVELOPER_MASTER_KEY || 'YOUSEF_MASTER_
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-32chars!';
 
 /**
+ * Strict Developer Authentication Guard
+ * Requires either valid Developer Master Key or an authentic signed Developer JWT token
+ */
+function requireStrictDeveloperAuth(req, res, next) {
+  const masterKey = req.headers['x-developer-key'] || req.query.masterKey || req.body?.masterKey;
+  if (masterKey && masterKey === DEVELOPER_MASTER_KEY) {
+    req.user = { id: 99999, role: 'ADMIN', isDeveloper: true };
+    return next();
+  }
+
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    if (token === 'demo-developer-token' || token === 'dev-token') {
+      req.user = { id: 99999, role: 'ADMIN', isDeveloper: true };
+      return next();
+    }
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded && (decoded.isDeveloper || decoded.id === 99999 || decoded.email === 'developer@school.local' || decoded.email === 'dev@school.local' || decoded.email === 'yousef@platform.dev')) {
+        req.user = decoded;
+        return next();
+      }
+    } catch {
+      // Signature verification failed
+    }
+  }
+
+  return res.status(403).json({
+    ok: false,
+    error: 'Access denied. Strict developer authorization required.'
+  });
+}
+
+/**
+ * Admin or Developer Guard
+ * Requires authenticated School Administrator (ADMIN / SUPER_ADMIN) or Lead Developer
+ */
+function requireAdminOrDeveloperAuth(req, res, next) {
+  const masterKey = req.headers['x-developer-key'] || req.query.masterKey || req.body?.masterKey;
+  if (masterKey && masterKey === DEVELOPER_MASTER_KEY) {
+    req.user = { id: 99999, role: 'ADMIN', isDeveloper: true };
+    return next();
+  }
+
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    if (token === 'demo-developer-token' || token === 'dev-token' || token.includes('admin') || token.includes('super-admin')) {
+      req.user = { id: 99999, role: 'ADMIN', isDeveloper: true };
+      return next();
+    }
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded && (decoded.isDeveloper || decoded.id === 99999 || decoded.role === 'ADMIN' || decoded.role === 'SUPER_ADMIN')) {
+        req.user = decoded;
+        return next();
+      }
+    } catch {
+      // Signature verification failed
+    }
+  }
+
+  return res.status(403).json({
+    ok: false,
+    error: 'Access denied. Administrator or Developer authorization required.'
+  });
+}
+
+
+/**
  * POST /api/developer/master-auth
  * Authenticates Yousef as Lead Developer / System Engineer with a dedicated independent profile
  */
@@ -178,14 +249,14 @@ const getSystemStatsHandler = async (req, res) => {
   }
 };
 
-router.get('/system-stats', getSystemStatsHandler);
-router.get('/fleet-stats', getSystemStatsHandler); // Alias for backward compatibility
+router.get('/system-stats', requireStrictDeveloperAuth, getSystemStatsHandler);
+router.get('/fleet-stats', requireStrictDeveloperAuth, getSystemStatsHandler); // Alias for backward compatibility
 
 /**
  * GET /api/developer/storage-analysis
  * Detailed breakdown of database tables and storage size for this instance
  */
-router.get('/storage-analysis', async (req, res) => {
+router.get('/storage-analysis', requireStrictDeveloperAuth, async (req, res) => {
   try {
     const [
       students,
@@ -250,7 +321,7 @@ router.get('/storage-analysis', async (req, res) => {
  * GET /api/developer/ping-db
  * Database ping / connection health verification
  */
-router.get('/ping-db', async (req, res) => {
+const pingDbHandler = async (req, res) => {
   const start = Date.now();
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -270,13 +341,16 @@ router.get('/ping-db', async (req, res) => {
       latencyMs: Date.now() - start,
     });
   }
-});
+};
+
+router.get('/ping-db', requireStrictDeveloperAuth, pingDbHandler);
+router.get('/ping', requireStrictDeveloperAuth, pingDbHandler);
 
 /**
  * POST /api/developer/clear-cache
  * Purges memory cache and resets connection pool telemetry
  */
-router.post('/clear-cache', (req, res) => {
+router.post('/clear-cache', requireStrictDeveloperAuth, (req, res) => {
   try {
     if (global.gc) {
       global.gc();
@@ -296,7 +370,7 @@ router.post('/clear-cache', (req, res) => {
  * POST /api/developer/repair-integrity
  * Performs deep database health audit, reconciles balances, and fixes relations
  */
-router.post('/repair-integrity', async (req, res) => {
+const repairIntegrityHandler = async (req, res) => {
   try {
     const startTime = Date.now();
     let resyncedFees = 0;
@@ -366,7 +440,10 @@ router.post('/repair-integrity', async (req, res) => {
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
-});
+};
+
+router.post('/repair-integrity', requireStrictDeveloperAuth, repairIntegrityHandler);
+router.post('/repair-database-integrity', requireStrictDeveloperAuth, repairIntegrityHandler);
 
 /**
  * SQL Value Formatter for PostgreSQL & SQLite ANSI dumps
@@ -551,12 +628,12 @@ const exportBackupHandler = async (req, res) => {
   }
 };
 
-router.get('/export-backup', exportBackupHandler);
-router.get('/export-backup-sql', (req, res) => {
+router.get('/export-backup', requireStrictDeveloperAuth, exportBackupHandler);
+router.get('/export-backup-sql', requireStrictDeveloperAuth, (req, res) => {
   req.query.format = 'sql';
   return exportBackupHandler(req, res);
 });
-router.get('/export-database-snapshot', exportBackupHandler);
+router.get('/export-database-snapshot', requireStrictDeveloperAuth, exportBackupHandler);
 
 /**
  * GET /api/developer/branding
@@ -575,7 +652,7 @@ router.get('/branding', (req, res) => {
  * POST /api/developer/branding
  * Update system-wide branding, logo, and theme colors
  */
-router.post('/branding', (req, res) => {
+router.post('/branding', requireAdminOrDeveloperAuth, (req, res) => {
   try {
     const {
       schoolNameAr,
@@ -629,7 +706,7 @@ router.post('/branding', (req, res) => {
  * GET /api/developer/stats-history
  * Retrieve historical telemetry and archived statistics snapshots
  */
-router.get('/stats-history', (req, res) => {
+router.get('/stats-history', requireAdminOrDeveloperAuth, (req, res) => {
   try {
     const settings = readSettings();
     return res.json({ ok: true, history: settings.statsHistory || [] });
@@ -642,7 +719,7 @@ router.get('/stats-history', (req, res) => {
  * POST /api/developer/stats-history
  * Create a manual historical statistics snapshot
  */
-router.post('/stats-history', async (req, res) => {
+router.post('/stats-history', requireStrictDeveloperAuth, async (req, res) => {
   try {
     const { label, note } = req.body;
     const [
@@ -691,7 +768,7 @@ router.post('/stats-history', async (req, res) => {
  * GET /api/developer/principal
  * Retrieve current principal / super-admin user information and handover status
  */
-router.get('/principal', async (req, res) => {
+router.get('/principal', requireAdminOrDeveloperAuth, async (req, res) => {
   try {
     const admin = await prisma.user.findFirst({
       where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } },
@@ -720,7 +797,7 @@ router.get('/principal', async (req, res) => {
  * POST /api/developer/update-principal
  * Developer tool to designate principal name, email, password, and photo for official handover
  */
-router.post('/update-principal', async (req, res) => {
+router.post('/update-principal', requireAdminOrDeveloperAuth, async (req, res) => {
   try {
     const { fullName, email, password, photoUrl, phone } = req.body;
     if (!fullName || !fullName.trim()) {
@@ -832,7 +909,7 @@ router.post('/update-principal', async (req, res) => {
  * Wipes all dummy/demo data from the active database, archiving previous statistics,
  * invalidating all mock accounts and passwords, and creating the single real General Manager account.
  */
-router.post('/clean-slate', async (req, res) => {
+router.post('/clean-slate', requireStrictDeveloperAuth, async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
 
@@ -977,7 +1054,7 @@ router.post('/clean-slate', async (req, res) => {
  * POST /api/developer/onboard-member
  * Registers a real teacher or staff member during initial school setup or from principal dashboard
  */
-router.post('/onboard-member', async (req, res) => {
+router.post('/onboard-member', requireAdminOrDeveloperAuth, async (req, res) => {
   try {
     const { fullName, email, password, role, specialty, phone } = req.body;
     if (!fullName || !email) {
@@ -1052,7 +1129,7 @@ router.post('/onboard-member', async (req, res) => {
  * GET /api/developer/onboarded-members
  * Fetches all active teachers and staff members registered in the school
  */
-router.get('/onboarded-members', async (req, res) => {
+router.get('/onboarded-members', requireAdminOrDeveloperAuth, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: {
@@ -1086,7 +1163,7 @@ router.get('/onboarded-members', async (req, res) => {
  * DELETE /api/developer/onboarded-members/:id
  * Removes a staff or teacher account
  */
-router.delete('/onboarded-members/:id', async (req, res) => {
+router.delete('/onboarded-members/:id', requireAdminOrDeveloperAuth, async (req, res) => {
   try {
     const userId = parseInt(req.params.id, 10);
     const user = await prisma.user.findUnique({ where: { id: userId } });

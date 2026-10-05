@@ -174,27 +174,27 @@ export default function AttendanceSheet({ initialClassId }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           
           {/* Controls: Date and Class */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', flex: '1 1 auto' }}>
+            <div style={{ flex: '1 1 150px', minWidth: 140 }}>
               <label className="form-label">
                 📅 {t('selectDate')}
               </label>
               <input
                 type="date"
                 className="form-input"
-                style={{ width: 170, fontWeight: 700 }}
+                style={{ width: '100%', fontWeight: 700 }}
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
             </div>
 
-            <div>
+            <div style={{ flex: '1 1 200px', minWidth: 180 }}>
               <label className="form-label">
                 🏫 {t('selectClass')}
               </label>
               <select
                 className="form-select"
-                style={{ width: 220, fontWeight: 700 }}
+                style={{ width: '100%', fontWeight: 700 }}
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
               >

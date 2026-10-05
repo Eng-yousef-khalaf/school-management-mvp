@@ -68,7 +68,10 @@ export function SchoolConfigProvider({ children }) {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          setConfig(prev => ({ ...prev, ...parsed }));
+          setConfig(prev => {
+            const isDifferent = Object.keys(parsed).some(k => prev[k] !== parsed[k]);
+            return isDifferent ? { ...prev, ...parsed } : prev;
+          });
         }
       } catch {}
     };

@@ -89,13 +89,14 @@ export function NotificationProvider({ children }) {
       const newlyArrived = list.find(n => !prevNoticeIdsRef.current.has(n.id) && !dismissedIds.includes(n.id));
 
       if (newlyArrived) {
-        setActivePopupNotice({ ...newlyArrived, noticeType: 'PAYMENT' });
+        setActivePopupNotice(prev => (prev?.id === newlyArrived.id ? prev : { ...newlyArrived, noticeType: 'PAYMENT' }));
         playChimeSound();
-      } else if (list.length > 0 && !activePopupNotice) {
-        const firstUndismissed = list.find(n => !dismissedIds.includes(n.id));
-        if (firstUndismissed) {
-          setActivePopupNotice({ ...firstUndismissed, noticeType: 'PAYMENT' });
-        }
+      } else if (list.length > 0) {
+        setActivePopupNotice(prev => {
+          if (prev) return prev;
+          const firstUndismissed = list.find(n => !dismissedIds.includes(n.id));
+          return firstUndismissed ? { ...firstUndismissed, noticeType: 'PAYMENT' } : null;
+        });
       }
 
       prevNoticeIdsRef.current = currentIds;
@@ -125,11 +126,14 @@ export function NotificationProvider({ children }) {
         return !prevRegIdsRef.current.has(idKey) && !dismissedIds.includes(idKey);
       });
 
-      if (newlyArrivedReg && !activePopupNotice) {
-        setActivePopupNotice({
-          ...newlyArrivedReg,
-          id: newlyArrivedReg.registrationNumber || newlyArrivedReg.id,
-          noticeType: 'REGISTRATION'
+      if (newlyArrivedReg) {
+        setActivePopupNotice(prev => {
+          if (prev) return prev;
+          return {
+            ...newlyArrivedReg,
+            id: newlyArrivedReg.registrationNumber || newlyArrivedReg.id,
+            noticeType: 'REGISTRATION'
+          };
         });
         playChimeSound();
       }
@@ -138,7 +142,7 @@ export function NotificationProvider({ children }) {
     } catch (err) {
       console.warn('Error fetching online registrations:', err);
     }
-  }, [canReceiveAlerts, dismissedIds, activePopupNotice]);
+  }, [canReceiveAlerts, dismissedIds]);
 
   useEffect(() => {
     fetchNotices();
@@ -155,15 +159,24 @@ export function NotificationProvider({ children }) {
     window.addEventListener('storage', handleSync);
     window.addEventListener('payment_notice_updated', handleSync);
     window.addEventListener('new_student_registration', handleSync);
-    document.addEventListener('visibilitychange', () => {
+    
+    const handleVisibility = () => {
       if (document.visibilityState === 'visible') fetchNotices();
-    });
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    const timer = setInterval(fetchNotices, 4000);
+    // Controlled 15s polling to avoid locking the UI main thread
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchNotices();
+      }
+    }, 15000);
+
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('payment_notice_updated', handleSync);
       window.removeEventListener('new_student_registration', handleSync);
+      document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(timer);
     };
   }, [canReceiveAlerts, fetchNotices]);

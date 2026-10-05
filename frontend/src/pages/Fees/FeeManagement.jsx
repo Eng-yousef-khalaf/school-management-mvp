@@ -97,17 +97,19 @@ export default function FeeManagement() {
 
     window.addEventListener('storage', handleSync);
     window.addEventListener('payment_notice_updated', handleSync);
-    document.addEventListener('visibilitychange', handleSync);
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    // Auto-poll every 4 seconds for fresh notices
+    // Controlled 20s polling when document is visible
     const intervalId = setInterval(() => {
-      loadFeesData(true);
-    }, 4000);
+      if (document.visibilityState === 'visible') {
+        loadFeesData(true);
+      }
+    }, 20000);
 
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('payment_notice_updated', handleSync);
-      document.removeEventListener('visibilitychange', handleSync);
+      document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(intervalId);
     };
   }, [loadFeesData]);

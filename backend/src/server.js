@@ -479,6 +479,14 @@ if (process.env.NODE_ENV !== 'test') {
       process.exit(0);
     });
   });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Backend Server] Unhandled Promise Rejection at:', promise, 'reason:', reason);
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('[Backend Server] Uncaught Exception:', err);
+  });
 }
 
 module.exports = app;

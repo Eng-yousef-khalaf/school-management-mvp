@@ -163,7 +163,7 @@ export default function TeacherList({ onViewTeacher }) {
             }}
           />
 
-          <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', flexWrap: 'wrap' }}>
+          <div className="toolbar-actions" style={{ display: 'flex', gap: 8, marginInlineStart: 'auto', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary btn-sm" onClick={handleExport} title="Export to Excel">
               <DownloadIcon /> Export Excel
             </button>

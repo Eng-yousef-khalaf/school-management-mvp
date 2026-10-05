@@ -48,27 +48,19 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
       <div className="topbar-left">
         <button
           onClick={onToggleSidebar}
-          style={{
-            display: 'none',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 8,
-            color: 'var(--text-main)'
-          }}
           className="mobile-menu-btn"
           aria-label="Toggle Menu"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" x2="21" y1="6" y2="6" />
-            <line x1="3" x2="21" y1="12" y2="12" />
-            <line x1="3" x2="21" y1="18" y2="18" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
 
         <div className="topbar-title">
           <h1>{pageTitle}</h1>
-          {pageSubtitle && <p>{pageSubtitle}</p>}
+          {pageSubtitle && <p className="topbar-subtitle">{pageSubtitle}</p>}
         </div>
       </div>
 
@@ -76,80 +68,42 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
       <div className="topbar-right">
         {/* Academic Year Pill */}
         {activeYear && (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: isArchiveView ? 'var(--warning-light)' : 'var(--primary-light)',
-            color: isArchiveView ? 'var(--warning-text)' : 'var(--primary-dark)',
-            border: `1px solid ${isArchiveView ? 'var(--warning-border)' : 'rgba(79, 70, 229, 0.2)'}`,
-            padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '12px',
-            fontWeight: 700
-          }}>
+          <div
+            className={`topbar-pill topbar-year-pill ${isArchiveView ? 'archive' : 'active'}`}
+            title={isArchiveView ? (isRtl ? 'عرض الأرشيف' : 'Archive Inspection') : (isRtl ? 'العام الدراسي النشط' : 'Active Academic Year')}
+          >
             <AcademicYearIcon />
-            <span>{activeYear.name}</span>
-            {isArchiveView && <span style={{ fontSize: 10, opacity: 0.8 }}>({isRtl ? 'أرشيف' : 'Archive'})</span>}
+            <span className="year-pill-text">{activeYear.name}</span>
+            {isArchiveView && <span className="year-pill-tag">({isRtl ? 'أرشيف' : 'Archive'})</span>}
           </div>
         )}
 
         {/* Branch Context Pill */}
         {user?.branch ? (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: '#ecfdf5',
-            color: '#065f46',
-            border: '1px solid #a7f3d0',
-            padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '12px',
-            fontWeight: 800
-          }}>
+          <div
+            className="topbar-pill topbar-branch-pill"
+            title={isRtl ? `فرع: ${user.branch.name}` : `Branch: ${user.branch.name}`}
+          >
             <span>🏫</span>
-            <span>{user.branch.name}</span>
+            <span className="branch-pill-text">{user.branch.name}</span>
           </div>
         ) : isGeneralDirector ? (
           <button
             type="button"
             onClick={() => onNavigate && onNavigate('branches')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: '#eff6ff',
-              color: '#1e40af',
-              border: '1px solid #bfdbfe',
-              padding: '5px 12px',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '12px',
-              fontWeight: 800,
-              cursor: 'pointer'
-            }}
+            className="topbar-pill topbar-branch-pill director-pill"
             title={isRtl ? 'عرض لوحة تحكم الفروع والمدير العام' : 'View General Director Branches Hub'}
           >
             <span>🏢</span>
-            <span>{isRtl ? 'المدير العام (إشراف كافة الفروع)' : 'General Director (All Branches)'}</span>
+            <span className="branch-pill-text">{isRtl ? 'المدير العام' : 'General Director'}</span>
           </button>
         ) : null}
 
         {/* User Profile Chip with Avatar */}
         <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 9,
-            background: 'var(--bg-main)',
-            border: '1px solid var(--border-color)',
-            padding: isRtl ? '3px 10px 3px 5px' : '3px 5px 3px 10px',
-            borderRadius: 'var(--radius-full)',
-            cursor: 'pointer',
-            transition: 'var(--transition)'
-          }}
+          className="topbar-user-chip"
           onClick={() => onNavigate && onNavigate('settings')}
-          title={isRtl ? 'الملف الشخصي وإعدادات الحساب' : 'Account & Profile Settings'}
+          title={isRtl ? `الملف الشخصي (${user?.fullName || 'المستخدم'})` : `Account Profile (${user?.fullName || 'User'})`}
         >
           <UserAvatar
             src={user?.photoUrl || user?.teacher?.photoUrl}
@@ -158,11 +112,11 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
             size={32}
             showRoleBadge={false}
           />
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-main)' }}>
+          <div className="topbar-user-info">
+            <span className="user-name-text">
               {user?.fullName || 'User'}
             </span>
-            <span style={{ fontSize: 10, color: roleColor, fontWeight: 700 }}>
+            <span className="user-role-text" style={{ color: roleColor }}>
               {roleName}
             </span>
           </div>
@@ -173,20 +127,7 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
         <div style={{ position: 'relative' }} ref={notifDropdownRef}>
           <button
             onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
-            style={{
-              background: 'var(--bg-main)',
-              border: '1px solid var(--border-color)',
-              width: 38,
-              height: 38,
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              position: 'relative',
-              color: 'var(--text-main)',
-              transition: 'var(--transition)'
-            }}
+            className="topbar-icon-btn"
             aria-label="Notifications"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -194,23 +135,7 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
             {unreadCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: -4,
-                right: isRtl ? 'auto' : -4,
-                left: isRtl ? -4 : 'auto',
-                background: '#ef4444',
-                color: '#ffffff',
-                fontSize: 10,
-                fontWeight: 900,
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 5px rgba(239, 68, 68, 0.4)'
-              }}>
+              <span className="topbar-badge-count">
                 {unreadCount}
               </span>
             )}
@@ -219,19 +144,8 @@ export default function Header({ pageTitle, pageSubtitle, onToggleSidebar, onNav
           {/* Dropdown Box */}
           {isNotifDropdownOpen && (
             <div
+              className="notifications-dropdown-menu"
               style={{
-                position: 'absolute',
-                top: 'calc(100% + 10px)',
-                width: 350,
-                right: isRtl ? 'auto' : 0,
-                left: isRtl ? 0 : 'auto',
-                background: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: 14,
-                boxShadow: '0 20px 35px -5px rgba(15, 23, 42, 0.3), 0 10px 15px -5px rgba(15, 23, 42, 0.15)',
-                zIndex: 10000,
-                overflow: 'hidden',
-                animation: 'slideInPopup 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                 direction: isRtl ? 'rtl' : 'ltr'
               }}
             >

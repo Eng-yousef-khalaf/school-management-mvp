@@ -319,11 +319,12 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         </div>
 
         {/* Tab Navigation - Hidden during print */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
+        <div className="tabs-scrollable" style={{ display: 'flex', gap: 8, marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-color)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4 }}>
           <button
             type="button"
             className={`btn ${activeTab === 'overview' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('overview')}
+            style={{ flexShrink: 0 }}
           >
             📋 {isRtl ? 'بيانات ولي الأمر والتواصل' : 'Guardian & Contact Info'}
           </button>
@@ -331,6 +332,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             type="button"
             className={`btn ${activeTab === 'grades' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('grades')}
+            style={{ flexShrink: 0 }}
           >
             📊 {isRtl ? 'كشف الدرجات والتقييمات' : 'Grades & Academic Transcript'}
           </button>
@@ -338,6 +340,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             type="button"
             className={`btn ${activeTab === 'attendance' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('attendance')}
+            style={{ flexShrink: 0 }}
           >
             📅 {isRtl ? 'سجل الحضور والغياب' : 'Attendance Records'}
           </button>
@@ -345,6 +348,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             type="button"
             className={`btn ${activeTab === 'fees' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('fees')}
+            style={{ flexShrink: 0 }}
           >
             💰 {isRtl ? 'الرسوم والأقساط والمقبوضات' : 'Fees & Ledger'}
           </button>
@@ -352,7 +356,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
             type="button"
             className={`btn ${activeTab === 'statement' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('statement')}
-            style={{ marginLeft: isRtl ? '0' : 'auto', marginRight: isRtl ? 'auto' : '0' }}
+            style={{ flexShrink: 0, marginLeft: isRtl ? '0' : 'auto', marginRight: isRtl ? 'auto' : '0' }}
           >
             🖨️ {isRtl ? 'معاينة إفادة ولي الأمر الرسمية' : 'Official Statement Preview'}
           </button>
@@ -361,7 +365,7 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
 
       {/* TAB 1: Overview & Guardian Contact */}
       {activeTab === 'overview' && (
-        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 24 }}>
+        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16, marginBottom: 24 }}>
           {/* Guardian Information Card */}
           <div className="panel" style={{ padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, borderBottom: '1px solid var(--border-color)', paddingBottom: 10 }}>

@@ -239,9 +239,9 @@ export default function GeneralDirectorDashboard({ onNavigate }) {
       {/* Global Executive KPIs Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: '18px',
-        marginBottom: '28px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+        gap: '16px',
+        marginBottom: '24px'
       }}>
         {/* KPI 1: Branches Count */}
         <div className="panel" style={{ padding: '22px 24px', borderTop: '4px solid #10b981' }}>
@@ -347,9 +347,9 @@ export default function GeneralDirectorDashboard({ onNavigate }) {
       {/* Branches Cards Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+        gap: '18px',
+        marginBottom: '28px'
       }}>
         {stats?.branches?.map((branch) => (
           <div

@@ -177,7 +177,7 @@ export default function GradeEntry() {
 
       {/* Grade Entry Controls */}
       <div className="panel" style={{ padding: '20px 24px', marginBottom: 20 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, alignItems: 'flex-end' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 16, alignItems: 'flex-end' }}>
           <div>
             <label className="form-label">{isRtl ? 'الصف والشعبة' : 'Class Section'}</label>
             <select

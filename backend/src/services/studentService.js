@@ -9,6 +9,7 @@ async function getStudents({
   gender,
   classId,
   academicYearId,
+  branchId,
   sortBy = 'lastName',
   sortOrder = 'asc'
 }, user) {

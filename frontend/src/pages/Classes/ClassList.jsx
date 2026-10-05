@@ -61,7 +61,7 @@ export default function ClassList({ onViewClass }) {
           {isStaff && !isArchiveView && (
             <button
               className="btn btn-primary btn-sm"
-              style={{ marginLeft: 'auto' }}
+              style={{ marginInlineStart: 'auto' }}
               onClick={() => {
                 setEditingClass(null);
                 setIsAddModalOpen(true);

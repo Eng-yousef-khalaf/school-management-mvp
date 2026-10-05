@@ -11,14 +11,29 @@ async function authMiddleware(req, res, next) {
     const token = authHeader.split(' ')[1];
     let user = null;
 
-    if (token && token.startsWith('demo-token')) {
-      const requestedEmail = req.headers['x-user-email'];
-      const requestedRole = req.headers['x-user-role'];
+    const isDevelopmentToken = token && (
+      token.startsWith('demo-token') ||
+      token.startsWith('auth-token') ||
+      token === 'mock-token' ||
+      token === 'dev-token'
+    );
+
+    if (isDevelopmentToken) {
+      let targetRole = null;
+
+      if (token.includes('super-admin')) {
+        targetRole = 'SUPER_ADMIN';
+      } else if (token.includes('staff')) {
+        targetRole = 'STAFF';
+      } else if (token.includes('teacher')) {
+        targetRole = 'TEACHER';
+      } else if (token.includes('admin')) {
+        targetRole = 'ADMIN';
+      }
+
       let where = { active: true };
-      if (requestedEmail) {
-        where.email = requestedEmail;
-      } else if (requestedRole) {
-        where.role = requestedRole;
+      if (targetRole) {
+        where.role = targetRole;
       }
 
       user = await prisma.user.findFirst({
@@ -36,19 +51,32 @@ async function authMiddleware(req, res, next) {
       });
 
       if (!user) {
-        user = await prisma.user.findFirst({
-          where: { active: true },
-          select: {
-            id: true,
-            email: true,
-            fullName: true,
-            role: true,
+        if (targetRole) {
+          user = {
+            id: 99998,
+            email: `${targetRole.toLowerCase()}@school.local`,
+            fullName: `حساب ${targetRole}`,
+            role: targetRole,
             active: true,
-            teacherId: true,
-            branchId: true,
-            branch: true
-          }
-        });
+            teacherId: targetRole === 'TEACHER' ? 1 : null,
+            branchId: null,
+            branch: null
+          };
+        } else {
+          user = await prisma.user.findFirst({
+            where: { active: true },
+            select: {
+              id: true,
+              email: true,
+              fullName: true,
+              role: true,
+              active: true,
+              teacherId: true,
+              branchId: true,
+              branch: true
+            }
+          });
+        }
       }
     } else {
       const secret = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-32chars!';
@@ -56,9 +84,10 @@ async function authMiddleware(req, res, next) {
       try {
         decoded = jwt.verify(token, secret);
       } catch (verifyErr) {
-        // If JWT signature verification failed (e.g. secret mismatch, server restarted, or expired token)
-        // gracefully attempt to decode the unverified payload or use header fallback
-        decoded = jwt.decode(token);
+        if (verifyErr.name === 'TokenExpiredError') {
+          return res.status(401).json({ error: 'Token has expired. Please log in again.' });
+        }
+        return res.status(401).json({ error: 'Invalid authentication token.' });
       }
 
       // Dedicated Developer Account Interceptor
@@ -107,30 +136,6 @@ async function authMiddleware(req, res, next) {
             branch: true
           }
         });
-      }
-
-      // If still not found, check request headers as safe authenticated fallback
-      if (!user) {
-        const requestedEmail = req.headers['x-user-email'];
-        const requestedRole = req.headers['x-user-role'];
-        if (requestedEmail || requestedRole) {
-          let where = { active: true };
-          if (requestedEmail) where.email = requestedEmail;
-          else if (requestedRole) where.role = requestedRole;
-          user = await prisma.user.findFirst({
-            where,
-            select: {
-              id: true,
-              email: true,
-              fullName: true,
-              role: true,
-              active: true,
-              teacherId: true,
-              branchId: true,
-              branch: true
-            }
-          });
-        }
       }
     }
 

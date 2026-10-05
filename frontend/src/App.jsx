@@ -44,7 +44,7 @@ import JothoorPublicWebsite from './pages/Public/JothoorPublicWebsite';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 export default function App() {
-  const { user, loading, isAdmin, isStaff, isTeacher, isSuperAdmin, switchPortalRole, logout } = useAuth();
+  const { user, loading, isAdmin, isStaff, isTeacher, isSuperAdmin, logout } = useAuth();
   const { t, isRtl } = useLanguage();
 
   const [showLoginScreen, setShowLoginScreen] = useState(() => {
@@ -136,16 +136,127 @@ export default function App() {
     'public-website'
   ]);
 
+  const isPageAllowedForUser = (page, currentUser) => {
+    if (!currentUser) return true;
+    if (currentUser.isDeveloper || currentUser.role === 'DEVELOPER') return true;
+
+    const role = currentUser.role;
+    const isSuper = role === 'SUPER_ADMIN' || (!currentUser.branchId && role === 'ADMIN');
+
+    if (isSuper) {
+      // General Director: Multi-branch supervision & executive dashboard
+      const allowed = new Set([
+        'dashboard',
+        'branches',
+        'branches-report',
+        'reports',
+        'users',
+        'audit-logs',
+        'settings',
+        'public-website',
+        'classes',
+        'class-details',
+        'subjects',
+        'academic-years'
+      ]);
+      return allowed.has(page);
+    }
+
+    if (role === 'ADMIN') {
+      // Branch Manager: Administers single branch
+      const allowed = new Set([
+        'dashboard',
+        'students',
+        'student-details',
+        'teachers',
+        'teacher-details',
+        'teacher-tracker',
+        'classes',
+        'class-details',
+        'subjects',
+        'academic-years',
+        'enrollment',
+        'attendance',
+        'attendance-reports',
+        'grades',
+        'grade-reports',
+        'reports',
+        'fees',
+        'users',
+        'audit-logs',
+        'settings',
+        'public-website'
+      ]);
+      return allowed.has(page);
+    }
+
+    if (role === 'STAFF') {
+      // Staff (Student Affairs)
+      const allowed = new Set([
+        'dashboard',
+        'students',
+        'student-details',
+        'teachers',
+        'teacher-details',
+        'teacher-tracker',
+        'classes',
+        'class-details',
+        'subjects',
+        'academic-years',
+        'enrollment',
+        'attendance',
+        'attendance-reports',
+        'grades',
+        'grade-reports',
+        'reports',
+        'fees',
+        'settings',
+        'public-website'
+      ]);
+      return allowed.has(page);
+    }
+
+    if (role === 'TEACHER') {
+      // Teacher: Only assigned classes, roster, attendance, grades, subjects, profile
+      const allowed = new Set([
+        'dashboard',
+        'students',
+        'student-details',
+        'classes',
+        'class-details',
+        'subjects',
+        'attendance',
+        'attendance-reports',
+        'grades',
+        'grade-reports',
+        'settings',
+        'public-website'
+      ]);
+      return allowed.has(page);
+    }
+
+    return page === 'dashboard';
+  };
+
   const getPageFromUrl = () => {
     if (typeof window === 'undefined') return 'dashboard';
     const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0].toLowerCase();
-    if (VALID_PAGES.has(hash)) return hash;
+    if (VALID_PAGES.has(hash)) {
+      if (user && !isPageAllowedForUser(hash, user)) return 'dashboard';
+      return hash;
+    }
 
     const path = window.location.pathname.replace(/^\//, '').split('/')[0].toLowerCase();
-    if (VALID_PAGES.has(path)) return path;
+    if (VALID_PAGES.has(path)) {
+      if (user && !isPageAllowedForUser(path, user)) return 'dashboard';
+      return path;
+    }
 
     const saved = sessionStorage.getItem('current_page');
-    if (saved && VALID_PAGES.has(saved)) return saved;
+    if (saved && VALID_PAGES.has(saved)) {
+      if (user && !isPageAllowedForUser(saved, user)) return 'dashboard';
+      return saved;
+    }
 
     return 'dashboard';
   };
@@ -183,7 +294,7 @@ export default function App() {
     }
   }, [user]);
 
-  // Auto-switch role or detect developer/parent portal and sync routes
+  // Synchronize route and enforce strict role boundaries on popstate / hashchange
   useEffect(() => {
     const handleUrlRoute = () => {
       const search = window.location.search.toLowerCase();
@@ -231,14 +342,15 @@ export default function App() {
         search.includes('studentid=');
 
       const isDev =
-        path.includes('developer-hub') ||
-        path.includes('dev-hub') ||
-        hash.includes('developer') ||
-        hash.includes('dev-hub') ||
-        hash.includes('dev') ||
-        search.includes('portal=dev') ||
-        search.includes('portal=developer') ||
-        search.includes('role=dev');
+        (user?.isDeveloper || user?.role === 'DEVELOPER') && (
+          path.includes('developer-hub') ||
+          path.includes('dev-hub') ||
+          hash.includes('developer') ||
+          hash.includes('dev-hub') ||
+          hash.includes('dev') ||
+          search.includes('portal=dev') ||
+          search.includes('portal=developer')
+        );
 
       const isParent =
         path.includes('pay') ||
@@ -247,11 +359,10 @@ export default function App() {
         hash.includes('parent-pay') ||
         hash.includes('tuition') ||
         search.includes('portal=pay') ||
-        search.includes('portal=parent') ||
-        search.includes('role=parent');
+        search.includes('portal=parent');
 
       setIsParentInquiryPortal(isParentInq);
-      setIsDeveloperPortal(isDev);
+      setIsDeveloperPortal(Boolean(isDev));
       setIsParentPortal(isParent);
 
       // If neither login nor standalone portal, reset showLoginScreen if not logged in
@@ -259,31 +370,18 @@ export default function App() {
         setShowLoginScreen(false);
       }
 
-      // If user is authenticated, sync page and parameters from URL
+      // If user is authenticated, sync page and parameters with strict permission checks
       if (user && !isParentInq && !isParent && !isDev) {
         const pageFromUrl = getPageFromUrl();
         if (pageFromUrl && VALID_PAGES.has(pageFromUrl)) {
-          setCurrentPage(pageFromUrl);
-          sessionStorage.setItem('current_page', pageFromUrl);
+          const authorizedPage = isPageAllowedForUser(pageFromUrl, user) ? pageFromUrl : 'dashboard';
+          setCurrentPage(authorizedPage);
+          sessionStorage.setItem('current_page', authorizedPage);
           const params = getUrlParams();
           if (params.studentId) setSelectedStudentId(params.studentId);
           if (params.teacherId) setSelectedTeacherId(params.teacherId);
           if (params.classId) setSelectedClassId(params.classId);
           if (params.attendanceClassId) setAttendanceClassId(params.attendanceClassId);
-        }
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const roleParam = urlParams.get('role')?.toUpperCase();
-      const hashParam = window.location.hash.replace('#/', '').replace('#', '').toUpperCase();
-      const targetRole = roleParam || (['ADMIN', 'STAFF', 'TEACHER'].includes(hashParam) ? hashParam : null);
-
-      // Only switch role if user is ALREADY authenticated! Never auto-login unauthenticated visitors.
-      if (targetRole && ['ADMIN', 'STAFF', 'TEACHER'].includes(targetRole)) {
-        if (user && user.role !== targetRole) {
-          switchPortalRole(targetRole).then(() => {
-            setCurrentPage('dashboard');
-          }).catch(console.error);
         }
       }
     };
@@ -295,7 +393,7 @@ export default function App() {
       window.removeEventListener('popstate', handleUrlRoute);
       window.removeEventListener('hashchange', handleUrlRoute);
     };
-  }, [user, switchPortalRole, logout]);
+  }, [user, logout]);
 
   // If in standalone parent inquiry portal route, render parent student inquiry portal
   if (isParentInquiryPortal) {
@@ -429,16 +527,17 @@ export default function App() {
   }
 
   const navigateTo = (pageId, params = {}) => {
+    const targetPage = isPageAllowedForUser(pageId, user) ? pageId : 'dashboard';
     if (params.studentId !== undefined) setSelectedStudentId(params.studentId);
     if (params.teacherId !== undefined) setSelectedTeacherId(params.teacherId);
     if (params.classId !== undefined) setSelectedClassId(params.classId);
     if (params.attendanceClassId !== undefined) setAttendanceClassId(params.attendanceClassId);
     
-    setCurrentPage(pageId);
-    sessionStorage.setItem('current_page', pageId);
+    setCurrentPage(targetPage);
+    sessionStorage.setItem('current_page', targetPage);
 
     // Update URL hash cleanly with parameters if present
-    let hashUrl = `#${pageId}`;
+    let hashUrl = `#${targetPage}`;
     const queryEntries = Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '');
     if (queryEntries.length > 0) {
       const q = new URLSearchParams(queryEntries).toString();
@@ -630,20 +729,28 @@ export default function App() {
         )
       )}
 
-      {/* Classes & Sections - Accessible by all */}
+      {/* Classes & Sections - Accessible by authorized roles */}
       {currentPage === 'classes' && (
-        <ClassList
-          onViewClass={(id) => navigateTo('class-details', { classId: id })}
-        />
+        (isAdmin || isStaff || isTeacher) ? (
+          <ClassList
+            onViewClass={(id) => navigateTo('class-details', { classId: id })}
+          />
+        ) : (
+          <AccessDenied requiredRole="STAFF / TEACHER" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {currentPage === 'class-details' && (
-        <ClassDetails
-          classId={selectedClassId}
-          onBack={() => navigateTo('classes')}
-          onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
-          onTakeAttendance={(id) => navigateTo('attendance', { attendanceClassId: id })}
-        />
+        (isAdmin || isStaff || isTeacher) ? (
+          <ClassDetails
+            classId={selectedClassId}
+            onBack={() => navigateTo('classes')}
+            onViewStudent={(id) => navigateTo('student-details', { studentId: id })}
+            onTakeAttendance={(id) => navigateTo('attendance', { attendanceClassId: id })}
+          />
+        ) : (
+          <AccessDenied requiredRole="STAFF / TEACHER" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {/* Subjects Catalog - Accessible by Admin, Staff, and Teachers */}
@@ -760,9 +867,13 @@ export default function App() {
         )
       )}
 
-      {/* Developer Engineering Hub - Inside MainLayout */}
+      {/* Developer Engineering Hub - Inside MainLayout (Strictly Developer only) */}
       {(currentPage === 'developer-hub' || currentPage === 'developer-fleet') && (
-        <DeveloperFleetDashboard onNavigate={navigateTo} />
+        (user?.isDeveloper || user?.role === 'DEVELOPER') ? (
+          <DeveloperFleetDashboard onNavigate={navigateTo} />
+        ) : (
+          <AccessDenied requiredRole="DEVELOPER" onBack={() => navigateTo('dashboard')} />
+        )
       )}
 
       {/* Settings - Accessible by all */}
