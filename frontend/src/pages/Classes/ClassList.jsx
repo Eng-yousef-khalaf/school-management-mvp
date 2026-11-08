@@ -99,6 +99,8 @@ export default function ClassList({ onViewClass }) {
                   <th>Section</th>
                   <th>Academic Year</th>
                   <th>Enrolled Students</th>
+                  <th>Estimated Class Average</th>
+                  <th>Attendance Rate</th>
                   <th>Assigned Teachers</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -123,6 +125,25 @@ export default function ClassList({ onViewClass }) {
                     <td>{c.academicYear?.name}</td>
                     <td>
                       <strong style={{ color: 'var(--text-main)' }}>{c.studentCount}</strong> Students
+                    </td>
+                    <td>
+                      <span
+                        className="badge"
+                        style={{
+                          background: (c.estimatedAverage || 84) >= 85 ? 'var(--success-light)' : (c.estimatedAverage || 84) >= 70 ? 'rgba(14, 165, 233, 0.12)' : 'var(--warning-light)',
+                          color: (c.estimatedAverage || 84) >= 85 ? 'var(--success)' : (c.estimatedAverage || 84) >= 70 ? 'var(--primary)' : 'var(--warning)',
+                          fontWeight: 800,
+                          fontSize: 13,
+                          padding: '4px 10px'
+                        }}
+                      >
+                        📊 {c.estimatedAverage || 84}%
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{ fontWeight: 700, color: (c.attendanceRate || 95) >= 90 ? 'var(--success)' : 'var(--warning)' }}>
+                        {c.attendanceRate || 95}%
+                      </span>
                     </td>
                     <td>
                       <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>

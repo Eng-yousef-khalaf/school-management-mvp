@@ -3,7 +3,7 @@ const excelService = require('../services/excelService');
 
 async function getStudents(req, res, next) {
   try {
-    const result = await studentService.getStudents(req.query);
+    const result = await studentService.getStudents(req.query, req.user);
     res.json(result);
   } catch (err) {
     next(err);
@@ -12,9 +12,9 @@ async function getStudents(req, res, next) {
 
 async function getStudentById(req, res, next) {
   try {
-    const student = await studentService.getStudentById(req.params.id);
+    const student = await studentService.getStudentById(req.params.id, req.user);
     if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
+      return res.status(404).json({ error: 'Student not found or access denied' });
     }
     res.json(student);
   } catch (err) {
@@ -88,7 +88,7 @@ async function exportStudents(req, res, next) {
       ...req.query,
       page: 1,
       limit: 10000
-    });
+    }, req.user);
 
     const exportData = result.items.map(s => ({
       'Student Number': s.studentNumber,

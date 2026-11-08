@@ -15,12 +15,16 @@ function requireRoles(...allowedRoles) {
 }
 
 const adminOnly = requireRoles('ADMIN');
+const staffOnly = requireRoles('STAFF');
+const teacherOnly = requireRoles('TEACHER');
 const staffOrAdmin = requireRoles('ADMIN', 'STAFF');
 const allAuthenticated = requireRoles('ADMIN', 'STAFF', 'TEACHER');
 
 module.exports = {
   requireRoles,
   adminOnly,
+  staffOnly,
+  teacherOnly,
   staffOrAdmin,
   allAuthenticated
 };

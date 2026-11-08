@@ -6,6 +6,7 @@ import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import Badge from '../../components/common/Badge';
 import { EditIcon, DownloadIcon } from '../../components/common/Icons';
+import SchoolLogo from '../../components/common/SchoolLogo';
 
 export default function StudentDetails({ studentId, onBack, onEdit }) {
   const { canManageStudents } = useAuth();
@@ -70,13 +71,15 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-secondary btn-sm" onClick={handlePrint} style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}>
-            🖨️ {isRtl ? 'طباعة إفادة ولي الأمر' : 'Print Parent Statement'}
-          </button>
           {canManageStudents && (
-            <button className="btn btn-primary btn-sm" onClick={() => onEdit(student)}>
-              <EditIcon /> {isRtl ? 'تعديل بيانات الطالب' : 'Edit Profile'}
-            </button>
+            <>
+              <button className="btn btn-secondary btn-sm" onClick={handlePrint} style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}>
+                🖨️ {isRtl ? 'طباعة إفادة ولي الأمر' : 'Print Parent Statement'}
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={() => onEdit(student)}>
+                <EditIcon /> {isRtl ? 'تعديل بيانات الطالب' : 'Edit Profile'}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -437,19 +440,25 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         {/* Printable Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: 16, marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a' }}>
-              {isRtl ? 'وزارة التربية والتعليم - إدارة المدارس' : 'Ministry of Education & School Administration'}
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>
+              {isRtl ? '🇵🇸 دولة فلسطين / وزارة التربية والتعليم' : 'State of Palestine / Ministry of Education'}
             </div>
-            <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
-              {isRtl ? 'نظام إدارة المدرسة الأكاديمي الشامل | قسم شؤون الطلاب والتسجيل' : 'Academic Management System | Registrar & Student Affairs'}
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#1e1b4b', marginTop: 2 }}>
+              مدرسة يوسف للتربية والتعليم
             </div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              {isRtl ? 'قسم شؤون الطلاب والتسجيل والامتحانات' : 'Registrar & Student Affairs Department'}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <SchoolLogo size={58} />
           </div>
           <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary)' }}>
               {isRtl ? 'إفادة درجات ومستوى أداء طالب' : 'Official Student Academic Statement'}
             </div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>
-              {isRtl ? 'تاريخ التحرير:' : 'Date Issued:'} {new Date().toLocaleDateString()}
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+              {isRtl ? 'تاريخ التحرير:' : 'Date Issued:'} {new Date().toLocaleDateString('ar-EG')}
             </div>
           </div>
         </div>
@@ -537,23 +546,30 @@ export default function StudentDetails({ studentId, onBack, onEdit }) {
         {/* Official Endorsement & Signatures */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginTop: 40, textAlign: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: 20 }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 40 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 36 }}>
               {isRtl ? 'مسؤول شؤون الطلاب والتسجيل' : 'Registrar Officer'}
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
+                محمد
+              </div>
             </div>
             <div style={{ borderBottom: '1px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 40 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 36 }}>
               {isRtl ? 'مدير المدرسة / الاعتماد' : 'School Principal'}
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginTop: 3 }}>
+                يوسف
+              </div>
             </div>
             <div style={{ borderBottom: '1px solid #94a3b8', width: '80%', margin: '0 auto' }}></div>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 40 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>
               {isRtl ? 'الختم الرسمي للمؤسسة التعليمية' : 'Official School Stamp'}
             </div>
-            <div style={{ width: 64, height: 64, border: '2px dashed #94a3b8', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 10 }}>
-              {isRtl ? 'الختم' : 'STAMP'}
+            <div style={{ width: 64, height: 64, border: '2px dashed #4f46e5', borderRadius: '50%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', fontSize: 9, fontWeight: 800 }}>
+              <span>مدرسة يوسف</span>
+              <span style={{ fontSize: 8 }}>الختم المعتمد</span>
             </div>
           </div>
         </div>

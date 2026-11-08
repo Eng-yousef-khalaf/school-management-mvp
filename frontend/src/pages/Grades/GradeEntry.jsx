@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
 
 export default function GradeEntry() {
   const toast = useToast();
+  const { user, isTeacher, canEnterGrades } = useAuth();
+  const { t, isRtl } = useLanguage();
 
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -111,11 +115,71 @@ export default function GradeEntry() {
 
   return (
     <div>
+      {/* Teacher Role Banner */}
+      {isTeacher ? (
+        <div style={{
+          background: 'rgba(14, 165, 233, 0.08)',
+          border: '1px solid rgba(14, 165, 233, 0.25)',
+          padding: '12px 18px',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 10
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>👨‍🏫</span>
+            <div>
+              <strong style={{ color: '#0284c7', fontSize: 13 }}>
+                {isRtl ? 'بوابة رصد الدرجات الأكاديمية (خاص بالمعلم):' : 'Teacher Grade Entry Portal:'}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: 12, marginRight: 8, marginLeft: 8 }}>
+                {isRtl
+                  ? 'يتم رصد درجات الطلاب لشعبك ومقرراتك المسندة إليك مباشرة، وتنعكس النتائج فورياً في كشوف درجات شؤون الطلاب والمدير العام.'
+                  : 'Record exam marks for your assigned classes and subjects. Saved marks instantly update registrar & management grade reports.'}
+              </span>
+            </div>
+          </div>
+          <span className="badge" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#0284c7', fontSize: 11, fontWeight: 700 }}>
+            {isRtl ? 'رصد فوري' : 'Live Sync'}
+          </span>
+        </div>
+      ) : (
+        <div style={{
+          background: 'rgba(245, 158, 11, 0.08)',
+          border: '1px solid rgba(245, 158, 11, 0.25)',
+          padding: '12px 18px',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 10
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>ℹ️</span>
+            <div>
+              <strong style={{ color: '#b45309', fontSize: 13 }}>
+                {isRtl ? 'صلاحية إدخال الدرجات:' : 'Grading Authority Notice:'}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: 12, marginRight: 8, marginLeft: 8 }}>
+                {isRtl
+                  ? 'إدخال ورصد الدرجات مخصص لمعلم المادة والشعبة لضمان دقة التقييم. يمكنك استعراض وطباعة النتائج الجاهزة من قسم "كشوف ونتائج الطلاب".'
+                  : 'Direct grade entry is assigned to the respective course teacher. You can inspect compiled results and averages in "Grade Reports".'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Grade Entry Controls */}
       <div className="panel" style={{ padding: '20px 24px', marginBottom: 20 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, alignItems: 'flex-end' }}>
           <div>
-            <label className="form-label">Class Section</label>
+            <label className="form-label">{isRtl ? 'الصف والشعبة' : 'Class Section'}</label>
             <select
               className="form-select"
               value={selectedClassId}
@@ -130,7 +194,7 @@ export default function GradeEntry() {
           </div>
 
           <div>
-            <label className="form-label">Curriculum Subject</label>
+            <label className="form-label">{isRtl ? 'المادة والمقرر' : 'Curriculum Subject'}</label>
             <select
               className="form-select"
               value={selectedSubjectId}
@@ -145,18 +209,18 @@ export default function GradeEntry() {
           </div>
 
           <div>
-            <label className="form-label">Exam / Assessment Name</label>
+            <label className="form-label">{isRtl ? 'نوع الاختبار / التقييم' : 'Exam / Assessment Name'}</label>
             <input
               type="text"
               className="form-input"
               value={examName}
               onChange={(e) => setExamName(e.target.value)}
-              placeholder="e.g. Midterm Exam, Quiz 1"
+              placeholder={isRtl ? 'مثال: اختبار منتصف الفصل، تقويم 1...' : 'e.g. Midterm Exam, Quiz 1'}
             />
           </div>
 
           <div>
-            <label className="form-label">Max Score</label>
+            <label className="form-label">{isRtl ? 'الدرجة العظمى' : 'Max Score'}</label>
             <input
               type="number"
               className="form-input"
@@ -171,9 +235,9 @@ export default function GradeEntry() {
               className="btn btn-primary"
               style={{ width: '100%', height: 42 }}
               onClick={handleSaveGrades}
-              disabled={saving || sheet.length === 0}
+              disabled={saving || sheet.length === 0 || !canEnterGrades}
             >
-              {saving ? 'Saving...' : 'Save Grades to Database'}
+              {saving ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? '💾 حفظ الدرجات في النظام' : '💾 Save Grades')}
             </button>
           </div>
         </div>
@@ -183,28 +247,31 @@ export default function GradeEntry() {
 
       {/* Grade Entry Sheet Table */}
       <div className="panel">
-        <div className="panel-header">
+        <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-            Student Grading Sheet ({sheet.length} Students)
+            {isRtl ? `كشف رصد درجات الطلاب (${sheet.length} طالب)` : `Student Grading Sheet (${sheet.length} Students)`}
           </h3>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {isRtl ? 'يتم حساب النسبة المئوية تلقائياً أثناء الإدخال' : 'Percentages calculate automatically upon typing'}
+          </span>
         </div>
         <div className="table-responsive">
           {loading ? (
-            <PageLoader text="Loading grading roster..." />
+            <PageLoader text={isRtl ? 'جاري تحميل سجل درجات الفصل...' : 'Loading grading roster...'} />
           ) : sheet.length === 0 ? (
             <EmptyState
-              title="No students in this class"
-              description="Enroll students into this class before recording grades."
+              title={isRtl ? 'لا يوجد طلاب مسجلين في هذه الشعبة' : 'No students in this class'}
+              description={isRtl ? 'تأكد من تسكين الطلاب في الصف الدراسي قبل رصد الدرجات.' : 'Enroll students into this class before recording grades.'}
             />
           ) : (
             <table>
               <thead>
                 <tr>
-                  <th style={{ width: 140 }}>Student ID</th>
-                  <th>Student Full Name</th>
-                  <th style={{ width: 180 }}>Score (out of {maxScore})</th>
-                  <th style={{ width: 140 }}>Percentage</th>
-                  <th>Status Assessment</th>
+                  <th style={{ width: 140 }}>{isRtl ? 'الرقم الأكاديمي' : 'Student ID'}</th>
+                  <th>{isRtl ? 'اسم الطالب الرباعي' : 'Student Full Name'}</th>
+                  <th style={{ width: 180 }}>{isRtl ? `الدرجة (من ${maxScore})` : `Score (out of ${maxScore})`}</th>
+                  <th style={{ width: 140 }}>{isRtl ? 'النسبة المئوية' : 'Percentage'}</th>
+                  <th>{isRtl ? 'التقدير والتقييم' : 'Status Assessment'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +289,7 @@ export default function GradeEntry() {
                         max={maxScore}
                         value={row.score === null || row.score === undefined ? '' : row.score}
                         onChange={(e) => handleScoreChange(row.studentId, e.target.value)}
+                        disabled={!canEnterGrades}
                       />
                     </td>
                     <td>
@@ -249,7 +317,11 @@ export default function GradeEntry() {
                               : 'badge-inactive'
                           }`}
                         >
-                          {row.percentage >= 85 ? 'Excellent' : row.percentage >= 60 ? 'Passing' : 'Needs Improvement'}
+                          {row.percentage >= 85 
+                            ? (isRtl ? 'ممتاز' : 'Excellent') 
+                            : row.percentage >= 60 
+                            ? (isRtl ? 'ناجح' : 'Passing') 
+                            : (isRtl ? 'بحاجة لمعالجة' : 'Needs Improvement')}
                         </span>
                       )}
                     </td>

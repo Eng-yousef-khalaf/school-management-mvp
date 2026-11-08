@@ -2,7 +2,7 @@ const classService = require('../services/classService');
 
 async function getClasses(req, res, next) {
   try {
-    const classes = await classService.getClasses(req.query);
+    const classes = await classService.getClasses(req.query, req.user);
     res.json(classes);
   } catch (err) {
     next(err);

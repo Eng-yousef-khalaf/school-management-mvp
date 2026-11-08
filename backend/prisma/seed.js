@@ -8,14 +8,14 @@ async function main() {
 
   const defaultPasswordHash = await bcrypt.hash('ChangeMe123!', 12);
 
-  // 1. Create Default Users
+  // 1. Create Default Users (يوسف for Admin, محمد for Staff)
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@school.local' },
-    update: { passwordHash: defaultPasswordHash, role: 'ADMIN', active: true },
+    update: { passwordHash: defaultPasswordHash, fullName: 'يوسف', role: 'ADMIN', active: true },
     create: {
       email: 'admin@school.local',
       passwordHash: defaultPasswordHash,
-      fullName: 'System Administrator',
+      fullName: 'يوسف',
       role: 'ADMIN',
       active: true
     }
@@ -23,11 +23,23 @@ async function main() {
 
   const staffUser = await prisma.user.upsert({
     where: { email: 'staff@school.local' },
-    update: { passwordHash: defaultPasswordHash, role: 'STAFF', active: true },
+    update: { passwordHash: defaultPasswordHash, fullName: 'محمد', role: 'STAFF', active: true },
     create: {
       email: 'staff@school.local',
       passwordHash: defaultPasswordHash,
-      fullName: 'School Registrar Staff',
+      fullName: 'محمد',
+      role: 'STAFF',
+      active: true
+    }
+  });
+
+  const staffUser2 = await prisma.user.upsert({
+    where: { email: 'khalid.staff@school.local' },
+    update: { passwordHash: defaultPasswordHash, fullName: 'خالد السعيد', role: 'STAFF', active: true },
+    create: {
+      email: 'khalid.staff@school.local',
+      passwordHash: defaultPasswordHash,
+      fullName: 'خالد السعيد',
       role: 'STAFF',
       active: true
     }
@@ -122,19 +134,27 @@ async function main() {
     teachers.push(teacher);
   }
 
-  // Create a linked teacher user for testing teacher role
-  await prisma.user.upsert({
-    where: { email: 'teacher@school.local' },
-    update: { passwordHash: defaultPasswordHash, role: 'TEACHER', active: true, teacherId: teachers[0].id },
-    create: {
-      email: 'teacher@school.local',
-      passwordHash: defaultPasswordHash,
-      fullName: `${teachers[0].firstName} ${teachers[0].lastName}`,
-      role: 'TEACHER',
-      active: true,
-      teacherId: teachers[0].id
-    }
+  // Clean up any old duplicate generic teacher user
+  await prisma.user.deleteMany({
+    where: { email: 'teacher@school.local' }
   });
+
+  // Create accounts for all individual teachers (Ahmed Khalil, Sara Mansour, Omar Farooq, etc.)
+  for (let i = 0; i < teachers.length; i++) {
+    const t = teachers[i];
+    await prisma.user.upsert({
+      where: { email: t.email },
+      update: { passwordHash: defaultPasswordHash, fullName: `${t.firstName} ${t.lastName}`, role: 'TEACHER', active: true, teacherId: t.id },
+      create: {
+        email: t.email,
+        passwordHash: defaultPasswordHash,
+        fullName: `${t.firstName} ${t.lastName}`,
+        role: 'TEACHER',
+        active: true,
+        teacherId: t.id
+      }
+    });
+  }
 
   // 6. Assign Teachers to Classes and Subjects
   // Ahmed Khalil (Math) -> Grade 7 A, Grade 8 A
@@ -323,7 +343,49 @@ async function main() {
     }
   }
 
-  // 11. Initial Audit Log
+  // 11. Seed Teacher Attendance for Today
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const teacherStatuses = [
+    { status: 'PRESENT', checkIn: '07:45 AM', note: 'On time' },
+    { status: 'PRESENT', checkIn: '07:50 AM', note: 'On time' },
+    { status: 'LATE', checkIn: '08:15 AM', note: 'Traffic delay' },
+    { status: 'PRESENT', checkIn: '07:40 AM', note: 'On time' },
+    { status: 'PRESENT', checkIn: '07:55 AM', note: 'On time' },
+    { status: 'EXCUSED', checkIn: null, note: 'Approved official training' },
+    { status: 'PRESENT', checkIn: '07:35 AM', note: 'On time' },
+    { status: 'PRESENT', checkIn: '07:50 AM', note: 'On time' },
+    { status: 'ABSENT', checkIn: null, note: 'Sick leave notification' },
+    { status: 'PRESENT', checkIn: '07:42 AM', note: 'On time' }
+  ];
+
+  for (let i = 0; i < teachers.length; i++) {
+    const t = teachers[i];
+    const item = teacherStatuses[i % teacherStatuses.length];
+    await prisma.teacherAttendance.upsert({
+      where: {
+        teacherId_date: {
+          teacherId: t.id,
+          date: today
+        }
+      },
+      update: {
+        status: item.status,
+        checkIn: item.checkIn,
+        note: item.note
+      },
+      create: {
+        teacherId: t.id,
+        date: today,
+        status: item.status,
+        checkIn: item.checkIn,
+        note: item.note
+      }
+    });
+  }
+
+  // 12. Initial Audit Log
   await prisma.auditLog.create({
     data: {
       userId: adminUser.id,

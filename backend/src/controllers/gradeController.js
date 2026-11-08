@@ -7,7 +7,7 @@ async function getSheet(req, res, next) {
     if (!classId || !subjectId || !examName) {
       return res.status(400).json({ error: 'Class ID, Subject ID, and Exam Name are required' });
     }
-    const result = await gradeService.getClassGradeSheet({ classId, subjectId, examName });
+    const result = await gradeService.getClassGradeSheet({ classId, subjectId, examName }, req.user);
     res.json(result);
   } catch (err) {
     next(err);
@@ -36,7 +36,7 @@ async function saveBulk(req, res, next) {
 
 async function getReport(req, res, next) {
   try {
-    const result = await gradeService.getGradeReport(req.query);
+    const result = await gradeService.getGradeReport(req.query, req.user);
     res.json(result);
   } catch (err) {
     next(err);
@@ -45,7 +45,7 @@ async function getReport(req, res, next) {
 
 async function exportGrades(req, res, next) {
   try {
-    const { subjects, report } = await gradeService.getGradeReport(req.query);
+    const { subjects, report } = await gradeService.getGradeReport(req.query, req.user);
 
     const exportData = report.map(r => {
       const row = {

@@ -1,9 +1,22 @@
 const prisma = require('../utils/prisma');
 const { logAudit } = require('../utils/auditLogger');
 
-async function getClassGradeSheet({ classId, subjectId, examName }) {
+async function getClassGradeSheet({ classId, subjectId, examName }, user) {
   const cId = parseInt(classId, 10);
   const sId = parseInt(subjectId, 10);
+
+  if (user?.role === 'TEACHER' && user?.teacherId) {
+    const isAssigned = await prisma.teacherClassSubject.findFirst({
+      where: {
+        teacherId: user.teacherId,
+        classId: cId,
+        subjectId: sId
+      }
+    });
+    if (!isAssigned) {
+      throw new Error('You are not assigned to enter grades for this class and subject');
+    }
+  }
 
   const [classData, subjectData] = await Promise.all([
     prisma.schoolClass.findUnique({
@@ -66,6 +79,19 @@ async function saveBulkGrades({ classId, subjectId, examName, maxScore = 100, da
   const max = Number(maxScore) || 100;
   const gradeDate = date ? new Date(date) : new Date();
 
+  if (user?.role === 'TEACHER' && user?.teacherId && cId) {
+    const isAssigned = await prisma.teacherClassSubject.findFirst({
+      where: {
+        teacherId: user.teacherId,
+        classId: cId,
+        subjectId: sId
+      }
+    });
+    if (!isAssigned) {
+      throw new Error('Permission denied: You can only submit grades for your assigned class and subject.');
+    }
+  }
+
   const results = [];
 
   for (const item of grades) {
@@ -122,9 +148,34 @@ async function saveBulkGrades({ classId, subjectId, examName, maxScore = 100, da
   return results;
 }
 
-async function getGradeReport({ classId, academicYearId, examName }) {
+async function getGradeReport({ classId, academicYearId, examName }, user) {
   const where = {};
-  if (classId) where.classId = parseInt(classId, 10);
+  let allowedSubjectIds = null;
+
+  if (user?.role === 'TEACHER' && user?.teacherId) {
+    const teacherLinks = await prisma.teacherClassSubject.findMany({
+      where: { teacherId: user.teacherId }
+    });
+    const teacherClassIds = [...new Set(teacherLinks.map(l => l.classId))];
+    allowedSubjectIds = [...new Set(teacherLinks.map(l => l.subjectId))];
+
+    if (teacherClassIds.length === 0) {
+      return { subjects: [], report: [] };
+    }
+
+    if (classId) {
+      const pClassId = parseInt(classId, 10);
+      if (!teacherClassIds.includes(pClassId)) {
+        return { subjects: [], report: [] };
+      }
+      where.classId = pClassId;
+    } else {
+      where.classId = { in: teacherClassIds };
+    }
+  } else if (classId) {
+    where.classId = parseInt(classId, 10);
+  }
+
   if (academicYearId) {
     where.class = { academicYearId: parseInt(academicYearId, 10) };
   }
@@ -135,7 +186,10 @@ async function getGradeReport({ classId, academicYearId, examName }) {
       student: {
         include: {
           grades: {
-            where: examName ? { examName: examName.trim() } : undefined,
+            where: {
+              ...(examName ? { examName: examName.trim() } : {}),
+              ...(allowedSubjectIds ? { subjectId: { in: allowedSubjectIds } } : {})
+            },
             include: { subject: true }
           }
         }
@@ -151,7 +205,10 @@ async function getGradeReport({ classId, academicYearId, examName }) {
   });
 
   const subjects = await prisma.subject.findMany({
-    where: { active: true },
+    where: {
+      active: true,
+      ...(allowedSubjectIds ? { id: { in: allowedSubjectIds } } : {})
+    },
     orderBy: { name: 'asc' }
   });
 

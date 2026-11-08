@@ -11,6 +11,7 @@ import ErrorAlert from '../../components/common/ErrorAlert';
 import EmptyState from '../../components/common/EmptyState';
 import AddEditStudentModal from './AddEditStudentModal';
 import ImportStudentsModal from './ImportStudentsModal';
+import BulkCertificatesModal from '../Reports/BulkCertificatesModal';
 import {
   SearchIcon,
   PlusIcon,
@@ -23,7 +24,7 @@ import {
 
 export default function StudentList({ onViewStudent }) {
   const toast = useToast();
-  const { canManageStudents, isAdmin } = useAuth();
+  const { canManageStudents, isAdmin, isTeacher } = useAuth();
   const { t, isRtl } = useLanguage();
 
   const [students, setStudents] = useState([]);
@@ -45,6 +46,7 @@ export default function StudentList({ onViewStudent }) {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isBulkCertificatesOpen, setIsBulkCertificatesOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [deactivatingStudent, setDeactivatingStudent] = useState(null);
   const [deactivatingLoading, setDeactivatingLoading] = useState(false);
@@ -153,6 +155,39 @@ export default function StudentList({ onViewStudent }) {
         </div>
       )}
 
+      {/* Teacher Scoped Scope Banner */}
+      {isTeacher && (
+        <div style={{
+          background: 'rgba(14, 165, 233, 0.08)',
+          border: '1px solid rgba(14, 165, 233, 0.25)',
+          padding: '12px 18px',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 10
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>👨‍🏫</span>
+            <div>
+              <strong style={{ color: '#0284c7', fontSize: 13 }}>
+                {isRtl ? 'سجل طلاب الشعب والمقررات المسندة إليك:' : 'My Assigned Students Roster:'}
+              </strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: 12, marginRight: 8, marginLeft: 8 }}>
+                {isRtl
+                  ? 'يتم عرض طلاب الصفوف والشعب التي تقوم بتدريسها فقط، ويمكنك معاينة ملفاتهم ومتابعة سجلاتهم الأكاديمية (طباعة الشهادات والإفادات الرسمية محصورة بشؤون الطلاب).'
+                  : 'Only students enrolled in your assigned classes and subjects are shown. You can view their profiles (official transcripts and certificates printing is restricted to Staff).'}
+              </span>
+            </div>
+          </div>
+          <span className="badge" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#0284c7', fontSize: 11, fontWeight: 700 }}>
+            {isRtl ? 'خاص بالمعلم' : 'Teacher Scoped'}
+          </span>
+        </div>
+      )}
+
       {/* Top Toolbar */}
       <div className="panel" style={{ padding: '16px 20px', marginBottom: 20 }}>
         <div className="toolbar">
@@ -219,6 +254,14 @@ export default function StudentList({ onViewStudent }) {
             </button>
             {canManageStudents && (
               <>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setIsBulkCertificatesOpen(true)}
+                  style={{ color: '#059669', borderColor: '#10b981', fontWeight: 600 }}
+                  title={isRtl ? 'طباعة الشهادات والإفادات المجمعة لكافة الطلاب' : 'Bulk Certificates'}
+                >
+                  📜 {isRtl ? 'طباعة الشهادات المجمعة' : 'Bulk Certificates'}
+                </button>
                 <button
                   className="btn btn-secondary btn-sm"
                   onClick={() => setIsImportModalOpen(true)}
@@ -306,6 +349,16 @@ export default function StudentList({ onViewStudent }) {
                           <EyeIcon />
                         </button>
                         {canManageStudents && (
+                          <button
+                            className="btn btn-secondary btn-icon"
+                            title={isRtl ? 'معاينة وطباعة بطاقة الطالب' : 'Print Student Card'}
+                            onClick={() => onViewStudent(s.id)}
+                            style={{ color: 'var(--primary)', fontSize: 13 }}
+                          >
+                            🖨️
+                          </button>
+                        )}
+                        {canManageStudents && (
                           <>
                             <button
                               className="btn btn-secondary btn-icon"
@@ -383,6 +436,15 @@ export default function StudentList({ onViewStudent }) {
           confirmText={isRtl ? 'تعطيل' : 'Deactivate'}
           isDanger={true}
           loading={deactivatingLoading}
+        />
+      )}
+
+      {/* Bulk Certificates Generation & Printing Modal - For Staff */}
+      {canManageStudents && (
+        <BulkCertificatesModal
+          isOpen={isBulkCertificatesOpen}
+          onClose={() => setIsBulkCertificatesOpen(false)}
+          initialClassId={classFilter}
         />
       )}
     </div>

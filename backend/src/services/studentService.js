@@ -11,12 +11,47 @@ async function getStudents({
   academicYearId,
   sortBy = 'lastName',
   sortOrder = 'asc'
-}) {
+}, user) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const take = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
   const skip = (pageNum - 1) * take;
 
   const where = {};
+
+  // If user is a Teacher, restrict exclusively to students in their assigned classes
+  if (user?.role === 'TEACHER' && user?.teacherId) {
+    const teacherLinks = await prisma.teacherClassSubject.findMany({
+      where: { teacherId: user.teacherId },
+      select: { classId: true }
+    });
+    const teacherClassIds = [...new Set(teacherLinks.map(l => l.classId))];
+
+    if (teacherClassIds.length === 0) {
+      return {
+        items: [],
+        pagination: { total: 0, page: 1, limit: take, totalPages: 1 }
+      };
+    }
+
+    if (classId) {
+      const parsedClassId = parseInt(classId, 10);
+      if (!teacherClassIds.includes(parsedClassId)) {
+        return {
+          items: [],
+          pagination: { total: 0, page: 1, limit: take, totalPages: 1 }
+        };
+      }
+      where.enrollments = { some: { classId: parsedClassId } };
+    } else {
+      where.enrollments = { some: { classId: { in: teacherClassIds } } };
+    }
+  } else if (classId) {
+    where.enrollments = {
+      some: {
+        classId: parseInt(classId, 10)
+      }
+    };
+  }
 
   if (q && q.trim()) {
     const searchTerm = q.trim();
@@ -39,17 +74,11 @@ async function getStudents({
     where.gender = gender;
   }
 
-  if (classId) {
-    where.enrollments = {
-      some: {
-        classId: parseInt(classId, 10)
-      }
-    };
-  }
-
   if (academicYearId) {
     where.enrollments = {
+      ...(where.enrollments || {}),
       some: {
+        ...(where.enrollments?.some || {}),
         class: {
           academicYearId: parseInt(academicYearId, 10)
         }
@@ -114,8 +143,29 @@ async function getStudents({
   };
 }
 
-async function getStudentById(id) {
+async function getStudentById(id, user) {
   const studentId = parseInt(id, 10);
+
+  // If user is a Teacher, verify the student is in one of the teacher's classes
+  if (user?.role === 'TEACHER' && user?.teacherId) {
+    const teacherLinks = await prisma.teacherClassSubject.findMany({
+      where: { teacherId: user.teacherId },
+      select: { classId: true }
+    });
+    const teacherClassIds = teacherLinks.map(l => l.classId);
+
+    const isEnrolledInTeacherClass = await prisma.enrollment.findFirst({
+      where: {
+        studentId,
+        classId: { in: teacherClassIds }
+      }
+    });
+
+    if (!isEnrolledInTeacherClass) {
+      return null;
+    }
+  }
+
   const student = await prisma.student.findUnique({
     where: { id: studentId },
     include: {

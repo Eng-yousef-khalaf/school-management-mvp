@@ -3,8 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const translations = {
   ar: {
     // General / Common
-    appTitle: 'نظام إدارة المدرسة',
-    appSubtitle: 'منصة إدارة العمليات الأكاديمية والمدرسية V2',
+    appTitle: 'مدرسة يوسف للتربية والتعليم',
+    appSubtitle: 'نظام الإدارة الأكاديمية والتربوية الشامل V2',
     loading: 'جاري التحميل...',
     saving: 'جاري الحفظ...',
     savedSuccessfully: 'تم الحفظ بنجاح',
@@ -40,21 +40,21 @@ const translations = {
     switchLanguage: 'تغيير اللغة',
     
     // Roles
-    roleAdmin: 'مدير النظام (Admin)',
-    roleStaff: 'موظف المدرسة (Staff)',
+    roleAdmin: 'يوسف (المدير العام)',
+    roleStaff: 'محمد (شؤون الطلاب والتسجيل)',
     roleTeacher: 'المعلم (Teacher)',
     role: 'الدور',
     
     // Login Screen
-    loginTitle: 'نظام إدارة المدرسة V2',
-    loginSubtitle: 'سجل الدخول للوصول إلى لوحة التحكم المدرسية',
+    loginTitle: 'مدرسة يوسف للتربية والتعليم',
+    loginSubtitle: 'بوابة الإدارة المدرسية والخدمات الأكاديمية الذكية',
     emailLabel: 'البريد الإلكتروني',
     passwordLabel: 'كلمة المرور',
     signInBtn: 'تسجيل الدخول',
     signingIn: 'جاري التحقق والدخول...',
     demoAccountsTitle: 'روابط وحسابات الدخول السريع (Demo Portals)',
-    adminPortal: 'بوابة المدير',
-    staffPortal: 'بوابة الموظف',
+    adminPortal: 'بوابة المدير (يوسف)',
+    staffPortal: 'شؤون الطلاب (محمد)',
     teacherPortal: 'بوابة المعلم',
     instantAccess: 'دخول فوري بنقرة واحدة',
     loginFailed: 'فشل تسجيل الدخول. يرجى التأكد من صحة البيانات.',
@@ -244,13 +244,13 @@ const translations = {
 
   en: {
     // General / Common
-    appTitle: 'School Management System',
-    appSubtitle: 'Enterprise Academic Operations Platform V2',
+    appTitle: 'Youssef Educational School',
+    appSubtitle: 'Enterprise Academic & Operations Platform V2',
     loading: 'Loading...',
     saving: 'Saving...',
     savedSuccessfully: 'Saved successfully',
     deletedSuccessfully: 'Deleted successfully',
-    confirmDelete: 'Are you sure you want to delete this record?',
+    confirmDelete: 'Are you sure you want to delete?',
     save: 'Save',
     cancel: 'Cancel',
     edit: 'Edit',
@@ -264,8 +264,8 @@ const translations = {
     search: 'Search...',
     filter: 'Filter',
     exportExcel: 'Export Excel',
-    importExcel: 'Import Excel',
-    downloadTemplate: 'Download Template',
+    importExcel: 'Import from Excel',
+    downloadTemplate: 'Download Sample Template',
     back: 'Back',
     close: 'Close',
     refresh: 'Refresh',
@@ -281,21 +281,21 @@ const translations = {
     switchLanguage: 'Switch Language',
 
     // Roles
-    roleAdmin: 'Administrator (Admin)',
-    roleStaff: 'School Staff (Staff)',
+    roleAdmin: 'Youssef (General Director)',
+    roleStaff: 'Mohammed (Student Affairs & Registrar)',
     roleTeacher: 'Faculty Teacher (Teacher)',
     role: 'Role',
 
     // Login Screen
-    loginTitle: 'School Management V2',
-    loginSubtitle: 'Sign in to access your administrative dashboard',
+    loginTitle: 'Youssef Educational School',
+    loginSubtitle: 'Sign in to access school management & student services',
     emailLabel: 'Email Address',
     passwordLabel: 'Password',
     signInBtn: 'Sign In',
     signingIn: 'Authenticating...',
     demoAccountsTitle: 'Quick Role Portals (Demo Access)',
-    adminPortal: 'Admin Portal',
-    staffPortal: 'Staff Portal',
+    adminPortal: 'Director Portal (Youssef)',
+    staffPortal: 'Registrar Portal (Mohammed)',
     teacherPortal: 'Teacher Portal',
     instantAccess: 'One-Click Instant Access',
     loginFailed: 'Login failed. Please verify your credentials.',

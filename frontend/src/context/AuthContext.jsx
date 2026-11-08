@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
   const switchPortalRole = async (targetRole) => {
     let targetEmail = 'admin@school.local';
     if (targetRole === 'STAFF') targetEmail = 'staff@school.local';
-    if (targetRole === 'TEACHER') targetEmail = 'teacher@school.local';
+    if (targetRole === 'TEACHER') targetEmail = 'ahmed.khalil@school.local';
 
     return login(targetEmail, 'ChangeMe123!');
   };
@@ -70,14 +70,18 @@ export function AuthProvider({ children }) {
   }, [fetchProfile]);
 
   const isAdmin = user?.role === 'ADMIN';
-  const isStaff = user?.role === 'STAFF' || user?.role === 'ADMIN'; // Admin inherits general staff structural privileges
+  const isStaff = user?.role === 'STAFF';
   const isTeacher = user?.role === 'TEACHER';
   
   // Specific permission capabilities
   const canManageStudents = user?.role === 'STAFF'; // Student data entry & admissions belongs strictly to Staff
+  const canEnterGrades = user?.role === 'TEACHER'; // Grade entry belongs exclusively to Teachers
+  const canTrackTeachers = user?.role === 'STAFF' || user?.role === 'ADMIN'; // Staff & Admin can view teacher presence
+  const canRecordTeacherAttendance = user?.role === 'STAFF'; // ONLY Staff can take action / record teacher attendance & tardiness
   const canManageUsers = user?.role === 'ADMIN'; // User accounts & security audit belongs strictly to Admin
   const canAudit = user?.role === 'ADMIN';
   const canManageStructure = user?.role === 'ADMIN' || user?.role === 'STAFF';
+  const isAdminReadOnly = user?.role === 'ADMIN'; // Admin views metrics in read-only mode
 
   return (
     <AuthContext.Provider
@@ -92,9 +96,13 @@ export function AuthProvider({ children }) {
         isStaff,
         isTeacher,
         canManageStudents,
+        canEnterGrades,
+        canTrackTeachers,
+        canRecordTeacherAttendance,
         canManageUsers,
         canAudit,
-        canManageStructure
+        canManageStructure,
+        isAdminReadOnly
       }}
     >
       {children}

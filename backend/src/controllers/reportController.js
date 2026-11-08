@@ -75,10 +75,20 @@ async function exportTeacherWorkload(req, res, next) {
   }
 }
 
+async function getBulkCertificates(req, res, next) {
+  try {
+    const data = await reportService.getBulkCertificatesReport(req.query);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getStudentReport,
   getDemographics,
   getTeacherWorkload,
+  getBulkCertificates,
   exportStudentReport,
   exportTeacherWorkload
 };

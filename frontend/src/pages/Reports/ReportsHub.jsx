@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PageLoader } from '../../components/common/Loader';
 import ErrorAlert from '../../components/common/ErrorAlert';
+import BulkCertificatesModal from './BulkCertificatesModal';
 import { DownloadIcon, StudentsIcon, TeachersIcon, AttendanceIcon, GradesIcon } from '../../components/common/Icons';
 
 export default function ReportsHub({ onNavigate }) {
   const toast = useToast();
+  const { isStaff, canManageStudents } = useAuth();
+  const { isRtl } = useLanguage();
 
   const [demographics, setDemographics] = useState(null);
   const [teachersWorkload, setTeachersWorkload] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isBulkCertificatesOpen, setIsBulkCertificatesOpen] = useState(false);
 
   const loadHubData = async () => {
     try {
@@ -61,22 +67,52 @@ export default function ReportsHub({ onNavigate }) {
     <div>
       {/* Report Categories Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
+        {/* Bulk Certificates Card - Accessible to Staff */}
+        <div className="panel" style={{ padding: 20, border: '2px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+            <div className="stat-icon success" style={{ fontSize: 24 }}>
+              📜
+            </div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#047857' }}>
+                {isRtl ? 'إصدار وطباعة الشهادات المجمعة' : 'Official Bulk Certificates'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isRtl ? 'طباعة شهادات وإفادات رسمية لكافة الطلاب بضغطة واحدة' : 'Generate official student transcripts and certificates'}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => setIsBulkCertificatesOpen(true)}
+              style={{ background: '#10b981', borderColor: '#10b981' }}
+            >
+              📜 {isRtl ? 'فتح نافذة طباعة الشهادات' : 'Open Bulk Certificates'}
+            </button>
+          </div>
+        </div>
+
         <div className="panel" style={{ padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
             <div className="stat-icon primary">
               <StudentsIcon />
             </div>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Student Directory Report</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Complete roster with parent details & status</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                {isRtl ? 'كشف ودليل الطلاب الشامل' : 'Student Directory Report'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isRtl ? 'قائمة الطلاب مع تفاصيل أولياء الأمور والحالة' : 'Complete roster with parent details & status'}
+              </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('students')}>
-              View in Roster
+              {isRtl ? 'عرض في السجل' : 'View in Roster'}
             </button>
             <button className="btn btn-primary btn-sm" onClick={exportStudentsDirectory}>
-              <DownloadIcon /> Export Excel
+              <DownloadIcon /> {isRtl ? 'تصدير Excel' : 'Export Excel'}
             </button>
           </div>
         </div>
@@ -87,13 +123,17 @@ export default function ReportsHub({ onNavigate }) {
               <AttendanceIcon />
             </div>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Attendance Audit Report</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Presence, absences, tardiness trends</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                {isRtl ? 'تقرير مراقبة الحضور والغياب' : 'Attendance Audit Report'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isRtl ? 'نسب الحضور، الغياب، والتأخير' : 'Presence, absences, tardiness trends'}
+              </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn btn-primary btn-sm" onClick={() => onNavigate('attendance-reports')}>
-              Open Attendance Reports
+              {isRtl ? 'فتح تقارير الحضور' : 'Open Attendance Reports'}
             </button>
           </div>
         </div>
@@ -104,13 +144,17 @@ export default function ReportsHub({ onNavigate }) {
               <GradesIcon />
             </div>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Academic Grade Matrix</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Cross-subject exam scores and rankings</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                {isRtl ? 'مصفوفة الدرجات والمعدلات الأكاديمية' : 'Academic Grade Matrix'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isRtl ? 'نتائج الامتحانات الشاملة لجميع المواد' : 'Cross-subject exam scores and rankings'}
+              </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn btn-primary btn-sm" onClick={() => onNavigate('grade-reports')}>
-              Open Grade Reports
+              {isRtl ? 'فتح كشوف الدرجات' : 'Open Grade Reports'}
             </button>
           </div>
         </div>
@@ -121,17 +165,27 @@ export default function ReportsHub({ onNavigate }) {
               <TeachersIcon />
             </div>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Faculty Workload Report</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Assigned classes and teaching subjects</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                {isRtl ? 'تقرير أنصبة الهيئة التدريسية' : 'Faculty Workload Report'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {isRtl ? 'الصفوف والمواد المسندة لكل معلم' : 'Assigned classes and teaching subjects'}
+              </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button className="btn btn-primary btn-sm" onClick={exportTeachersReport}>
-              <DownloadIcon /> Export Excel
+              <DownloadIcon /> {isRtl ? 'تصدير Excel' : 'Export Excel'}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Bulk Certificates Modal */}
+      <BulkCertificatesModal
+        isOpen={isBulkCertificatesOpen}
+        onClose={() => setIsBulkCertificatesOpen(false)}
+      />
 
       {/* Faculty Workload Table */}
       <div className="panel">

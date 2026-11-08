@@ -17,6 +17,7 @@ import {
   SettingsIcon,
   LogoutIcon
 } from '../common/Icons';
+import SchoolLogo from '../common/SchoolLogo';
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
   const { user, logout, isAdmin, isStaff, isTeacher } = useAuth();
@@ -38,16 +39,15 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
   } else if (user?.role === 'STAFF') {
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة شؤون الطلاب' : 'Registrar Dashboard', icon: <DashboardIcon />, visible: true },
-      { id: 'students', label: isRtl ? 'إدارة الطلاب وقبولهم' : 'Student Admissions & Import', icon: <StudentsIcon />, visible: true },
+      { id: 'students', label: isRtl ? 'إدارة وقبول الطلاب' : 'Student Admissions & Import', icon: <StudentsIcon />, visible: true },
       { id: 'enrollment', label: isRtl ? 'تسكين وتوزيع الفصول' : 'Class Enrollment', icon: <EnrollmentIcon />, visible: true },
       { id: 'classes', label: isRtl ? 'الصفوف والشعب' : 'Classes & Sections', icon: <ClassesIcon />, visible: true },
+      { id: 'teacher-tracker', label: isRtl ? 'مكتب تسجيل دوام المعلمين' : 'Teacher Check-In Desk', icon: <AttendanceIcon />, visible: true },
+      { id: 'grade-reports', label: isRtl ? 'كشوف ونتائج الطلاب' : 'Grade Reports & Results', icon: <ReportsIcon />, visible: true },
+      { id: 'teachers', label: isRtl ? 'دليل المعلمين' : 'Teachers Directory', icon: <TeachersIcon />, visible: true },
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
       { id: 'academic-years', label: isRtl ? 'السنوات الدراسية' : 'Academic Years', icon: <AcademicYearIcon />, visible: true },
-      { id: 'teachers', label: isRtl ? 'دليل المعلمين' : 'Teachers Directory', icon: <TeachersIcon />, visible: true },
-      { id: 'attendance', label: isRtl ? 'دفتر الحضور اليومي' : 'Daily Attendance', icon: <AttendanceIcon />, visible: true },
       { id: 'attendance-reports', label: isRtl ? 'تقارير الحضور والغياب' : 'Attendance Reports', icon: <ReportsIcon />, visible: true },
-      { id: 'grades', label: isRtl ? 'رصد الدرجات والامتحانات' : 'Grades Entry', icon: <GradesIcon />, visible: true },
-      { id: 'grade-reports', label: isRtl ? 'كشوف الدرجات والمعدلات' : 'Grade Matrix', icon: <ReportsIcon />, visible: true },
       { id: 'reports', label: isRtl ? 'مركز التقارير الشامل' : 'Reports Hub', icon: <ReportsIcon />, visible: true },
       { id: 'settings', label: isRtl ? 'إعدادات الحساب' : 'Account Settings', icon: <SettingsIcon />, visible: true }
     ];
@@ -56,14 +56,15 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
     navItems = [
       { id: 'dashboard', label: isRtl ? 'لوحة الإشراف العام' : 'Executive Overview', icon: <DashboardIcon />, visible: true },
       { id: 'users', label: isRtl ? 'إدارة المستخدمين والصلاحيات' : 'User Accounts & Roles', icon: <UsersIcon />, visible: true },
-      { id: 'audit-logs', label: isRtl ? 'سجل الرقابة والتدقيق الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
+      { id: 'audit-logs', label: isRtl ? 'سجل التدقيق والرقابة الأمني' : 'Security Audit Trail', icon: <AuditLogsIcon />, visible: true },
       { id: 'teachers', label: isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty & Staff Directory', icon: <TeachersIcon />, visible: true },
-      { id: 'classes', label: isRtl ? 'الصفوف والشعب الدراسية' : 'Classes & Sections', icon: <ClassesIcon />, visible: true },
+      { id: 'teacher-tracker', label: isRtl ? 'تقارير ونسب دوام المعلمين' : 'Teacher Attendance Overview', icon: <AttendanceIcon />, visible: true },
+      { id: 'classes', label: isRtl ? 'الصفوف والشعب والنسب' : 'Classes & Section Averages', icon: <ClassesIcon />, visible: true },
+      { id: 'students', label: isRtl ? 'سجل الطلاب (عرض وإشراف)' : 'Students Roster (Read-Only)', icon: <StudentsIcon />, visible: true },
+      { id: 'grade-reports', label: isRtl ? 'مصفوفة الدرجات والنتائج' : 'Grade Performance Matrix', icon: <ReportsIcon />, visible: true },
+      { id: 'attendance-reports', label: isRtl ? 'تحليلات ونسب الحضور' : 'Institutional Attendance', icon: <ReportsIcon />, visible: true },
       { id: 'subjects', label: isRtl ? 'المواد والمناهج' : 'Subjects Catalog', icon: <SubjectsIcon />, visible: true },
       { id: 'academic-years', label: isRtl ? 'السنوات والتقويم الدراسي' : 'Academic Years & Terms', icon: <AcademicYearIcon />, visible: true },
-      { id: 'students', label: isRtl ? 'سجل الطلاب (إشراف وتقارير)' : 'Students Roster (Oversight)', icon: <StudentsIcon />, visible: true },
-      { id: 'attendance-reports', label: isRtl ? 'تحليلات ونسب الحضور' : 'Institutional Attendance', icon: <ReportsIcon />, visible: true },
-      { id: 'grade-reports', label: isRtl ? 'مصفوفة الدرجات والنتائج' : 'Grade Performance Matrix', icon: <ReportsIcon />, visible: true },
       { id: 'reports', label: isRtl ? 'مركز التقارير والتصدير' : 'Executive Reports Hub', icon: <ReportsIcon />, visible: true },
       { id: 'settings', label: isRtl ? 'إعدادات النظام والأمان' : 'System Security Settings', icon: <SettingsIcon />, visible: true }
     ];
@@ -73,13 +74,11 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar-header">
-        <div className="sidebar-logo-icon" style={{ background: roleColor }}>
-          {user?.role === 'ADMIN' ? '👔' : user?.role === 'STAFF' ? '📋' : '👨‍🏫'}
-        </div>
+      <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <SchoolLogo size={42} />
         <div className="sidebar-brand">
-          <h2>{t('appTitle')}</h2>
-          <span style={{ color: roleColor, fontWeight: 700 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.2 }}>{t('appTitle')}</h2>
+          <span style={{ color: roleColor, fontWeight: 700, fontSize: 11 }}>
             {user?.role === 'ADMIN' ? (isRtl ? 'بوابة المدير العام' : 'Admin Portal') : user?.role === 'STAFF' ? (isRtl ? 'بوابة شؤون الطلاب' : 'Staff Portal') : (isRtl ? 'بوابة المعلم' : 'Teacher Portal')}
           </span>
         </div>

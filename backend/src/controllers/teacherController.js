@@ -96,6 +96,33 @@ async function exportTeachers(req, res, next) {
   }
 }
 
+async function getTeacherAttendanceToday(req, res, next) {
+  try {
+    const result = await teacherService.getTeacherAttendanceToday(req.query.date);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function saveTeacherAttendance(req, res, next) {
+  try {
+    const result = await teacherService.saveTeacherAttendance(req.body, req.user, req);
+    res.json({ success: true, record: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getTeacherActivity(req, res, next) {
+  try {
+    const result = await teacherService.getTeacherActivitySummary();
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getTeachers,
   getTeacherById,
@@ -104,5 +131,8 @@ module.exports = {
   deactivateTeacher,
   assignClassSubject,
   removeClassSubject,
-  exportTeachers
+  exportTeachers,
+  getTeacherAttendanceToday,
+  saveTeacherAttendance,
+  getTeacherActivity
 };

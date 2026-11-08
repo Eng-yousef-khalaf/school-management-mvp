@@ -5,7 +5,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 
 const studentController = require('../controllers/studentController');
 const authMiddleware = require('../middleware/authMiddleware');
-const { staffOrAdmin } = require('../middleware/rbacMiddleware');
+const { staffOnly } = require('../middleware/rbacMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const { studentSchema } = require('../utils/validators');
 
@@ -15,11 +15,11 @@ router.get('/', studentController.getStudents);
 router.get('/export', studentController.exportStudents);
 router.get('/:id', studentController.getStudentById);
 
-router.post('/', staffOrAdmin, validate(studentSchema), studentController.createStudent);
-router.put('/:id', staffOrAdmin, studentController.updateStudent);
-router.delete('/:id', staffOrAdmin, studentController.deactivateStudent);
+router.post('/', staffOnly, validate(studentSchema), studentController.createStudent);
+router.put('/:id', staffOnly, studentController.updateStudent);
+router.delete('/:id', staffOnly, studentController.deactivateStudent);
 
-router.post('/import/preview', staffOrAdmin, upload.single('file'), studentController.previewImport);
-router.post('/import/execute', staffOrAdmin, studentController.executeImport);
+router.post('/import/preview', staffOnly, upload.single('file'), studentController.previewImport);
+router.post('/import/execute', staffOnly, studentController.executeImport);
 
 module.exports = router;

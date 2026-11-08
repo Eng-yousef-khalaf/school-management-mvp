@@ -2,11 +2,15 @@ const express = require('express');
 const router = express.Router();
 const teacherController = require('../controllers/teacherController');
 const authMiddleware = require('../middleware/authMiddleware');
-const { staffOrAdmin, adminOnly } = require('../middleware/rbacMiddleware');
+const { staffOrAdmin, adminOnly, staffOnly } = require('../middleware/rbacMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const { teacherSchema } = require('../utils/validators');
 
 router.use(authMiddleware);
+
+router.get('/attendance/today', teacherController.getTeacherAttendanceToday);
+router.post('/attendance', staffOnly, teacherController.saveTeacherAttendance);
+router.get('/activity/summary', staffOrAdmin, teacherController.getTeacherActivity);
 
 router.get('/', teacherController.getTeachers);
 router.get('/export', teacherController.exportTeachers);

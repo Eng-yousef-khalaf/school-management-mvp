@@ -256,6 +256,140 @@ async function removeClassSubject(linkId, user, req) {
   return link;
 }
 
+async function getTeacherAttendanceToday(targetDate) {
+  const d = targetDate ? new Date(targetDate) : new Date();
+  d.setUTCHours(0, 0, 0, 0);
+
+  const [teachers, attendanceRecords] = await Promise.all([
+    prisma.teacher.findMany({
+      where: { active: true },
+      include: {
+        teacherLinks: {
+          include: {
+            class: true,
+            subject: true
+          }
+        }
+      },
+      orderBy: { lastName: 'asc' }
+    }),
+    prisma.teacherAttendance.findMany({
+      where: { date: d }
+    })
+  ]);
+
+  const attMap = new Map();
+  attendanceRecords.forEach(r => attMap.set(r.teacherId, r));
+
+  const items = teachers.map(t => {
+    const record = attMap.get(t.id);
+    return {
+      teacherId: t.id,
+      employeeNo: t.employeeNo,
+      fullName: `${t.firstName} ${t.lastName}`,
+      specialty: t.specialty,
+      email: t.email,
+      phone: t.phone,
+      classes: [...new Set(t.teacherLinks.map(l => l.class.name))],
+      subjects: [...new Set(t.teacherLinks.map(l => l.subject.name))],
+      attendanceId: record ? record.id : null,
+      status: record ? record.status : 'NOT_MARKED',
+      checkIn: record ? record.checkIn : null,
+      note: record ? record.note : null
+    };
+  });
+
+  const summary = {
+    total: teachers.length,
+    present: items.filter(i => i.status === 'PRESENT').length,
+    late: items.filter(i => i.status === 'LATE').length,
+    absent: items.filter(i => i.status === 'ABSENT').length,
+    excused: items.filter(i => i.status === 'EXCUSED').length,
+    notMarked: items.filter(i => i.status === 'NOT_MARKED').length
+  };
+
+  return {
+    date: d.toISOString().slice(0, 10),
+    summary,
+    items
+  };
+}
+
+async function saveTeacherAttendance({ teacherId, date, status, checkIn, note }, user, req) {
+  const tId = parseInt(teacherId, 10);
+  const d = date ? new Date(date) : new Date();
+  d.setUTCHours(0, 0, 0, 0);
+
+  const record = await prisma.teacherAttendance.upsert({
+    where: {
+      teacherId_date: {
+        teacherId: tId,
+        date: d
+      }
+    },
+    update: {
+      status: status || 'PRESENT',
+      checkIn: checkIn || null,
+      note: note || null
+    },
+    create: {
+      teacherId: tId,
+      date: d,
+      status: status || 'PRESENT',
+      checkIn: checkIn || null,
+      note: note || null
+    }
+  });
+
+  await logAudit({
+    userId: user?.id,
+    action: 'RECORD_TEACHER_ATTENDANCE',
+    entity: 'TeacherAttendance',
+    entityId: record.id,
+    metadata: { teacherId: tId, status: record.status, checkIn: record.checkIn },
+    req
+  });
+
+  return record;
+}
+
+async function getTeacherActivitySummary() {
+  const teachers = await prisma.teacher.findMany({
+    where: { active: true },
+    include: {
+      teacherLinks: {
+        include: {
+          class: true,
+          subject: true
+        }
+      }
+    }
+  });
+
+  const recentGrades = await prisma.grade.findMany({
+    take: 15,
+    orderBy: { updatedAt: 'desc' },
+    include: {
+      subject: true,
+      class: true,
+      student: true
+    }
+  });
+
+  return {
+    totalActiveTeachers: teachers.length,
+    recentGrades: recentGrades.map(g => ({
+      id: g.id,
+      studentName: `${g.student.firstName} ${g.student.lastName}`,
+      className: g.class?.name || 'Class',
+      subjectName: g.subject.name,
+      examName: g.examName,
+      score: `${g.score}/${g.maxScore}`,
+      date: g.updatedAt
+    }))
+  };
+}
+
 module.exports = {
   getTeachers,
   getTeacherById,
@@ -263,5 +397,8 @@ module.exports = {
   updateTeacher,
   deactivateTeacher,
   assignClassSubject,
-  removeClassSubject
+  removeClassSubject,
+  getTeacherAttendanceToday,
+  saveTeacherAttendance,
+  getTeacherActivitySummary
 };

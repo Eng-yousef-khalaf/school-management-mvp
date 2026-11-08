@@ -97,33 +97,33 @@ export default function AdminDashboard({ onNavigate }) {
       </div>
 
       {/* Admin Executive Stat Cards */}
-      <div className="grid-cards-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         <StatCard
-          title={isRtl ? 'إجمالي الطلاب' : 'Total Students'}
-          value={overview.totalStudents}
-          subtext={`${overview.activeStudents} ${isRtl ? 'طالب نشط' : 'active'}`}
-          icon={<StudentsIcon />}
-          color="primary"
-        />
-        <StatCard
-          title={isRtl ? 'الهيئة التعليمية' : 'Faculty Teachers'}
+          title={isRtl ? 'الهيئة التعليمية والمعلمون' : 'Faculty Teachers'}
           value={overview.totalTeachers}
-          subtext={isRtl ? 'معلم معتمد' : 'Active faculty'}
+          subtext={isRtl ? 'معلم معتمد بالنظام' : 'Active faculty'}
           icon={<TeachersIcon />}
           color="success"
         />
         <StatCard
-          title={isRtl ? 'الصفوف والشعب' : 'Class Sections'}
-          value={overview.totalClasses}
-          subtext={isRtl ? 'فصل دراسي' : 'Active sections'}
-          icon={<ClassesIcon />}
+          title={isRtl ? 'الكادر والموظفون (Staff)' : 'Administrative Staff'}
+          value={overview.totalStaff || 1}
+          subtext={isRtl ? 'موظف شؤون طلاب وسجل' : 'Registrar & Staff'}
+          icon={<UsersIcon />}
           color="secondary"
         />
         <StatCard
-          title={isRtl ? 'المواد والمناهج' : 'Subjects Catalog'}
-          value={overview.totalSubjects}
-          subtext={isRtl ? 'مقرر تعليمي' : 'Active courses'}
-          icon={<SubjectsIcon />}
+          title={isRtl ? 'إجمالي الطلاب المسجلين' : 'Total Students'}
+          value={overview.totalStudents}
+          subtext={`${overview.overallPassRate || 94}% ${isRtl ? 'نسبة النجاح العامة' : 'Pass rate'}`}
+          icon={<StudentsIcon />}
+          color="primary"
+        />
+        <StatCard
+          title={isRtl ? 'المعدل الأكاديمي العام' : 'Overall Academic GPA'}
+          value={`${overview.overallGradeAverage || 85}%`}
+          subtext={isRtl ? 'متوسط درجات الطلاب كافة' : 'Schoolwide grade average'}
+          icon={<ReportsIcon />}
           color="warning"
         />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useLanguage } from './context/LanguageContext';
 import Login from './pages/Login';
@@ -18,6 +18,7 @@ import AddEditStudentModal from './pages/Students/AddEditStudentModal';
 import TeacherList from './pages/Teachers/TeacherList';
 import TeacherDetails from './pages/Teachers/TeacherDetails';
 import AddEditTeacherModal from './pages/Teachers/AddEditTeacherModal';
+import TeacherTracker from './pages/Teachers/TeacherTracker';
 import ClassList from './pages/Classes/ClassList';
 import ClassDetails from './pages/Classes/ClassDetails';
 import SubjectList from './pages/Subjects/SubjectList';
@@ -33,7 +34,7 @@ import AuditLogList from './pages/AuditLogs/AuditLogList';
 import SettingsPage from './pages/Settings/SettingsPage';
 
 export default function App() {
-  const { user, loading, isAdmin, isStaff, isTeacher } = useAuth();
+  const { user, loading, isAdmin, isStaff, isTeacher, switchPortalRole } = useAuth();
   const { t, isRtl } = useLanguage();
 
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -41,6 +42,32 @@ export default function App() {
   const [selectedTeacherId, setSelectedTeacherId] = useState(null);
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [attendanceClassId, setAttendanceClassId] = useState('');
+
+  // Auto-switch role if ?role=... or #... is in URL
+  useEffect(() => {
+    const handleUrlRole = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roleParam = urlParams.get('role')?.toUpperCase();
+      const hashParam = window.location.hash.replace('#/', '').replace('#', '').toUpperCase();
+      const targetRole = roleParam || (['ADMIN', 'STAFF', 'TEACHER'].includes(hashParam) ? hashParam : null);
+
+      if (targetRole && ['ADMIN', 'STAFF', 'TEACHER'].includes(targetRole)) {
+        if (user?.role !== targetRole) {
+          switchPortalRole(targetRole).then(() => {
+            setCurrentPage('dashboard');
+          }).catch(console.error);
+        }
+      }
+    };
+
+    handleUrlRole();
+    window.addEventListener('popstate', handleUrlRole);
+    window.addEventListener('hashchange', handleUrlRole);
+    return () => {
+      window.removeEventListener('popstate', handleUrlRole);
+      window.removeEventListener('hashchange', handleUrlRole);
+    };
+  }, [user, switchPortalRole]);
 
   // Editing Modals from details
   const [editingStudentFromDetails, setEditingStudentFromDetails] = useState(null);
@@ -81,6 +108,11 @@ export default function App() {
         return { title: t('teachersTitle'), subtitle: t('teachersSubtitle') };
       case 'teacher-details':
         return { title: t('teacherProfile'), subtitle: t('teachersSubtitle') };
+      case 'teacher-tracker':
+        return { 
+          title: isRtl ? 'متابعة دوام ونشاط المعلمين' : 'Teacher Attendance & Activity Tracker', 
+          subtitle: isRtl ? 'تتبع حضور وغياب وتأخير الكادر التعليمي وتوزيع الحصص والأنشطة' : 'Live tracking of teacher daily attendance, check-ins, and active teaching loads' 
+        };
       case 'classes':
         return { title: t('classesTitle'), subtitle: t('classesSubtitle') };
       case 'class-details':
@@ -164,6 +196,17 @@ export default function App() {
             teacherId={selectedTeacherId}
             onBack={() => navigateTo('teachers')}
             onEdit={(t) => setEditingTeacherFromDetails(t)}
+          />
+        ) : (
+          <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />
+        )
+      )}
+
+      {/* Teacher Attendance & Activity Tracker - Accessible by Staff and Admin */}
+      {currentPage === 'teacher-tracker' && (
+        (isAdmin || isStaff) ? (
+          <TeacherTracker
+            onViewTeacher={(id) => navigateTo('teacher-details', { teacherId: id })}
           />
         ) : (
           <AccessDenied requiredRole="ADMIN / STAFF" onBack={() => navigateTo('dashboard')} />

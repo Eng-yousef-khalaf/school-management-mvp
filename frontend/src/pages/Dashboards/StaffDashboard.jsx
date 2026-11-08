@@ -28,12 +28,18 @@ export default function StaffDashboard({ onNavigate }) {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
+  const [teacherAttSummary, setTeacherAttSummary] = useState(null);
+
   const loadDashboard = async () => {
     try {
       setLoading(true);
       setError('');
-      const res = await api.get('/dashboard');
+      const [res, tAttRes] = await Promise.all([
+        api.get('/dashboard'),
+        api.get('/teachers/attendance/today').catch(() => null)
+      ]);
       setData(res);
+      if (tAttRes) setTeacherAttSummary(tAttRes.summary);
     } catch (err) {
       setError(err.message || 'Failed to load staff metrics');
     } finally {
@@ -93,35 +99,91 @@ export default function StaffDashboard({ onNavigate }) {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
             <span>📋</span>
-            <span>{isRtl ? 'بوابة شؤون الطلاب والتسجيل' : 'Registrar & Admissions Portal'}</span>
+            <span>{isRtl ? 'بوابة شؤون الطلاب والتسجيل والموظفين' : 'Registrar & Admissions Portal'}</span>
           </div>
           <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>
-            {isRtl ? `أهلاً بك، ${user?.fullName || ''} (مسؤول السجل الأكاديمي)` : `Welcome, ${user?.fullName || ''} (Registrar Staff)`}
+            {isRtl ? `أهلاً بك، ${user?.fullName || ''} (شؤون الطلاب والمتابعة)` : `Welcome, ${user?.fullName || ''} (Registrar Staff)`}
           </h2>
           <p style={{ margin: '6px 0 0', opacity: 0.9, fontSize: 14 }}>
             {isRtl
-              ? 'إدارة قبول وتسجيل الطلاب، استيراد بيانات Excel، توزيع الفصول، واستخراج التقارير الشاملة'
-              : 'Manage student admissions, Excel bulk import, class section placements, and institutional reporting'}
+              ? 'تسجيل وتسكين الطلاب، متابعة حضور وحالة المعلمين، واستعراض نتائج وتقارير الدرجات الجاهزة'
+              : 'Manage student admissions, section enrollments, track teacher daily attendance, and review final grade transcripts'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button
-            onClick={() => onNavigate('students')}
+            onClick={() => onNavigate('teacher-tracker')}
             className="btn"
-            style={{ background: '#fff', color: '#059669', fontWeight: 700 }}
+            style={{ background: '#fff', color: '#059669', fontWeight: 800 }}
           >
-            <PlusIcon /> {isRtl ? 'إدارة الطلاب واستيراد Excel' : 'Students & Excel Import'}
+            🕒 {isRtl ? 'متابعة المعلمين والدوام' : 'Track Teachers'}
           </button>
           <button
-            onClick={() => onNavigate('enrollment')}
+            onClick={() => onNavigate('grade-reports')}
             className="btn"
             style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
           >
-            <EnrollmentIcon /> {isRtl ? 'تسكين الفصول' : 'Class Enrollment'}
+            📊 {isRtl ? 'النتائج والشهادات الجاهزة' : 'Ready Grade Reports'}
+          </button>
+          <button
+            onClick={() => onNavigate('students')}
+            className="btn"
+            style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', fontWeight: 700 }}
+          >
+            <PlusIcon /> {isRtl ? 'تسجيل الطلاب' : 'Register Students'}
           </button>
         </div>
       </div>
+
+      {/* Teacher Daily Presence Tracker Card */}
+      {teacherAttSummary && (
+        <div style={{
+          background: '#fff',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '20px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 16,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 20 }}>👨‍🏫</span>
+              <h4 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+                {isRtl ? 'حالة دوام وحضور المعلمين اليوم:' : "Today's Teacher Attendance Status:"}
+              </h4>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              {isRtl
+                ? `إجمالي الهيئة التعليمية: ${teacherAttSummary.total} معلماً | حاضر: ${teacherAttSummary.present} | متأخر: ${teacherAttSummary.late} | غائب / إجازة: ${teacherAttSummary.absent + teacherAttSummary.excused}`
+                : `Total Faculty: ${teacherAttSummary.total} | Present: ${teacherAttSummary.present} | Late: ${teacherAttSummary.late} | Absent/Excused: ${teacherAttSummary.absent + teacherAttSummary.excused}`}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span className="badge" style={{ background: 'var(--success-light)', color: 'var(--success)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+              🟢 {teacherAttSummary.present} {isRtl ? 'حاضر' : 'Present'}
+            </span>
+            <span className="badge" style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+              🟡 {teacherAttSummary.late} {isRtl ? 'متأخر' : 'Late'}
+            </span>
+            <span className="badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)', fontWeight: 700, padding: '6px 12px', fontSize: 13 }}>
+              🔴 {teacherAttSummary.absent} {isRtl ? 'غائب' : 'Absent'}
+            </span>
+            <button
+              onClick={() => onNavigate('teacher-tracker')}
+              className="btn btn-primary btn-sm"
+              style={{ fontWeight: 700, marginRight: isRtl ? 8 : 0, marginLeft: isRtl ? 0 : 8 }}
+            >
+              {isRtl ? 'فتح سجل المتابعة التفصيلي ←' : 'Open Tracker →'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Parent & Student Rapid Inquiry Widget */}
       <div className="panel" style={{ padding: '24px', border: '2px solid rgba(16, 185, 129, 0.25)', borderRadius: 'var(--radius-lg)', background: '#fff' }}>
@@ -359,6 +421,34 @@ export default function StaffDashboard({ onNavigate }) {
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               {isRtl ? 'متابعة نسب الغياب واستخراج كشوف الحضور الشهرية' : 'Monitor absenteeism and export monthly attendance'}
+            </span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('teacher-tracker')}
+            className="btn"
+            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0d9488', fontWeight: 700, fontSize: 15 }}>
+              <span>🕒</span>
+              <span>{isRtl ? 'سجل متابعة حضور المعلمين' : 'Teacher Presence Tracker'}</span>
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              {isRtl ? 'تتبع حضور وتأخير وغياب المعلمين وتسجيل الملاحظات' : 'Monitor teacher check-ins, punctuality, and leaves'}
+            </span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('grade-reports')}
+            className="btn"
+            style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, height: 'auto' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', fontWeight: 700, fontSize: 15 }}>
+              <span>📊</span>
+              <span>{isRtl ? 'كشوف النتائج والشهادات الجاهزة' : 'Ready Grade Reports'}</span>
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              {isRtl ? 'استعراض درجات الطلاب المرفوعة من المعلمين واستخراج الشهادات' : 'Review submitted student exam grades and transcripts'}
             </span>
           </button>
 
